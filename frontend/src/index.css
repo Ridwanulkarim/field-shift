@@ -8,73 +8,83 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #04140d;
+    background-color: #06111F;
     background-image: 
-      radial-gradient(ellipse at 50% 0%, #0e3b24 0%, transparent 65%),
-      radial-gradient(circle at 15% 35%, #08291a 0%, transparent 45%),
-      radial-gradient(circle at 85% 75%, #062316 0%, transparent 45%);
+      radial-gradient(ellipse 90% 60% at 50% -10%, #0e2b47 0%, transparent 70%),
+      radial-gradient(circle 600px at 15% 25%, #0B1F33 0%, transparent 60%),
+      radial-gradient(circle 500px at 85% 65%, #0B3D3A 0%, transparent 60%),
+      radial-gradient(ellipse 80% 50% at 50% 100%, #05241f 0%, transparent 70%),
+      linear-gradient(180deg, #06111F 0%, #071929 40%, #072528 75%, #051a1b 100%);
     background-attachment: fixed;
-    color: #f0fdf4;
+    color: #f1f5f9;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom agricultural scrollbars */
+/* Subtle satellite orbital grid overlay */
+.bg-satellite-grid {
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* High-tech NASA / Agro telemetry scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #04140d;
+  background: #06111F;
 }
 ::-webkit-scrollbar-thumb {
-  background: #0f3d27;
+  background: #0e2a44;
   border-radius: 4px;
-  border: 2px solid #04140d;
+  border: 2px solid #06111F;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #165b38;
+  background: #143e66;
 }
 
-/* Leaflet Map overrides for botanical dark theme */
+/* Leaflet Map overrides for NASA deep navy & satellite theme */
 .leaflet-container {
-  background-color: #04140d !important;
+  background-color: #06111F !important;
   font-family: var(--font-sans) !important;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  background: #092619 !important;
-  color: #f0fdf4 !important;
-  border: 1px solid rgba(52, 211, 153, 0.25) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+  background: #0a1c2e !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75) !important;
 }
 
 .leaflet-control-layers {
-  background: #092619 !important;
-  color: #f0fdf4 !important;
-  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+  background: #0a1c2e !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
   border-radius: 12px !important;
-  padding: 6px 10px !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
 }
 
 .leaflet-control-layers label {
-  color: #ecfdf5 !important;
+  color: #e2e8f0 !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
 }
 
 .leaflet-bar a {
-  background-color: #092619 !important;
-  color: #34d399 !important;
-  border-bottom: 1px solid rgba(52, 211, 153, 0.2) !important;
+  background-color: #0a1c2e !important;
+  color: #38bdf8 !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2) !important;
 }
 
 .leaflet-bar a:hover {
-  background-color: #0e3b24 !important;
-  color: #6ee7b7 !important;
+  background-color: #112d4a !important;
+  color: #34d399 !important;
 }
 

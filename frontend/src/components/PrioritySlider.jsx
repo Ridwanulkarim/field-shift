@@ -36,10 +36,10 @@ export default function PrioritySlider({
   };
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
+    <div className="bg-[#0a1c2e]/90 border border-sky-500/25 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/35 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-sky-800/40">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+          <span className="text-xs font-bold uppercase tracking-wider text-sky-400 block mb-1">
             Spec Section 37 & 39 Farmer Priorities
           </span>
           <h3 className="text-xl font-extrabold text-white tracking-tight">
@@ -47,18 +47,18 @@ export default function PrioritySlider({
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-medium">
+          <span className="text-xs px-3 py-1 rounded-full bg-sky-950/80 border border-sky-700/60 text-sky-300 font-medium">
             Active: <strong className="text-white">{fieldName}</strong>
           </span>
         </div>
       </div>
 
       {/* Explanatory Banner: Section 39 Natural 1.0x to 2.0x Multiplier Mechanism */}
-      <div className="bg-[#042116]/90 border border-emerald-600/40 rounded-xl p-3.5 mb-6 text-xs text-emerald-100 shadow-sm">
+      <div className="bg-[#071d33]/90 border border-sky-500/40 rounded-xl p-3.5 mb-6 text-xs text-sky-100 shadow-sm">
         <p className="flex items-start gap-2.5">
-          <span className="text-emerald-400 text-base leading-none mt-0.5">ℹ</span>
+          <span className="text-sky-400 text-base leading-none mt-0.5">ℹ</span>
           <span className="leading-relaxed">
-            <strong className="font-bold text-emerald-300">NASA Climate Weighting:</strong> Regional satellite stress metrics automatically scale your water and heat priorities via <code className="bg-[#03140c] px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[11px]">weight = priority × (1 + stress)</code>. When stress is severe, NASA data amplifies that priority up to <strong>2.0×</strong> to protect farm yield.
+            <strong className="font-bold text-sky-300">NASA Climate Weighting:</strong> Regional satellite stress metrics automatically scale your water and heat priorities via <code className="bg-[#040e1a] px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[11px]">weight = priority × (1 + stress)</code>. When stress is severe, NASA data amplifies that priority up to <strong>2.0×</strong> to protect farm yield.
           </span>
         </p>
       </div>
@@ -66,7 +66,7 @@ export default function PrioritySlider({
       {/* Grid of 5 Sliders */}
       <div className="space-y-5">
         {/* 1. WATER CONSERVATION PRIORITY */}
-        <div className="bg-[#051d12]/80 border border-cyan-800/40 rounded-xl p-4 transition-colors hover:border-cyan-700/60 shadow-sm">
+        <div className="bg-[#071626]/85 border border-cyan-800/40 rounded-xl p-4 transition-colors hover:border-cyan-700/60 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <span className="text-lg">💧</span>
@@ -84,7 +84,7 @@ export default function PrioritySlider({
               <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
                 {waterMultiplier.toFixed(2)}× Multiplier
               </span>
-              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-cyan-400 text-[#04140d]">
+              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-cyan-400 text-[#06111F]">
                 Eff. Weight: {effectiveWaterWeight}
               </span>
             </div>
@@ -97,11 +97,11 @@ export default function PrioritySlider({
               step="1"
               value={priorities.water}
               onChange={(e) => handlePriorityChange('water', e.target.value)}
-              className="w-full accent-cyan-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
+              className="w-full accent-cyan-400 cursor-pointer h-2 bg-[#040e1a] rounded-lg appearance-none"
             />
             <span className="text-sm font-black text-cyan-300 w-4 text-center">{priorities.water}</span>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-emerald-300/50 font-mono">
+          <div className="mt-2 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>1 (Minimal water concern)</span>
             <span>Current NASA Adjusted Stress: {(safeWaterStress * 100).toFixed(1)}% {irrigationAvailable ? '(Irrigation factor 0.7 applied)' : '(Rainfed)'}</span>
             <span>5 (Critical water saving)</span>
@@ -109,7 +109,7 @@ export default function PrioritySlider({
         </div>
 
         {/* 2. HEAT AVOIDANCE PRIORITY */}
-        <div className="bg-[#051d12]/80 border border-amber-800/40 rounded-xl p-4 transition-colors hover:border-amber-700/60 shadow-sm">
+        <div className="bg-[#071626]/85 border border-amber-800/40 rounded-xl p-4 transition-colors hover:border-amber-700/60 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <span className="text-lg">🔥</span>
@@ -127,7 +127,7 @@ export default function PrioritySlider({
               <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
                 {heatMultiplier.toFixed(2)}× Multiplier
               </span>
-              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-amber-400 text-[#04140d]">
+              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-amber-400 text-[#06111F]">
                 Eff. Weight: {effectiveHeatWeight}
               </span>
             </div>
@@ -140,11 +140,11 @@ export default function PrioritySlider({
               step="1"
               value={priorities.heat}
               onChange={(e) => handlePriorityChange('heat', e.target.value)}
-              className="w-full accent-amber-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
+              className="w-full accent-amber-400 cursor-pointer h-2 bg-[#040e1a] rounded-lg appearance-none"
             />
             <span className="text-sm font-black text-amber-300 w-4 text-center">{priorities.heat}</span>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-emerald-300/50 font-mono">
+          <div className="mt-2 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>1 (Ignore heat stress)</span>
             <span>Current NASA Heat Stress Index: {(safeHeatStress * 100).toFixed(1)}%</span>
             <span>5 (Critical thermal tolerance)</span>
@@ -152,7 +152,7 @@ export default function PrioritySlider({
         </div>
 
         {/* 3. SOIL HEALTH PRIORITY */}
-        <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 transition-colors hover:border-emerald-700/60 shadow-sm">
+        <div className="bg-[#071626]/85 border border-sky-800/50 rounded-xl p-4 transition-colors hover:border-sky-700/60 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <span className="text-lg">🌿</span>
@@ -164,10 +164,10 @@ export default function PrioritySlider({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:justify-end">
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-200 border border-emerald-800/80">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-sky-950/90 text-sky-200 border border-sky-800/80">
                 Level {priorities.soil}/5
               </span>
-              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#04140d]">
+              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#06111F]">
                 Weight: {priorities.soil.toFixed(2)}
               </span>
             </div>
@@ -180,11 +180,11 @@ export default function PrioritySlider({
               step="1"
               value={priorities.soil}
               onChange={(e) => handlePriorityChange('soil', e.target.value)}
-              className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
+              className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#040e1a] rounded-lg appearance-none"
             />
             <span className="text-sm font-black text-emerald-300 w-4 text-center">{priorities.soil}</span>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-emerald-300/50 font-mono">
+          <div className="mt-2 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>1 (Low soil replenishment)</span>
             <span>Fixed Weight (Not altered by NASA stress)</span>
             <span>5 (Maximum organic replenishment)</span>
@@ -192,7 +192,7 @@ export default function PrioritySlider({
         </div>
 
         {/* 4. CROP DIVERSITY PRIORITY */}
-        <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 transition-colors hover:border-emerald-700/60 shadow-sm">
+        <div className="bg-[#071626]/85 border border-sky-800/50 rounded-xl p-4 transition-colors hover:border-sky-700/60 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <span className="text-lg">🔄</span>
@@ -204,10 +204,10 @@ export default function PrioritySlider({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:justify-end">
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-200 border border-emerald-800/80">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-sky-950/90 text-sky-200 border border-sky-800/80">
                 Level {priorities.diversity}/5
               </span>
-              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#04140d]">
+              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#06111F]">
                 Weight: {priorities.diversity.toFixed(2)}
               </span>
             </div>
@@ -220,11 +220,11 @@ export default function PrioritySlider({
               step="1"
               value={priorities.diversity}
               onChange={(e) => handlePriorityChange('diversity', e.target.value)}
-              className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
+              className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#040e1a] rounded-lg appearance-none"
             />
             <span className="text-sm font-black text-emerald-300 w-4 text-center">{priorities.diversity}</span>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-emerald-300/50 font-mono">
+          <div className="mt-2 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>1 (Allow consecutive crop families)</span>
             <span>Fixed Weight (Spec Section 31 Family Ratio)</span>
             <span>5 (Strict botanical family rotation)</span>
@@ -232,7 +232,7 @@ export default function PrioritySlider({
         </div>
 
         {/* 5. MARKET PROFITABILITY PRIORITY */}
-        <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 transition-colors hover:border-emerald-700/60 shadow-sm">
+        <div className="bg-[#071626]/85 border border-sky-800/50 rounded-xl p-4 transition-colors hover:border-sky-700/60 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <span className="text-lg">💰</span>
@@ -244,10 +244,10 @@ export default function PrioritySlider({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:justify-end">
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-200 border border-emerald-800/80">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-sky-950/90 text-sky-200 border border-sky-800/80">
                 Level {priorities.profitability}/5
               </span>
-              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#04140d]">
+              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#06111F]">
                 Weight: {priorities.profitability.toFixed(2)}
               </span>
             </div>
@@ -260,11 +260,11 @@ export default function PrioritySlider({
               step="1"
               value={priorities.profitability}
               onChange={(e) => handlePriorityChange('profitability', e.target.value)}
-              className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
+              className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#040e1a] rounded-lg appearance-none"
             />
             <span className="text-sm font-black text-emerald-300 w-4 text-center">{priorities.profitability}</span>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-emerald-300/50 font-mono">
+          <div className="mt-2 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>1 (Subsistence / low financial pressure)</span>
             <span>Dropped if crop profitability is unverified (Spec Section 36)</span>
             <span>5 (High cash-crop commercial focus)</span>

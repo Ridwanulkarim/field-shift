@@ -190,38 +190,38 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
   return (
     <div className="space-y-6">
       {/* Top Header & Context */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-emerald-800/40">
+      <div className="bg-[#0a1c2e]/90 border border-sky-500/25 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/35 backdrop-blur-md">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-sky-800/40">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-sky-400 block mb-1">
               Spec Section 40 & 55 Decision Support Matrix
             </span>
             <h2 className="text-2xl font-extrabold text-white tracking-tight">
               Rotation Comparison & NASA Ranking Shift
             </h2>
-            <p className="text-xs text-emerald-300/70 mt-1 max-w-3xl leading-relaxed">
+            <p className="text-xs text-sky-300/70 mt-1 max-w-3xl leading-relaxed">
               Demonstrates how NASA satellite stress multipliers dynamically flip the recommendation ranking between dry Barind terraces and irrigated alluvial plains.
             </p>
           </div>
 
           {/* Mode Switcher */}
-          <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
+          <div className="inline-flex rounded-xl bg-[#071626] p-1 border border-sky-800/60 text-xs">
             <button
               onClick={() => setDemoMode('section40_fixture')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
                 demoMode === 'section40_fixture'
-                  ? 'bg-emerald-500 text-white shadow-sm'
-                  : 'text-emerald-300/70 hover:text-white'
+                  ? 'bg-sky-500 text-white shadow-sm'
+                  : 'text-slate-300/70 hover:text-white'
               }`}
             >
               📐 Section 40 Canonical Fixture (80/40 vs 40/80)
             </button>
             <button
               onClick={() => setDemoMode('bangladesh_crops')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
                 demoMode === 'bangladesh_crops'
-                  ? 'bg-emerald-500 text-white shadow-sm'
-                  : 'text-emerald-300/70 hover:text-white'
+                  ? 'bg-sky-500 text-white shadow-sm'
+                  : 'text-slate-300/70 hover:text-white'
               }`}
             >
               🌾 Live Bangladesh Crops (Chickpea vs Wheat)
@@ -232,17 +232,17 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
         {/* Field & Environmental Stress Controller */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
           {/* Active Field Picker */}
-          <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5 shadow-sm">
-            <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block mb-2">
+          <div className="bg-[#071626]/90 border border-sky-800/60 rounded-xl p-3.5 shadow-sm">
+            <span className="text-[11px] font-bold text-sky-400 uppercase tracking-wider block mb-2">
               Select Comparison Field Context
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => { setActiveFieldId(1); setIsIrrigatedOverride(null); }}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all text-left border ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer ${
                   activeFieldId === 1
-                    ? 'bg-emerald-500/25 border-emerald-400 text-white ring-1 ring-emerald-500/50'
-                    : 'bg-[#03140c] border-emerald-800/50 text-emerald-300/70 hover:text-white'
+                    ? 'bg-sky-500/25 border-sky-400 text-white ring-1 ring-sky-500/50'
+                    : 'bg-[#040e1a] border-sky-800/50 text-slate-300/70 hover:text-white'
                 }`}
               >
                 <div className="font-extrabold">Field #1 (Barind)</div>
@@ -250,10 +250,10 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
               </button>
               <button
                 onClick={() => { setActiveFieldId(2); setIsIrrigatedOverride(null); }}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all text-left border ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer ${
                   activeFieldId === 2
-                    ? 'bg-emerald-500/25 border-emerald-400 text-white ring-1 ring-emerald-500/50'
-                    : 'bg-[#03140c] border-emerald-800/50 text-emerald-300/70 hover:text-white'
+                    ? 'bg-sky-500/25 border-sky-400 text-white ring-1 ring-sky-500/50'
+                    : 'bg-[#040e1a] border-sky-800/50 text-slate-300/70 hover:text-white'
                 }`}
               >
                 <div className="font-extrabold">Field #2 (Dinajpur)</div>
@@ -263,8 +263,8 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
           </div>
 
           {/* NASA Satellite Climate Stress Display */}
-          <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block mb-1">
+          <div className="bg-[#071626]/90 border border-sky-800/60 rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+            <span className="text-[11px] font-bold text-sky-400 uppercase tracking-wider block mb-1">
               Active NASA Stress Multipliers
             </span>
             <div className="space-y-1.5 text-xs">
@@ -281,21 +281,21 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
                 </span>
               </div>
             </div>
-            <div className="text-[10px] text-emerald-300/50 italic pt-1 border-t border-emerald-900/50">
+            <div className="text-[10px] text-slate-400 italic pt-1 border-t border-sky-900/50">
               Formula: <code>1 + stress</code> (Natural 1.0×–2.0× range)
             </div>
           </div>
 
           {/* Fixture 3: Irrigation Access Toggle */}
-          <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block mb-1">
+          <div className="bg-[#071626]/90 border border-sky-800/60 rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+            <span className="text-[11px] font-bold text-sky-400 uppercase tracking-wider block mb-1">
               Spec Fixture 3 Irrigation Override
             </span>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs text-emerald-200">Irrigation Access:</span>
+              <span className="text-xs text-slate-300">Irrigation Access:</span>
               <button
                 onClick={() => setIsIrrigatedOverride(!effectiveIrrigation)}
-                className={`px-3 py-1 rounded-full text-xs font-bold border transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                   effectiveIrrigation
                     ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
                     : 'bg-amber-500/20 text-amber-300 border-amber-500/50'
@@ -304,15 +304,15 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
                 {effectiveIrrigation ? '✓ Irrigated (0.7x Factor)' : '✕ Rainfed (Raw Stress)'}
               </button>
             </div>
-            <p className="text-[10px] text-emerald-300/60 leading-tight">
+            <p className="text-[10px] text-slate-400 leading-tight">
               Toggling isolates irrigation relaxation without changing NASA satellite inputs.
             </p>
           </div>
         </div>
 
         {/* Live Priority Sliders for Section 40 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-emerald-800/30">
-          <div className="bg-[#04180e] p-3 rounded-xl border border-cyan-800/40">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-sky-800/30">
+          <div className="bg-[#040e1a] p-3 rounded-xl border border-cyan-800/40">
             <div className="flex justify-between items-center text-xs mb-1.5">
               <span className="font-bold text-cyan-300">Water Priority (p_water):</span>
               <span className="font-mono font-bold text-white bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
@@ -326,11 +326,11 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
               step="1"
               value={waterPriority}
               onChange={(e) => setWaterPriority(Number(e.target.value))}
-              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-[#03140c] rounded-lg"
+              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-[#071626] rounded-lg"
             />
           </div>
 
-          <div className="bg-[#04180e] p-3 rounded-xl border border-amber-800/40">
+          <div className="bg-[#040e1a] p-3 rounded-xl border border-amber-800/40">
             <div className="flex justify-between items-center text-xs mb-1.5">
               <span className="font-bold text-amber-300">Heat Priority (p_heat):</span>
               <span className="font-mono font-bold text-white bg-amber-950 px-2 py-0.5 rounded border border-amber-800">
@@ -344,7 +344,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
               step="1"
               value={heatPriority}
               onChange={(e) => setHeatPriority(Number(e.target.value))}
-              className="w-full accent-amber-400 cursor-pointer h-1.5 bg-[#03140c] rounded-lg"
+              className="w-full accent-amber-400 cursor-pointer h-1.5 bg-[#071626] rounded-lg"
             />
           </div>
         </div>
@@ -353,17 +353,17 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
       {/* Ranking Shift Banner */}
       <div className={`p-4 rounded-2xl border shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
         isField1
-          ? 'bg-[#082a1b] border-emerald-500/50 text-emerald-100'
-          : 'bg-[#062125] border-cyan-500/50 text-cyan-100'
+          ? 'bg-[#07243b]/95 border-sky-500/50 text-sky-100'
+          : 'bg-[#06242c]/95 border-teal-500/50 text-teal-100'
       }`}>
         <div className="flex items-center gap-3">
           <span className="text-2xl">{isAWinner ? '🌱' : '🌾'}</span>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wider font-bold text-emerald-400">
+              <span className="text-xs uppercase tracking-wider font-bold text-sky-300">
                 NASA Ranking Inversion Proved:
               </span>
-              <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-[#03130b] text-white">
+              <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-[#040e1a] text-white">
                 Δ = {scoreDelta} pts
               </span>
             </div>
@@ -375,8 +375,8 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
           </div>
         </div>
         <div className="text-right">
-          <span className="text-[11px] text-emerald-300/70 block">Spec Section 50 Label:</span>
-          <span className="text-xs font-black text-emerald-300 bg-emerald-950/90 px-3 py-1 rounded-full border border-emerald-700/60 inline-block mt-0.5">
+          <span className="text-[11px] text-slate-400 block">Spec Section 50 Label:</span>
+          <span className="text-xs font-black text-sky-300 bg-sky-950/90 px-3 py-1 rounded-full border border-sky-700/60 inline-block mt-0.5">
             🏆 Highest-scoring rotation: {isAWinner ? 'Option A' : 'Option B'}
           </span>
         </div>
@@ -400,7 +400,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
         <div>
           {isLoadingApi ? (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-              <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mb-3"></div>
+              <div className="w-8 h-8 border-2 border-sky-400 border-t-transparent rounded-full animate-spin mb-3"></div>
               <p className="text-sm font-medium">Calculating real Bangladesh crop rotations via POST /api/rotations/compare...</p>
             </div>
           ) : apiComparison?.rotations ? (
@@ -415,7 +415,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-xs text-emerald-300/70">
+            <div className="text-center py-12 text-xs text-slate-400">
               No comparison data available.
             </div>
           )}
