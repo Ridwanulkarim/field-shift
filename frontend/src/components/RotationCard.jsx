@@ -54,20 +54,20 @@ export default function RotationCard({
   );
 
   return (
-    <div className={`bg-[#0a1c2e]/90 border rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/35 backdrop-blur-md transition-all ${
-      isTopCandidate ? 'border-sky-400/60 ring-2 ring-sky-500/40 shadow-sky-500/10' : 'border-sky-500/25'
+    <div className={`bg-[#092619]/90 border rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
+      isTopCandidate ? 'border-emerald-400/60 ring-2 ring-emerald-500/40 shadow-emerald-500/10' : 'border-emerald-500/20'
     }`}>
       {/* Top Header: Rank & Feasibility */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-sky-800/40">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-emerald-800/40">
         <div className="flex items-center gap-2 flex-wrap">
           {/* Spec Section 50: Strictly "Highest-scoring rotation", NEVER "Best rotation" */}
           {isTopCandidate ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-sky-500/20 text-sky-300 border border-sky-400/50 shadow-sm">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               🏆 Highest-scoring rotation
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#071626] text-sky-300 border border-sky-800/60">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#051d12] text-emerald-300 border border-emerald-800/60">
               Rank #{rank} Candidate
             </span>
           )}
@@ -98,28 +98,28 @@ export default function RotationCard({
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center mb-6">
         {/* Left: Seasonal Crop Flow */}
         <div className="md:col-span-8 space-y-3">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-sky-400 block mb-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block mb-2">
             Seasonal Crop Progression ({sequence.length} Seasons)
           </span>
 
           <div className="flex flex-wrap items-center gap-2.5">
             {sequence.map((item, idx) => (
               <React.Fragment key={idx}>
-                <div className="bg-[#071626]/90 border border-sky-800/60 rounded-xl p-3 shadow-sm min-w-[140px] flex-1">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-sky-400/80 mb-1">
+                <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3 shadow-sm min-w-[140px] flex-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400/80 mb-1">
                     <span>{item.season}</span>
                     {item.duration_days && <span>{item.duration_days}d</span>}
                   </div>
                   <div className="text-sm font-extrabold text-white truncate" title={item.crop_name || item.name}>
                     {item.crop_name || item.name}
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
+                  <div className="text-[11px] text-emerald-300/70 mt-0.5">
                     {item.crop_family || item.family}
                   </div>
                 </div>
 
                 {idx < sequence.length - 1 && (
-                  <div className="text-sky-400/70 font-black text-lg px-1 select-none">
+                  <div className="text-emerald-500/70 font-black text-lg px-1 select-none">
                     →
                   </div>
                 )}
@@ -135,7 +135,7 @@ export default function RotationCard({
         </div>
 
         {/* Right: Circular Score Gauge */}
-        <div className="md:col-span-4 flex flex-col items-center justify-center bg-[#071626]/60 border border-sky-800/40 rounded-2xl p-4">
+        <div className="md:col-span-4 flex flex-col items-center justify-center bg-[#051d12]/60 border border-emerald-800/40 rounded-2xl p-4">
           <div className="relative w-28 h-28 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               <circle
@@ -143,7 +143,7 @@ export default function RotationCard({
                 cy="50"
                 r="40"
                 fill="none"
-                stroke="#06111F"
+                stroke="#04140d"
                 strokeWidth="8"
               />
               <circle
@@ -163,20 +163,20 @@ export default function RotationCard({
               <span className="text-2xl font-black text-white leading-none tabular-nums">
                 {score}
               </span>
-              <span className="text-[10px] text-slate-400 font-semibold mt-0.5">
+              <span className="text-[10px] text-emerald-300/60 font-semibold mt-0.5">
                 / 100 pts
               </span>
             </div>
           </div>
-          <span className="text-xs font-bold text-sky-200 mt-2 text-center">
+          <span className="text-xs font-bold text-emerald-200 mt-2 text-center">
             Overall Rotation Score
           </span>
         </div>
       </div>
 
       {/* Component Breakdown Bars */}
-      <div className="space-y-2.5 mb-5 pt-4 border-t border-sky-800/30">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-sky-400 block mb-1">
+      <div className="space-y-2.5 mb-5 pt-4 border-t border-emerald-800/30">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
           Component Scores & Effective NASA Weightings
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -184,9 +184,9 @@ export default function RotationCard({
             const hasScore = comp.score != null;
             const val = hasScore ? Math.round(comp.score * 10) / 10 : 0;
             return (
-              <div key={comp.name} className="bg-[#071626]/85 border border-sky-800/40 rounded-xl p-3 shadow-sm">
+              <div key={comp.name} className="bg-[#051d12]/80 border border-emerald-800/40 rounded-xl p-3 shadow-sm">
                 <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="flex items-center gap-1 text-slate-200 font-medium">
+                  <span className="flex items-center gap-1 text-emerald-100 font-medium">
                     <span>{comp.icon}</span> {comp.name}
                   </span>
                   <span className="font-extrabold text-white font-mono">
@@ -194,16 +194,16 @@ export default function RotationCard({
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-[#040e1a] rounded-full h-1.5 overflow-hidden mb-1.5">
+                <div className="w-full bg-[#03130b] rounded-full h-1.5 overflow-hidden mb-1.5">
                   <div
                     className={`h-full ${comp.color} rounded-full transition-all duration-500`}
                     style={{ width: `${hasScore ? Math.min(100, Math.max(0, val)) : 0}%` }}
                   ></div>
                 </div>
                 {comp.weight != null && (
-                  <div className="text-[10px] text-slate-400 font-mono flex justify-between">
+                  <div className="text-[10px] text-emerald-300/60 font-mono flex justify-between">
                     <span>Eff. Wt:</span>
-                    <span className="text-sky-300 font-bold">{Number(comp.weight).toFixed(2)}</span>
+                    <span className="text-emerald-200 font-bold">{Number(comp.weight).toFixed(2)}</span>
                   </div>
                 )}
               </div>
@@ -213,26 +213,26 @@ export default function RotationCard({
       </div>
 
       {/* Expandable Section 49 Traceability Drawer Toggle */}
-      <div className="pt-3 border-t border-sky-800/40">
+      <div className="pt-3 border-t border-emerald-800/40">
         <button
           onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-          className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#071626] hover:bg-[#0c2339] border border-sky-800/50 text-xs font-semibold text-sky-200 transition-all shadow-sm cursor-pointer"
+          className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/50 text-xs font-semibold text-emerald-200 transition-all shadow-sm"
         >
           <span className="flex items-center gap-2">
             <span>🔍</span>
             <span>Spec Section 49 Agronomic Traceability & Audit Trail</span>
           </span>
-          <span className="text-sky-400 font-bold font-mono">
+          <span className="text-emerald-400 font-bold font-mono">
             {isDrawerOpen ? '▲ Hide Details' : '▼ View 8 Sub-Objects'}
           </span>
         </button>
 
         {/* Drawer Content */}
         {isDrawerOpen && rotation.explanation && (
-          <div className="mt-3 bg-[#040e1a] border border-sky-800/60 rounded-xl p-5 text-xs space-y-4 shadow-inner">
-            <div className="flex items-center justify-between pb-3 border-b border-sky-800/40">
+          <div className="mt-3 bg-[#03140c] border border-emerald-800/60 rounded-xl p-5 text-xs space-y-4 shadow-inner">
+            <div className="flex items-center justify-between pb-3 border-b border-emerald-800/40">
               <span className="font-bold text-white text-sm">Decision-Support Agronomic Audit Trail</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
                 Scoring Engine: v6.2
               </span>
             </div>
@@ -240,7 +240,7 @@ export default function RotationCard({
             {/* Sub-object 1: Water */}
             <div className="space-y-1">
               <strong className="text-cyan-300 block font-bold">1. Water Resilience Rationale:</strong>
-              <p className="text-slate-300 leading-relaxed pl-3 border-l-2 border-cyan-500/40">
+              <p className="text-emerald-200/80 leading-relaxed pl-3 border-l-2 border-cyan-500/40">
                 {rotation.explanation.water?.rationale || 'Evaluated based on crop water demands and NASA satellite soil moisture/rainfall deficit.'}
               </p>
             </div>
@@ -248,7 +248,7 @@ export default function RotationCard({
             {/* Sub-object 2: Heat */}
             <div className="space-y-1">
               <strong className="text-amber-300 block font-bold">2. Thermal Tolerance Rationale:</strong>
-              <p className="text-slate-300 leading-relaxed pl-3 border-l-2 border-amber-500/40">
+              <p className="text-emerald-200/80 leading-relaxed pl-3 border-l-2 border-amber-500/40">
                 {rotation.explanation.heat?.rationale || 'Evaluated against MODIS land surface temperatures and hot-day frequencies.'}
               </p>
             </div>
@@ -256,7 +256,7 @@ export default function RotationCard({
             {/* Sub-object 3: Soil */}
             <div className="space-y-1">
               <strong className="text-emerald-300 block font-bold">3. Soil Health & Penalty Breakdown:</strong>
-              <div className="text-slate-300 pl-3 border-l-2 border-emerald-500/40 space-y-1">
+              <div className="text-emerald-200/80 pl-3 border-l-2 border-emerald-500/40 space-y-1">
                 <div>Base soil health benefit: <strong className="text-white">{rotation.explanation.soil?.base_soil_health_score} pts</strong></div>
                 <div>Drainage penalty (3x3 matrix): <strong className="text-rose-300">-{Math.abs(rotation.explanation.soil?.drainage_penalty || 0)} pts</strong></div>
                 <div>Soil pH penalty (linear distance): <strong className="text-rose-300">-{Math.abs(rotation.explanation.soil?.ph_penalty || 0)} pts</strong></div>
@@ -267,17 +267,17 @@ export default function RotationCard({
             {/* Sub-object 4: Diversity */}
             <div className="space-y-1">
               <strong className="text-teal-300 block font-bold">4. Crop Diversity & Rotation Sequence:</strong>
-              <div className="text-slate-300 pl-3 border-l-2 border-teal-500/40 space-y-1">
-                <div>Candidate crop families: <code className="bg-[#071626] px-1.5 py-0.5 rounded text-white font-mono text-[11px]">{JSON.stringify(rotation.explanation.diversity?.candidate_crop_families || [])}</code></div>
-                <div>Repeat check sequence: <code className="bg-[#071626] px-1.5 py-0.5 rounded text-white font-mono text-[11px]">{JSON.stringify(rotation.explanation.diversity?.repeat_check_sequence || [])}</code></div>
+              <div className="text-emerald-200/80 pl-3 border-l-2 border-teal-500/40 space-y-1">
+                <div>Candidate crop families: <code className="bg-[#051d12] px-1.5 py-0.5 rounded text-white font-mono text-[11px]">{JSON.stringify(rotation.explanation.diversity?.candidate_crop_families || [])}</code></div>
+                <div>Repeat check sequence: <code className="bg-[#051d12] px-1.5 py-0.5 rounded text-white font-mono text-[11px]">{JSON.stringify(rotation.explanation.diversity?.repeat_check_sequence || [])}</code></div>
                 <div>Repeat penalty: <strong className="text-rose-300">-{rotation.explanation.diversity?.repeat_penalty || 0} pts</strong> (Final diversity: {rotation.explanation.diversity?.final_diversity_score})</div>
               </div>
             </div>
 
             {/* Sub-object 5: Scientific Caveats */}
-            <div className="pt-2 border-t border-sky-800/40">
-              <strong className="text-sky-400 block font-bold mb-1">Spec Section 56 Mandatory Disclosures:</strong>
-              <ul className="list-disc list-inside text-slate-400 text-[11px] space-y-1">
+            <div className="pt-2 border-t border-emerald-800/40">
+              <strong className="text-emerald-400 block font-bold mb-1">Spec Section 56 Mandatory Disclosures:</strong>
+              <ul className="list-disc list-inside text-emerald-300/70 text-[11px] space-y-1">
                 {rotation.explanation.caveats?.map((c, i) => (
                   <li key={i}>{c}</li>
                 )) || (

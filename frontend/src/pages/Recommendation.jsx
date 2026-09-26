@@ -132,21 +132,21 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#0a1c2e]/90 border border-sky-500/25 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-sky-800/40">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-800/40">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#06182a] border border-sky-700/80 text-sky-300">
+              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-700/80 text-emerald-300">
                 Spec Section 55 Step 10 & 11
               </span>
-              <span className="text-xs text-sky-400 font-semibold">
+              <span className="text-xs text-emerald-400 font-semibold">
                 Field #{selectedField?.id}: {selectedField?.name}
               </span>
             </div>
             <h2 className="text-2xl font-extrabold text-white tracking-tight">
               {lang === 'bn' ? 'কৃষি সিদ্ধান্ত সহায়তা ও চূড়ান্ত সুপারিশ' : 'Seasonal Rotation Recommendation & Action Plan'}
             </h2>
-            <p className="text-xs text-sky-300/70 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs text-emerald-300/70 mt-1 max-w-2xl leading-relaxed">
               {lang === 'bn'
                 ? 'নাসা উপগ্রহের সাম্প্রতিক ৬১ দিনের পরিবেশগত চাপ এবং মাটির বৈশিষ্ট্যের ভিত্তিতে সর্বোচ্চ স্কোরপ্রাপ্ত ফসল ঘূর্ণন।'
                 : 'Highest-scoring candidate crop sequence synthesized from 61-day NASA climate stresses and localized agro-ecological soil constraints.'}
@@ -157,7 +157,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => window.print()}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#071626] hover:bg-[#0b223a] border border-sky-700/60 text-sky-200 transition-all flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#051d12] hover:bg-[#072417] border border-emerald-700/60 text-emerald-200 transition-all flex items-center gap-1.5 shadow-sm"
             >
               <span>🖨️</span> {lang === 'bn' ? 'প্রিন্ট / সংরক্ষণ' : 'Print Action Plan'}
             </button>
@@ -166,32 +166,32 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
 
         {/* Executive Summary Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-5 text-xs">
-          <div className="bg-[#071626]/80 p-3.5 rounded-xl border border-sky-800/50">
-            <span className="text-sky-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1">
               {lang === 'bn' ? 'মাঠের অবস্থান' : 'Agro-Ecological Zone'}
             </span>
             <span className="text-white font-extrabold truncate block" title={selectedField?.name}>
               {selectedField?.name?.split('(')[0]}
             </span>
           </div>
-          <div className="bg-[#071626]/80 p-3.5 rounded-xl border border-sky-800/50">
-            <span className="text-sky-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1">
               {lang === 'bn' ? 'বর্তমান ফসল' : 'Standing Crop'}
             </span>
             <span className="text-emerald-300 font-bold">
               {selectedField?.current_crop} ({selectedField?.current_crop_family})
             </span>
           </div>
-          <div className="bg-[#071626]/80 p-3.5 rounded-xl border border-sky-800/50">
-            <span className="text-sky-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1">
               {lang === 'bn' ? 'সেচ প্রাপ্যতা' : 'Irrigation Access'}
             </span>
             <span className={`font-bold ${selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}`}>
               {selectedField?.irrigation_available ? 'Irrigated (STW / Canal)' : 'Rainfed (No STW)'}
             </span>
           </div>
-          <div className="bg-[#071626]/80 p-3.5 rounded-xl border border-sky-800/50">
-            <span className="text-sky-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1">
               {lang === 'bn' ? 'মাটির পিএইচ' : 'Soil pH & Drainage'}
             </span>
             <span className="text-white font-extrabold">
@@ -225,45 +225,45 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
           />
         </div>
       ) : (
-        <div className="text-center py-12 text-xs text-sky-300/70 bg-[#0a1c2e] rounded-2xl border border-sky-800/40 p-6">
+        <div className="text-center py-12 text-xs text-emerald-300/70 bg-[#092619] rounded-2xl border border-emerald-800/40 p-6">
           Unable to compute recommendation for this field.
         </div>
       )}
 
       {/* Farm-Gate Action Plan & Agronomic Stewardship Advisories */}
-      <div className="bg-[#0a1c2e]/90 border border-sky-500/25 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <h3 className="text-lg font-black text-white mb-4 pb-3 border-b border-sky-800/40 flex items-center gap-2">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+        <h3 className="text-lg font-black text-white mb-4 pb-3 border-b border-emerald-800/40 flex items-center gap-2">
           <span>📋</span> {lang === 'bn' ? 'মাঠ পর্যায়ের বাস্তবায়ন পরামর্শ ও সতর্কতা' : 'Farm-Gate Agronomic Management Advisories'}
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-xs">
-          <div className="bg-[#071626]/90 border border-emerald-800/50 rounded-xl p-4 space-y-1.5 shadow-sm">
+          <div className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-4 space-y-1.5 shadow-sm">
             <strong className="text-emerald-300 font-bold block text-sm">
               {lang === 'bn' ? '🌱 নাইট্রোজেন সংবন্ধন' : '🌱 Nitrogen Bio-Fixation'}
             </strong>
-            <p className="text-slate-200/80 leading-relaxed">
+            <p className="text-emerald-200/80 leading-relaxed">
               {lang === 'bn'
                 ? 'ডাল জাতীয় ফসল অন্তর্ভুক্তির ফলে জমিতে প্রাকৃতিকভাবে নাইট্রোজেন সংবন্ধন ঘটে এবং মাটির উর্বরতা বৃদ্ধি পায়, যা পরবর্তী মৌসুমে রাসায়নিক সারের নির্ভরতা কমায়।'
                 : 'Inclusion of legume pulses (Chickpea / Mung Bean) contributes biological nitrogen to the soil profile, enhancing soil fertility and reducing subsequent season synthetic fertilizer demand.'}
             </p>
           </div>
 
-          <div className="bg-[#071626]/90 border border-cyan-800/50 rounded-xl p-4 space-y-1.5 shadow-sm">
+          <div className="bg-[#051d12]/90 border border-cyan-800/50 rounded-xl p-4 space-y-1.5 shadow-sm">
             <strong className="text-cyan-300 font-bold block text-sm">
               {lang === 'bn' ? '💧 পানি ও সেচ সাশ্রয়' : '💧 Irrigation Footprint Savings'}
             </strong>
-            <p className="text-slate-200/80 leading-relaxed">
+            <p className="text-emerald-200/80 leading-relaxed">
               {lang === 'bn'
                 ? 'অতিরিক্ত সেচ-নির্ভর বোরো ধানের বিপরীতে স্বল্প পানির ডাল ফসল নির্বাচন করায় সেচের পানির চাহিদা উল্লেখযোগ্যভাবে হ্রাস পায় এবং ভূগর্ভস্থ পানির ওপর চাপ কমে।'
                 : 'Transitioning away from high-demand flooded Boro rice to low-demand pulses reduces irrigation water extraction, conserving regional groundwater tables.'}
             </p>
           </div>
 
-          <div className="bg-[#071626]/90 border border-amber-800/50 rounded-xl p-4 space-y-1.5 shadow-sm">
+          <div className="bg-[#051d12]/90 border border-amber-800/50 rounded-xl p-4 space-y-1.5 shadow-sm">
             <strong className="text-amber-300 font-bold block text-sm">
               {lang === 'bn' ? '🔥 তাপীয় অভিযোজন' : '🔥 Thermal Anomaly Avoidance'}
             </strong>
-            <p className="text-slate-200/80 leading-relaxed">
+            <p className="text-emerald-200/80 leading-relaxed">
               {lang === 'bn'
                 ? 'খরিপ-১ মৌসুমে স্বল্পমেয়াদী মুগ ডাল (৬৫ দিন) চাষের মাধ্যমে মার্চ-এপ্রিলের তীব্র তাপপ্রবাহ আসার আগেই ফসল ঘরে তোলা সম্ভব হয়।'
                 : 'A short-duration Kharif-1 pulse (Mung Bean, 65d) matures and is harvested before peak late-spring thermal anomalies, protecting grain-filling quality.'}
@@ -273,16 +273,16 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
 
         {/* Site Specific Advisories */}
         {advisories.length > 0 && (
-          <div className="space-y-2.5 pt-2 border-t border-sky-800/30">
+          <div className="space-y-2.5 pt-2 border-t border-emerald-800/30">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-300 block">
               {lang === 'bn' ? 'মাঠ-নির্দিষ্ট বিশেষ সতর্কতা:' : 'Site-Specific Extension Advisories:'}
             </span>
             {advisories.map((adv, i) => (
-              <div key={i} className="bg-[#071626] border border-amber-800/50 p-3.5 rounded-xl text-xs text-amber-200 flex items-start gap-2.5">
+              <div key={i} className="bg-[#051d12] border border-amber-800/50 p-3.5 rounded-xl text-xs text-amber-200 flex items-start gap-2.5">
                 <span className="text-amber-400 text-sm mt-0.5">ℹ</span>
                 <div>
                   <strong className="text-white block font-bold">{adv.title}</strong>
-                  <span className="text-slate-200/80 leading-relaxed">{adv.detail}</span>
+                  <span className="text-emerald-200/80 leading-relaxed">{adv.detail}</span>
                 </div>
               </div>
             ))}

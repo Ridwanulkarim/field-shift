@@ -158,14 +158,14 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   };
 
   return (
-    <div className="bg-[#0a1c2e]/90 border border-sky-500/25 rounded-2xl p-5 sm:p-6 shadow-xl shadow-black/35 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3.5 border-b border-sky-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-5 sm:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3.5 border-b border-emerald-800/40">
         <div>
           <h3 className="text-base font-extrabold text-white flex items-center gap-2 tracking-tight">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
             Bangladesh Geographic & Agro-Ecological Map
           </h3>
-          <p className="text-xs text-sky-300/70 mt-0.5">
+          <p className="text-xs text-emerald-300/70 mt-0.5">
             {mapMode === 'leaflet'
               ? 'Real-Time Leaflet Map (Satellite & OpenStreetMap) with Field GeoJSON'
               : 'Bangladesh Agro-Ecological Zones (AEZ) Vector Map'}
@@ -177,18 +177,18 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
           {mapMode === 'leaflet' && (
             <button
               onClick={handleFitAll}
-              className="px-2.5 py-1.5 rounded-xl bg-[#071626] border border-sky-700/60 text-xs font-bold text-sky-300 hover:text-white hover:border-sky-400 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl bg-[#04140d] border border-emerald-700/60 text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
               title="Fit all 5 demo fields across Bangladesh"
             >
               <span>🔍</span> Fit All 5 Fields
             </button>
           )}
 
-          <div className="inline-flex rounded-xl bg-[#071626] p-1 border border-sky-800/60 text-xs">
+          <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
             <button
               onClick={() => setMapMode('leaflet')}
               className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                mapMode === 'leaflet' ? 'bg-sky-500/25 text-sky-200 border border-sky-400/40 shadow-sm' : 'text-slate-300/70 hover:text-white'
+                mapMode === 'leaflet' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
               Leaflet Map
@@ -196,7 +196,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
             <button
               onClick={() => setMapMode('vector')}
               className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                mapMode === 'vector' ? 'bg-sky-500/25 text-sky-200 border border-sky-400/40 shadow-sm' : 'text-slate-300/70 hover:text-white'
+                mapMode === 'vector' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
               AEZ Vector Map
@@ -206,7 +206,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
       </div>
 
       {/* Map View Area */}
-      <div className="relative w-full aspect-[4/5] max-w-[500px] mx-auto bg-[#06111F] rounded-2xl border border-sky-800/60 overflow-hidden shadow-inner">
+      <div className="relative w-full aspect-[4/5] max-w-[500px] mx-auto bg-[#04140d] rounded-2xl border border-emerald-800/60 overflow-hidden shadow-inner">
         {mapMode === 'leaflet' ? (
           <div ref={mapContainerRef} className="w-full h-full z-0" />
         ) : (
@@ -224,14 +224,14 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
                  L 410 470 L 390 420 L 340 400 L 310 440 L 280 430 L 260 470 L 220 480 
                  L 180 460 L 160 410 L 140 370 L 110 330 L 130 280 L 110 240 L 120 180 
                  L 90 130 L 100 80 Z"
-              fill="#081e30"
+              fill="#062516"
               stroke="#10b981"
               strokeWidth="1.5"
               strokeOpacity="0.4"
             />
             {/* Major River Arteries */}
-            <path d="M 170 80 Q 210 180 230 240 T 290 340 T 320 440" fill="none" stroke="#22d3ee" strokeWidth="2.5" opacity="0.4" />
-            <path d="M 110 245 Q 180 270 230 240" fill="none" stroke="#22d3ee" strokeWidth="2" opacity="0.4" />
+            <path d="M 170 80 Q 210 180 230 240 T 290 340 T 320 440" fill="none" stroke="#22d3ee" strokeWidth="2.5" opacity="0.35" />
+            <path d="M 110 245 Q 180 270 230 240" fill="none" stroke="#22d3ee" strokeWidth="2" opacity="0.35" />
 
             {/* Field Location Pins */}
             {fields.map((f) => {
@@ -246,11 +246,11 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
                   onClick={() => onSelectField(f.id)}
                 >
                   {isSelected && (
-                    <circle cx={x} cy={y} r="18" fill="none" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4 2" />
+                    <circle cx={x} cy={y} r="18" fill="none" stroke="#34d399" strokeWidth="2" strokeDasharray="4 2" />
                   )}
-                  <circle cx={x} cy={y} r={isSelected ? "11" : "8"} fill={badge.color} stroke="#06111F" strokeWidth="2" filter={isSelected ? "url(#glow)" : undefined} />
+                  <circle cx={x} cy={y} r={isSelected ? "11" : "8"} fill={badge.color} stroke="#04140d" strokeWidth="2" filter={isSelected ? "url(#glow)" : undefined} />
                   <circle cx={x} cy={y} r={isSelected ? "4" : "3"} fill="#ffffff" />
-                  <text x={x + 14} y={y + 4} fill={isSelected ? '#38bdf8' : '#e2e8f0'} fontSize={isSelected ? "12" : "11"} fontWeight={isSelected ? "700" : "500"}>
+                  <text x={x + 14} y={y + 4} fill={isSelected ? '#34d399' : '#e2e8f0'} fontSize={isSelected ? "12" : "11"} fontWeight={isSelected ? "700" : "500"}>
                     {f.name.split('(')[1]?.replace(')', '') || f.name.split(' ')[0]}
                   </text>
                 </g>
@@ -260,7 +260,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         )}
 
         {/* Floating Controls & Legend */}
-        <div className="absolute bottom-3 left-3 right-3 bg-[#071626]/94 backdrop-blur-md p-2.5 rounded-xl border border-sky-800/60 flex flex-wrap items-center justify-between gap-1.5 text-[10px] text-slate-300 z-10 pointer-events-auto shadow-lg">
+        <div className="absolute bottom-3 left-3 right-3 bg-[#051d12]/92 backdrop-blur-md p-2.5 rounded-xl border border-emerald-800/60 flex flex-wrap items-center justify-between gap-1.5 text-[10px] text-emerald-200 z-10 pointer-events-auto shadow-lg">
           <span className="font-bold text-white">Condition:</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400"></span> Healthy (75-100)</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400"></span> Watch (50-74)</span>

@@ -10,8 +10,8 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
   const [expandedDisclosure, setExpandedDisclosure] = useState(null);
 
   return (
-    <div className="bg-[#0a1c2e]/90 border border-sky-500/25 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/35 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-sky-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-emerald-800/40">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-1">
             Spec Section 56 Mandatory Compliance
@@ -19,7 +19,7 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
           <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <span>🛡️</span> {t('disclosures_title', lang)}
           </h3>
-          <p className="text-xs text-sky-300/70 mt-1">
+          <p className="text-xs text-emerald-300/70 mt-1">
             {t('disclosures_subtitle', lang)}
           </p>
         </div>
@@ -55,33 +55,33 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
           return (
             <div
               key={item.id}
-              className={`bg-[#071626]/85 border rounded-xl p-4 transition-all duration-200 shadow-sm cursor-pointer ${
-                isExpanded ? 'border-sky-400/80 bg-[#0d2a45]' : 'border-sky-800/50 hover:border-sky-600/50'
+              className={`bg-[#051d12]/80 border rounded-xl p-4 transition-all duration-200 shadow-sm cursor-pointer ${
+                isExpanded ? 'border-emerald-400/80 bg-[#072517]' : 'border-emerald-800/50 hover:border-emerald-600/50'
               }`}
               onClick={() => setExpandedDisclosure(isExpanded ? null : item.id)}
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-sky-950 border border-sky-700/80 text-sky-300 font-mono text-[11px] font-bold flex items-center justify-center">
+                  <span className="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-700/80 text-emerald-300 font-mono text-[11px] font-bold flex items-center justify-center">
                     {item.number}
                   </span>
                   <span className="text-xs font-bold text-white">
                     {title}
                   </span>
                 </div>
-                <span className="text-sky-400/60 text-xs font-mono">
+                <span className="text-emerald-400/60 text-xs font-mono">
                   {isExpanded ? '▲' : '▼'}
                 </span>
               </div>
 
-              <p className={`text-xs text-slate-300 leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`}>
+              <p className={`text-xs text-emerald-200/80 leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`}>
                 {text}
               </p>
 
               {isExpanded && (
-                <div className="mt-3 pt-2.5 border-t border-sky-900/60 text-[11px] text-sky-400/80 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-emerald-900/60 text-[11px] text-emerald-400/80 flex items-center justify-between">
                   <span className="italic">Clause #{item.number} • Spec Section 56 Ground Truth</span>
-                  <span className="font-mono text-[10px] bg-sky-950 px-2 py-0.5 rounded text-sky-300 border border-sky-800">
+                  <span className="font-mono text-[10px] bg-emerald-950 px-2 py-0.5 rounded text-emerald-300 border border-emerald-800">
                     ID: {item.id}
                   </span>
                 </div>
