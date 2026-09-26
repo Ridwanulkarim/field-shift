@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node db/test_crud.js && node services/nasa/test_nasa_access.js && node services/nasa/test_preprocessing.js && node services/nasa/test_baselines.js && node services/stress/test_stress_engine.js && node services/soil/test_soil_engine.js && node services/rotations/test_rotations.js && node services/rotations/test_scoring.js && node test_api.js && node test_section57_fixtures.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "pg": "^8.23.0",
+    "pg-mem": "^3.0.14"
+  }
+}
