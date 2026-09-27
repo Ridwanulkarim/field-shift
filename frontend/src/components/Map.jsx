@@ -2,19 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getConditionBadge } from '../utils/formatting';
-import bangladeshGeoJson from '../data/bangladeshGeoJson.json';
 
 /**
  * Leaflet & GeoJSON Agro-Ecological Map Component (Spec Section 46, 51)
- * Renders real Leaflet instance with CartoDB Dark tiles, field marker pins,
- * boundary_geojson polygon highlighting, and an AEZ Cartogram toggle.
+ * Renders real Leaflet instance with satellite imagery, street map,
+ * field marker pins, and boundary_geojson polygon highlighting.
  */
 export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const geojsonLayerRef = useRef(null);
   const markersLayerRef = useRef(null);
-  const countryMaskRef = useRef(null);
   const [mapMode, setMapMode] = useState('leaflet'); // 'leaflet' | 'vector'
 
   const selectedField = fields.find(f => f.id === selectedFieldId) || fields[0];
@@ -22,16 +20,16 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   const isInitialLoadRef = useRef(true);
 
   // Strict bounds bounding Bangladesh (with comfortable padding):
-  // Southwest: [20.3, 87.5], Northeast: [26.8, 93.0]
+  // Southwest: [20.4, 87.8], Northeast: [26.8, 92.9]
   const bangladeshBounds = L.latLngBounds(
-    [20.3, 87.5],
-    [26.8, 93.0]
+    [20.4, 87.8],
+    [26.8, 92.9]
   );
 
   const handleFitAll = () => {
     if (mapInstanceRef.current && fields.length > 0) {
       const bounds = L.latLngBounds(fields.map(f => [f.latitude, f.longitude]));
-      mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
+      mapInstanceRef.current.fitBounds(bounds, { padding: [35, 35], maxZoom: 8.5 });
     }
   };
 
@@ -42,9 +40,9 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [24.0, 89.8],
-        zoom: 7,
-        minZoom: 6.5,
+        center: [23.85, 90.2],
+        zoom: 7.4,
+        minZoom: 7.0,
         maxZoom: 18,
         maxBounds: bangladeshBounds,
         maxBoundsViscosity: 1.0,
@@ -52,64 +50,60 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         attributionControl: false
       });
 
-      // 1. Esri World Imagery (High-res satellite view) + Official English Labels
+      // 1. Esri World Imagery (Pure high-res satellite view - free, 0 API keys, zero foreign labels)
       const satelliteImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Earthstar Geographics'
       });
-      const satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
-        attribution: '&copy; Esri'
-      });
-      const satelliteGroup = L.layerGroup([satelliteImagery, satelliteLabels]);
 
-      // 2. Esri World Street Map (Clean street & city view in English - 100% Free, NO API key required)
+      // 2. Esri World Street Map (Clean street & city view - 100% Free, NO API key required)
       const streetMapLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; OpenStreetMap contributors'
       });
 
-      // Default to Satellite + English Labels for authentic Earth Observation context
-      satelliteGroup.addTo(map);
+      // Default to Satellite view as original
+      satelliteImagery.addTo(map);
 
-      // Bangladesh Boundary Mask: Inverts the country polygon to mask out
-      // neighboring territories (Kolkata, Malda, Siliguri, Assam, etc.)
-      const bdCoords = bangladeshGeoJson.features[0].geometry.coordinates[0].map(([lon, lat]) => [lat, lon]);
-      const outerWorld = [
-        [90, -180],
-        [90, 180],
-        [-90, 180],
-        [-90, -180]
+      // Bangladesh Major Cities & Regional Centers (Only Bangladesh places, no foreign country places)
+      const bdPlaces = [
+        { name: 'Dhaka', lat: 23.8103, lon: 90.4125 },
+        { name: 'Chattogram', lat: 22.3569, lon: 91.7832 },
+        { name: 'Rajshahi', lat: 24.3745, lon: 88.6042 },
+        { name: 'Khulna', lat: 22.8456, lon: 89.5403 },
+        { name: 'Barishal', lat: 22.7010, lon: 90.3535 },
+        { name: 'Sylhet', lat: 24.8949, lon: 91.8687 },
+        { name: 'Rangpur', lat: 25.7439, lon: 89.2752 },
+        { name: 'Mymensingh', lat: 24.7471, lon: 90.4203 },
+        { name: 'Dinajpur', lat: 25.6279, lon: 88.6332 },
+        { name: 'Bogura', lat: 24.8465, lon: 89.3777 },
+        { name: 'Cumilla', lat: 23.4607, lon: 91.1809 },
+        { name: 'Jashore', lat: 23.1664, lon: 89.2081 },
+        { name: "Cox's Bazar", lat: 21.4272, lon: 92.0058 }
       ];
 
-      const countryMask = L.polygon([outerWorld, bdCoords], {
-        color: '#10b981',
-        weight: 2,
-        opacity: 0.9,
-        fillColor: '#04140d',
-        fillOpacity: 0.85,
-        interactive: false
+      const citiesLayer = L.layerGroup();
+      bdPlaces.forEach((p) => {
+        const icon = L.divIcon({
+          className: 'bd-city-label',
+          html: `<div style="display:flex;align-items:center;gap:3px;transform:translate(-50%,-50%);pointer-events:none;">
+            <span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;box-shadow:0 0 4px #38bdf8;display:inline-block;"></span>
+            <span style="font-size:10px;font-weight:700;color:#ffffff;text-shadow:0 1px 2px #000,0 0 4px #000;font-family:sans-serif;letter-spacing:-0.2px;">${p.name}</span>
+          </div>`,
+          iconSize: [0, 0]
+        });
+        L.marker([p.lat, p.lon], { icon, interactive: false }).addTo(citiesLayer);
       });
-      countryMask.addTo(map);
-      countryMaskRef.current = countryMask;
+      citiesLayer.addTo(map);
 
-      // Glowing dashed border along Bangladesh's national perimeter
-      L.polyline(bdCoords, {
-        color: '#34d399',
-        weight: 2.2,
-        opacity: 0.95,
-        dashArray: '6 4',
-        interactive: false
-      }).addTo(map);
-
-      // Add layer switcher with Satellite, Street Map, and optional Focus Mask overlay
+      // Add layer switcher (Satellite vs Street Map) + Bangladesh Cities overlay
       L.control.layers(
         {
-          '🛰️ Satellite': satelliteGroup,
+          '🛰️ Satellite': satelliteImagery,
           '🗺️ Street Map': streetMapLayer
         },
         {
-          '🛡️ Bangladesh Focus Shroud': countryMask
+          '📍 Bangladesh Cities': citiesLayer
         },
         { position: 'topright', collapsed: true }
       ).addTo(map);
