@@ -7,14 +7,14 @@
   }
 
   html {
-    font-size: 19px; /* Generous global base font: scales rem-based typography by +18.75% */
+    font-size: 16.5px; /* Balanced comfortable base font */
     scroll-behavior: smooth;
   }
 
   body {
     font-family: var(--font-sans);
     font-size: 1rem;
-    line-height: 1.55;
+    line-height: 1.5;
     background-color: #04140d;
     background-image: 
       radial-gradient(ellipse at 50% 0%, #0e3b24 0%, transparent 65%),
@@ -33,43 +33,42 @@
 }
 
 /* 
- * Universal Typography Scaling Overrides:
- * Eliminates micro-fonts across the entire application so badges,
- * labels, cards, disclosures, and notes are crisp and comfortably legible.
+ * Universal Typography Scaling:
+ * Kept balanced and clean so text is neither too big nor too small.
  */
 .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-xs {
-  font-size: 0.85rem !important; /* ~16.15px minimum crisp legible text */
-  line-height: 1.45 !important;
-}
-
-.text-sm {
-  font-size: 0.98rem !important; /* ~18.6px */
-  line-height: 1.5 !important;
-}
-
-.text-base {
-  font-size: 1.12rem !important; /* ~21.3px */
-  line-height: 1.55 !important;
-}
-
-.text-lg {
-  font-size: 1.30rem !important; /* ~24.7px */
-  line-height: 1.4 !important;
-}
-
-.text-xl {
-  font-size: 1.50rem !important; /* ~28.5px */
+  font-size: 0.78rem !important; /* ~12.9px clean, readable micro text */
   line-height: 1.35 !important;
 }
 
-.text-2xl {
-  font-size: 1.85rem !important; /* ~35.1px */
+.text-sm {
+  font-size: 0.88rem !important; /* ~14.5px */
+  line-height: 1.4 !important;
+}
+
+.text-base {
+  font-size: 1rem !important; /* ~16.5px */
+  line-height: 1.5 !important;
+}
+
+.text-lg {
+  font-size: 1.15rem !important; /* ~19px */
+  line-height: 1.35 !important;
+}
+
+.text-xl {
+  font-size: 1.3rem !important; /* ~21.5px */
   line-height: 1.3 !important;
 }
 
-.text-3xl {
-  font-size: 2.25rem !important; /* ~42.75px */
+.text-2xl {
+  font-size: 1.55rem !important; /* ~25.5px */
   line-height: 1.25 !important;
+}
+
+.text-3xl {
+  font-size: 1.85rem !important; /* ~30.5px */
+  line-height: 1.2 !important;
 }
 
 /* Custom agricultural scrollbars */
@@ -103,8 +102,8 @@
 }
 
 .leaflet-popup-content {
-  font-size: 0.92rem !important;
-  line-height: 1.5 !important;
+  font-size: 0.85rem !important;
+  line-height: 1.45 !important;
 }
 
 .leaflet-control-layers {
@@ -112,13 +111,13 @@
   color: #f0fdf4 !important;
   border: 1px solid rgba(52, 211, 153, 0.3) !important;
   border-radius: 12px !important;
-  padding: 8px 12px !important;
+  padding: 6px 10px !important;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
 }
 
 .leaflet-control-layers label {
   color: #ecfdf5 !important;
-  font-size: 0.90rem !important;
+  font-size: 0.80rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
 }
