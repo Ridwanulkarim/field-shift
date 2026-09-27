@@ -3,12 +3,16 @@
  * Interfaces with Express REST API (Spec Section 45)
  */
 
-// In development (e.g. Vite on port 3001), connect directly to Express on port 5001
-// to bypass sandboxed proxy EPERM restrictions while leveraging CORS.
+// Determines the API base URL.
+// In production/Vercel: uses relative '/api' or VITE_API_BASE.
+// In local dev (ports 3000, 3001, 5173): routes to Express on port 5001.
 const getApiBase = () => {
+  if (import.meta.env?.VITE_API_BASE) {
+    return import.meta.env.VITE_API_BASE;
+  }
   if (typeof window !== 'undefined') {
     const { protocol, hostname, port } = window.location;
-    if (port && port !== '5001') {
+    if (port && (port === '3000' || port === '3001' || port === '5173')) {
       return `${protocol}//${hostname}:5001/api`;
     }
   }

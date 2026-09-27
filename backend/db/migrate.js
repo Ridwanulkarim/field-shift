@@ -14,10 +14,33 @@ function cleanSql(sql) {
   return cleaned;
 }
 
+function getSchemaSql() {
+  const candidatePaths = [
+    path.join(__dirname, 'schema.sql'),
+    path.join(process.cwd(), 'backend', 'db', 'schema.sql'),
+    path.join(process.cwd(), 'db', 'schema.sql')
+  ];
+
+  for (const p of candidatePaths) {
+    try {
+      if (fs.existsSync(p)) {
+        return fs.readFileSync(p, 'utf8');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Fallback to pre-bundled schema string
+  try {
+    return require('./schemaSql');
+  } catch (err) {
+    throw new Error('Unable to locate schema.sql in: ' + candidatePaths.join(', '));
+  }
+}
+
 async function runMigration() {
-  const schemaPath = path.join(__dirname, 'schema.sql');
-  console.log(`[Migration] Reading schema from ${schemaPath}...`);
-  const rawSql = fs.readFileSync(schemaPath, 'utf8');
+  const rawSql = getSchemaSql();
   const cleanedSql = cleanSql(rawSql);
 
   console.log(`[Migration] Executing schema in ${db.getMode()} mode...`);

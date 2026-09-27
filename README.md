@@ -117,5 +117,28 @@ npm test
 
 ---
 
+## ☁️ Deployment on Vercel
+
+Field Shift is pre-configured for zero-friction deployment on **Vercel** with full-stack serverless execution (Vite React frontend + Express REST API with auto-seeded in-memory database or managed PostgreSQL).
+
+### Option 1: Deploy with Vercel Git Integration (Recommended)
+1. Push this repository to your GitHub account (`https://github.com/Ridwanulkarim/field-shift`).
+2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+3. Import your `field-shift` repository.
+4. Leave the Root Directory as `./` (default). Vercel will automatically detect `vercel.json` and build both the Vite frontend and the serverless Express API.
+5. *(Optional)* In **Environment Variables**, you can add:
+   - `DATABASE_URL`: Optional connection string for Neon, Supabase, or Vercel Postgres. If omitted, the embedded `pg-mem` in-memory database auto-seeds automatically!
+   - `EARTHDATA_USERNAME` & `EARTHDATA_PASSWORD`: Optional credentials for live NASA Earthdata CMR queries.
+6. Click **Deploy**. Your app will be live at `https://<your-project>.vercel.app`!
+
+### Option 2: Deploy via Vercel CLI
+```bash
+npm install -g vercel
+vercel login
+vercel
+```
+
+---
+
 ## 📄 License
 This project is open-source under the MIT License. Developed for climate adaptation research with NASA Earth Observation datasets.

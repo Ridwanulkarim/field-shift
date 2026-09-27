@@ -64,11 +64,34 @@ app.use(async (req, res, next) => {
   }
 });
 
+// Info endpoint
+app.get(['/', '/api'], (req, res) => {
+  res.json({
+    status: 'ok',
+    name: 'Field Shift API',
+    description: 'Adapting Farms with NASA Earth Observations',
+    version: 'v6.2',
+    endpoints: [
+      '/api/health',
+      '/api/crops',
+      '/api/fields',
+      '/api/rotations/evaluate',
+      '/api/rotations/compare'
+    ]
+  });
+});
+
 // Mount API routes (Spec Section 45)
+// Dual-mounted at both /api/* and root /* to ensure seamless serverless routing
 app.use('/api/health', healthRoutes);
 app.use('/api/crops', cropsRoutes);
 app.use('/api/fields', fieldsRoutes);
 app.use('/api/rotations', rotationsRoutes);
+
+app.use('/health', healthRoutes);
+app.use('/crops', cropsRoutes);
+app.use('/fields', fieldsRoutes);
+app.use('/rotations', rotationsRoutes);
 
 // 404 handler
 app.use((req, res) => {
