@@ -50,74 +50,26 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         attributionControl: false
       });
 
-      // 1. Esri World Imagery (Pure high-res satellite view - free, 0 API keys, zero foreign labels)
-      const satelliteImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      // 1. Esri World Imagery (High-res satellite view - free, no API key required, authentic NASA agro context)
+      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Earthstar Geographics'
       });
 
-      // 2. Clean Street / Topo Map (Roads, rivers & terrain with ZERO foreign labels)
-      const streetMapLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
-        attribution: '&copy; Esri &mdash; OpenStreetMap contributors'
+      // 2. OpenStreetMap Standard (Clean street topography & cities - 100% Free, NO API key required)
+      const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
       });
 
-      // Default to Satellite view as original
-      satelliteImagery.addTo(map);
+      // Default to Satellite for authentic agricultural Earth Observation context
+      satelliteLayer.addTo(map);
 
-      // Bangladesh Major Cities & Regional Centers (Only Bangladesh places, no foreign country places)
-      const bdPlaces = [
-        { name: 'Dhaka', lat: 23.8103, lon: 90.4125 },
-        { name: 'Chattogram', lat: 22.3569, lon: 91.7832 },
-        { name: 'Rajshahi', lat: 24.3745, lon: 88.6042 },
-        { name: 'Khulna', lat: 22.8456, lon: 89.5403 },
-        { name: 'Barishal', lat: 22.7010, lon: 90.3535 },
-        { name: 'Sylhet', lat: 24.8949, lon: 91.8687 },
-        { name: 'Rangpur', lat: 25.7439, lon: 89.2752 },
-        { name: 'Mymensingh', lat: 24.7471, lon: 90.4203 },
-        { name: 'Dinajpur', lat: 25.6279, lon: 88.6332 },
-        { name: 'Bogura', lat: 24.8465, lon: 89.3777 },
-        { name: 'Cumilla', lat: 23.4607, lon: 91.1809 },
-        { name: 'Jashore', lat: 23.1664, lon: 89.2081 },
-        { name: "Cox's Bazar", lat: 21.4272, lon: 92.0058 },
-        { name: 'Kushtia', lat: 23.9013, lon: 89.1205 },
-        { name: 'Pabna', lat: 24.0123, lon: 89.2467 },
-        { name: 'Tangail', lat: 24.2513, lon: 89.9167 },
-        { name: 'Faridpur', lat: 23.6071, lon: 89.8429 },
-        { name: 'Brahmanbaria', lat: 23.9608, lon: 91.1115 },
-        { name: 'Noakhali', lat: 22.8724, lon: 91.0973 },
-        { name: 'Sirajganj', lat: 24.4534, lon: 89.7008 },
-        { name: 'Naogaon', lat: 24.7936, lon: 88.9318 },
-        { name: 'Natore', lat: 24.4102, lon: 88.9796 },
-        { name: 'Chapai Nawabganj', lat: 24.5965, lon: 88.2775 },
-        { name: 'Satkhira', lat: 22.7185, lon: 89.0705 }
-      ];
-
-      const citiesLayer = L.layerGroup();
-      bdPlaces.forEach((p) => {
-        const icon = L.divIcon({
-          className: 'bd-city-label',
-          html: `<div style="display:flex;align-items:center;gap:3px;transform:translate(-50%,-50%);pointer-events:none;background:rgba(4,20,13,0.75);padding:1px 5px;border-radius:5px;border:1px solid rgba(52,211,153,0.35);box-shadow:0 1px 3px rgba(0,0,0,0.4);">
-            <span style="width:4px;height:4px;border-radius:50%;background:#38bdf8;box-shadow:0 0 3px #38bdf8;display:inline-block;"></span>
-            <span style="font-size:9.5px;font-weight:700;color:#ffffff;font-family:sans-serif;letter-spacing:-0.2px;white-space:nowrap;">${p.name}</span>
-          </div>`,
-          iconSize: [0, 0]
-        });
-        L.marker([p.lat, p.lon], { icon, interactive: false }).addTo(citiesLayer);
-      });
-      citiesLayer.addTo(map);
-
-      // Add layer switcher (Satellite vs Street Map) + Bangladesh Cities overlay
-      L.control.layers(
-        {
-          '🛰️ Satellite': satelliteImagery,
-          '🗺️ Street Map': streetMapLayer
-        },
-        {
-          '📍 Bangladesh Cities': citiesLayer
-        },
-        { position: 'topright', collapsed: true }
-      ).addTo(map);
+      // Add layer switcher (Satellite vs Street Map)
+      L.control.layers({
+        '🛰️ Satellite': satelliteLayer,
+        '🗺️ Street Map': osmLayer
+      }, null, { position: 'topright', collapsed: true }).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
       geojsonLayerRef.current = L.layerGroup().addTo(map);
