@@ -202,37 +202,37 @@ export default function RotationPlanner({ selectedField }) {
   return (
     <div className="space-y-6">
       {/* Active Field Context Header */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-800/40">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#04140d] border border-emerald-800 text-emerald-300">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-sm font-mono font-bold px-2.5 py-1 rounded bg-[#04140d] border border-emerald-800 text-emerald-300">
                 Field #{selectedField?.id}
               </span>
-              <span className="text-xs text-emerald-400 font-semibold">
+              <span className="text-sm text-emerald-400 font-semibold">
                 Rotation Planning Workbench
               </span>
             </div>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">
               {selectedField?.name || 'Godagari Barind Terrace'}
             </h2>
-            <p className="text-xs text-emerald-300/70 mt-1">
+            <p className="text-sm text-emerald-200/80 mt-1.5 leading-relaxed">
               Soil: <strong className="text-white">{selectedField?.soil_type}</strong> (pH {selectedField?.soil_ph?.toFixed(1)}, {selectedField?.drainage} drainage) • Irrigation: <strong className={selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}>{selectedField?.irrigation_available ? 'Irrigated' : 'Rainfed'}</strong>
             </p>
           </div>
 
           {/* Quick Presets */}
           <div className="flex items-center gap-2 flex-wrap sm:justify-end">
-            <span className="text-xs text-emerald-400/80 font-medium">Quick Presets:</span>
+            <span className="text-sm text-emerald-400 font-semibold">Quick Presets:</span>
             <button
               onClick={() => loadPreset('barind_pulse')}
-              className="px-3 py-1.5 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-cyan-800/60 text-xs font-bold text-cyan-200 transition-colors shadow-sm"
+              className="px-3.5 py-2 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-cyan-800/60 text-sm font-bold text-cyan-200 transition-colors shadow-sm cursor-pointer"
             >
               🌱 Barind 2-Crop (Chickpea → Mung)
             </button>
             <button
               onClick={() => loadPreset('triple_crop')}
-              className="px-3 py-1.5 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/60 text-xs font-bold text-emerald-200 transition-colors shadow-sm"
+              className="px-3.5 py-2 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/60 text-sm font-bold text-emerald-200 transition-colors shadow-sm cursor-pointer"
             >
               🌾 Alluvial 3-Crop (Wheat → Mung → Rice)
             </button>
@@ -240,22 +240,22 @@ export default function RotationPlanner({ selectedField }) {
         </div>
 
         {/* Standing & Previous Crop Succession Context (Spec Section 30) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-2">
-          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-3.5 flex items-center gap-3">
-            <span className="text-2xl">🌾</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-1">
+          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 flex items-center gap-3.5">
+            <span className="text-3xl">🌾</span>
             <div>
-              <span className="text-[11px] text-emerald-300/70 block">Current Standing Crop</span>
-              <span className="text-sm font-bold text-white">
-                {selectedField?.current_crop} <span className="text-emerald-400 text-xs font-normal">({selectedField?.current_crop_family})</span>
+              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Current Standing Crop</span>
+              <span className="text-lg font-extrabold text-white">
+                {selectedField?.current_crop} <span className="text-emerald-400 text-sm font-medium">({selectedField?.current_crop_family})</span>
               </span>
             </div>
           </div>
-          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-3.5 flex items-center gap-3">
-            <span className="text-2xl">⏮</span>
+          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 flex items-center gap-3.5">
+            <span className="text-3xl">⏮</span>
             <div>
-              <span className="text-[11px] text-emerald-300/70 block">Previous Season Crop</span>
-              <span className="text-sm font-bold text-emerald-100">
-                {selectedField?.previous_crop} <span className="text-emerald-400 text-xs font-normal">({selectedField?.previous_crop_family})</span>
+              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Previous Season Crop</span>
+              <span className="text-lg font-extrabold text-emerald-100">
+                {selectedField?.previous_crop} <span className="text-emerald-400 text-sm font-medium">({selectedField?.previous_crop_family})</span>
               </span>
             </div>
           </div>
@@ -266,22 +266,22 @@ export default function RotationPlanner({ selectedField }) {
       <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+            <span className="text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
               Spec Section 28–31 Succession Setup
             </span>
-            <h3 className="text-xl font-extrabold text-white tracking-tight">
+            <h3 className="text-2xl font-black text-white tracking-tight">
               Build Candidate Crop Rotation
             </h3>
           </div>
 
           {/* Cycle Mode Switcher */}
-          <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
+          <div className="inline-flex rounded-xl bg-[#04140d] p-1.5 border border-emerald-800/60 text-sm">
             <button
               onClick={() => handleSwitchCycleMode('continue_after_current')}
-              className={`px-3.5 py-1.5 rounded-lg font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-4 py-2 rounded-lg font-black transition-all flex items-center gap-2 cursor-pointer ${
                 cycleMode === 'continue_after_current'
                   ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/20'
-                  : 'text-emerald-300/70 hover:text-white'
+                  : 'text-emerald-300/80 hover:text-white'
               }`}
               title="Plan next crops to follow active standing crop in field"
             >
@@ -289,10 +289,10 @@ export default function RotationPlanner({ selectedField }) {
             </button>
             <button
               onClick={() => handleSwitchCycleMode('start_new_cycle')}
-              className={`px-3.5 py-1.5 rounded-lg font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-4 py-2 rounded-lg font-black transition-all flex items-center gap-2 cursor-pointer ${
                 cycleMode === 'start_new_cycle'
                   ? 'bg-cyan-400 text-[#04140d] shadow-md shadow-cyan-400/20'
-                  : 'text-emerald-300/70 hover:text-white'
+                  : 'text-emerald-300/80 hover:text-white'
               }`}
               title="Plan fresh 3-season annual crop rotation starting from Rabi"
             >
@@ -304,76 +304,76 @@ export default function RotationPlanner({ selectedField }) {
         {/* Dynamic Mode Explanatory Banner */}
         {cycleMode === 'continue_after_current' ? (
           <div className="mb-6 p-4 rounded-xl bg-[#031d12] border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl mt-0.5">🌾</span>
+            <div className="flex items-start gap-3.5">
+              <span className="text-3xl mt-0.5">🌾</span>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-extrabold text-white">Interface: Follow Current Standing Crop</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-base font-black text-white">Interface: Follow Current Standing Crop</span>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
                     Active in Field: {selectedField?.current_crop} ({selectedField?.current_crop_family})
                   </span>
                 </div>
-                <p className="text-xs text-emerald-200/80 mt-1">
+                <p className="text-sm text-emerald-200/90 mt-1.5 leading-relaxed">
                   The field currently has standing <strong>{selectedField?.current_crop}</strong>. You are planning the next crops to plant sequentially after harvest ({selectedSeasons.join(' ➔ ')}).
                 </p>
               </div>
             </div>
-            <div className="text-xs font-mono text-emerald-300 bg-[#021009] px-3 py-1.5 rounded-lg border border-emerald-800/60 shrink-0">
+            <div className="text-sm font-mono text-emerald-300 bg-[#021009] px-3.5 py-2 rounded-lg border border-emerald-800/60 shrink-0">
               Repeat Context: <strong className="text-white">{selectedField?.current_crop}</strong>
             </div>
           </div>
         ) : (
           <div className="mb-6 p-4 rounded-xl bg-[#031b20] border border-cyan-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl mt-0.5">🔄</span>
+            <div className="flex items-start gap-3.5">
+              <span className="text-3xl mt-0.5">🔄</span>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-extrabold text-white">Interface: Start New Annual Cycle</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-400/25 text-cyan-200 border border-cyan-400/40">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-base font-black text-white">Interface: Start New Annual Cycle</span>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan-400/25 text-cyan-200 border border-cyan-400/40">
                     Fresh 3-Season Sequence
                   </span>
                 </div>
-                <p className="text-xs text-cyan-200/80 mt-1">
+                <p className="text-sm text-cyan-200/90 mt-1.5 leading-relaxed">
                   Planning a complete new annual crop rotation sequence starting fresh from <strong>Rabi</strong>. Evaluated against prior cycle crop ({selectedField?.previous_crop}).
                 </p>
               </div>
             </div>
-            <div className="text-xs font-mono text-cyan-200 bg-[#020e12] px-3 py-1.5 rounded-lg border border-cyan-800/60 shrink-0">
+            <div className="text-sm font-mono text-cyan-200 bg-[#020e12] px-3.5 py-2 rounded-lg border border-cyan-800/60 shrink-0">
               Prior Cycle Context: <strong className="text-white">{selectedField?.previous_crop || 'T. Aman Rice'}</strong>
             </div>
           </div>
         )}
 
         {/* Step-by-Step Crop Selectors */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
           {/* If Follow Standing Mode: Display Step 0 Standing Crop Card */}
           {cycleMode === 'continue_after_current' && (
-            <div className="bg-[#03150d] border-2 border-emerald-500/50 rounded-xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-[#021109] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-bl-lg tracking-wider shadow">
+            <div className="bg-[#03150d] border-2 border-emerald-500/50 rounded-xl p-4 sm:p-5 shadow-sm flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-emerald-500 text-[#021109] text-[11px] font-black uppercase px-3 py-0.5 rounded-bl-lg tracking-wider shadow">
                 STANDING NOW
               </div>
               <div>
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <div className="flex items-center justify-between text-sm mb-2.5">
+                  <span className="font-extrabold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     Step 0: In Field
                   </span>
-                  <span className="text-[10px] font-mono text-emerald-400/80 mr-14">
+                  <span className="text-xs font-mono text-emerald-400/90 mr-16">
                     Current Crop
                   </span>
                 </div>
 
-                <div className="bg-[#020d07] border border-emerald-700/60 rounded-xl p-3 mb-3">
-                  <div className="text-base font-extrabold text-white flex items-center gap-2">
+                <div className="bg-[#020d07] border border-emerald-700/60 rounded-xl p-3.5 mb-3.5">
+                  <div className="text-xl font-black text-white flex items-center gap-2">
                     <span>🌾</span> {selectedField?.current_crop || 'Current Crop'}
                   </div>
-                  <div className="text-xs text-emerald-400 font-semibold mt-0.5">
+                  <div className="text-sm text-emerald-400 font-semibold mt-1">
                     Family: {selectedField?.current_crop_family || 'Standing'}
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#020d07]/90 p-3 rounded-lg border border-emerald-900/60 space-y-1 text-[11px] text-emerald-200/70">
+              <div className="bg-[#020d07]/90 p-3.5 rounded-lg border border-emerald-900/60 space-y-1.5 text-xs text-emerald-200/80">
                 <div className="flex justify-between">
                   <span>Active Season:</span>
                   <strong className="text-emerald-300">Rabi (Growth Phase)</strong>
@@ -382,7 +382,7 @@ export default function RotationPlanner({ selectedField }) {
                   <span>Rotation Role:</span>
                   <strong className="text-white">Succession Baseline</strong>
                 </div>
-                <div className="text-[10px] text-emerald-400/80 mt-1 pt-1.5 border-t border-emerald-900/40 italic">
+                <div className="text-xs text-emerald-400/90 mt-2 pt-2 border-t border-emerald-900/40 italic leading-relaxed">
                   Next crops (Steps 1 & 2) follow after this crop is harvested.
                 </div>
               </div>
@@ -403,13 +403,13 @@ export default function RotationPlanner({ selectedField }) {
             const stepNumber = idx + 1;
 
             return (
-              <div key={season} className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-4 shadow-sm flex flex-col justify-between">
+              <div key={season} className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="font-bold text-emerald-300 uppercase tracking-wider">
+                  <div className="flex items-center justify-between text-sm mb-2.5">
+                    <span className="font-extrabold text-emerald-300 uppercase tracking-wider">
                       Step {stepNumber}: {season}
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-400/80">
+                    <span className="text-xs font-mono font-bold text-emerald-400/90">
                       Window: {seasonMaxDays}d
                     </span>
                   </div>
@@ -417,10 +417,10 @@ export default function RotationPlanner({ selectedField }) {
                   <select
                     value={currentCropId}
                     onChange={(e) => handleCropChange(idx, e.target.value)}
-                    className="w-full bg-[#03140c] border border-emerald-700/60 text-xs font-semibold text-white rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer shadow-inner mb-3"
+                    className="w-full bg-[#03140c] border border-emerald-700/60 text-sm font-bold text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer shadow-inner mb-3.5"
                   >
                     {crops.map((c) => (
-                      <option key={c.id} value={c.id} className="bg-[#062115] text-white">
+                      <option key={c.id} value={c.id} className="bg-[#062115] text-white py-1">
                         {c.name} ({c.crop_family}) - {c.growing_days}d
                       </option>
                     ))}
@@ -429,30 +429,30 @@ export default function RotationPlanner({ selectedField }) {
 
                 {/* Crop Agronomic Attributes Preview */}
                 {currentCrop && (
-                  <div className="bg-[#03130b] p-3 rounded-lg border border-emerald-900/60 space-y-1 text-[11px] text-emerald-200/70">
+                  <div className="bg-[#03130b] p-3.5 rounded-lg border border-emerald-900/60 space-y-1.5 text-xs text-emerald-200/80">
                     <div className="flex justify-between">
                       <span>Family:</span>
-                      <strong className="text-white">{currentCrop.crop_family}</strong>
+                      <strong className="text-white font-bold">{currentCrop.crop_family}</strong>
                     </div>
                     <div className="flex justify-between">
                       <span>Duration:</span>
-                      <strong className={isDurationFeasible ? 'text-emerald-300' : 'text-rose-400'}>
+                      <strong className={isDurationFeasible ? 'text-emerald-300 font-bold' : 'text-rose-400 font-bold'}>
                         {currentCrop.growing_days} days {isDurationFeasible ? '✓' : '⚠ exceeds window'}
                       </strong>
                     </div>
                     <div className="flex justify-between">
                       <span>Season Fit:</span>
-                      <strong className={isSeasonSuitable ? 'text-emerald-300' : 'text-amber-400'}>
+                      <strong className={isSeasonSuitable ? 'text-emerald-300 font-bold' : 'text-amber-400 font-bold'}>
                         {isSeasonSuitable ? `✓ Suitable for ${season}` : `⚠ Unsuitable (${Array.isArray(currentCrop.suitable_seasons) ? currentCrop.suitable_seasons.join(', ') : currentCrop.suitable_seasons})`}
                       </strong>
                     </div>
                     <div className="flex justify-between">
                       <span>Water Demand:</span>
-                      <strong className="text-cyan-300">{currentCrop.water_demand} / 100</strong>
+                      <strong className="text-cyan-300 font-bold">{currentCrop.water_demand} / 100</strong>
                     </div>
                     <div className="flex justify-between">
                       <span>Heat Tolerance:</span>
-                      <strong className="text-amber-300">{currentCrop.heat_tolerance} / 100</strong>
+                      <strong className="text-amber-300 font-bold">{currentCrop.heat_tolerance} / 100</strong>
                     </div>
                   </div>
                 )}
@@ -462,19 +462,19 @@ export default function RotationPlanner({ selectedField }) {
         </div>
 
         {/* Add/Remove Season Button & Evaluate Action */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-emerald-800/40">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-emerald-800/40">
           <div>
             {selectedSeasons.length === 2 ? (
               <button
                 onClick={handleAddSeason}
-                className="text-xs font-bold text-emerald-300 hover:text-emerald-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="text-sm font-bold text-emerald-300 hover:text-emerald-100 flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>+</span> Add Third Season (Kharif-2 T. Aman Rice)
               </button>
             ) : (
               <button
                 onClick={handleRemoveSeason}
-                className="text-xs font-bold text-rose-300/80 hover:text-rose-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="text-sm font-bold text-rose-300/80 hover:text-rose-200 flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>✕</span> Revert to 2-Season Rotation (Rabi → Kharif-1)
               </button>
@@ -483,12 +483,12 @@ export default function RotationPlanner({ selectedField }) {
 
           <div className="flex items-center gap-3 flex-wrap sm:justify-end">
             {evaluationResult && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#04140d] border border-emerald-700/60 text-xs">
+              <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#04140d] border border-emerald-700/60 text-sm">
                 <span className="text-emerald-400 font-bold">Evaluated:</span>
-                <span className="font-mono font-extrabold text-white">
+                <span className="font-mono text-base font-black text-white">
                   {Math.round(evaluationResult.overall_score * 10) / 10} / 100
                 </span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                   evaluationResult.feasibility_status === 'Seasonally feasible'
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-600/50'
                     : 'bg-rose-500/20 text-rose-300 border border-rose-600/50'
@@ -499,13 +499,13 @@ export default function RotationPlanner({ selectedField }) {
             )}
 
             <button
-              onClick={handleEvaluate}
+              onClick={() => handleEvaluate(true)}
               disabled={isEvaluating}
-              className="px-6 py-2.5 rounded-xl font-extrabold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-[#04140d] shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-7 py-3 rounded-xl font-black text-base bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-[#04140d] shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isEvaluating ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-[#04140d] border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-5 h-5 border-2 border-[#04140d] border-t-transparent rounded-full animate-spin"></span>
                   Evaluating NASA Multipliers...
                 </>
               ) : (
@@ -518,7 +518,7 @@ export default function RotationPlanner({ selectedField }) {
         </div>
 
         {evalError && (
-          <div className="mt-4 bg-rose-950/70 border border-rose-800 p-3.5 rounded-xl text-xs text-rose-200">
+          <div className="mt-4 bg-rose-950/70 border border-rose-800 p-4 rounded-xl text-sm text-rose-200">
             <strong>Evaluation Error:</strong> {evalError}
           </div>
         )}

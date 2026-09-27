@@ -54,42 +54,42 @@ export default function PrioritySlider({
       </div>
 
       {/* Explanatory Banner: Section 39 Natural 1.0x to 2.0x Multiplier Mechanism */}
-      <div className="bg-[#042116]/90 border border-emerald-600/40 rounded-xl p-3.5 mb-6 text-xs text-emerald-100 shadow-sm">
+      <div className="bg-[#042116]/90 border border-emerald-600/40 rounded-xl p-4 mb-6 text-sm text-emerald-100 shadow-sm">
         <p className="flex items-start gap-2.5">
-          <span className="text-emerald-400 text-base leading-none mt-0.5">ℹ</span>
+          <span className="text-emerald-400 text-lg leading-none mt-0.5">ℹ</span>
           <span className="leading-relaxed">
-            <strong className="font-bold text-emerald-300">NASA Climate Weighting:</strong> Regional satellite stress metrics automatically scale your water and heat priorities via <code className="bg-[#03140c] px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[11px]">weight = priority × (1 + stress)</code>. When stress is severe, NASA data amplifies that priority up to <strong>2.0×</strong> to protect farm yield.
+            <strong className="font-bold text-emerald-300">NASA Climate Weighting:</strong> Regional satellite stress metrics automatically scale your water and heat priorities via <code className="bg-[#03140c] px-2 py-0.5 rounded text-cyan-300 font-mono text-xs">weight = priority × (1 + stress)</code>. When stress is severe, NASA data amplifies that priority up to <strong>2.0×</strong> to protect farm yield.
           </span>
         </p>
       </div>
 
       {/* Grid of 5 Sliders */}
-      <div className="space-y-5">
+      <div className="space-y-6">
         {/* 1. WATER CONSERVATION PRIORITY */}
-        <div className="bg-[#051d12]/80 border border-cyan-800/40 rounded-xl p-4 transition-colors hover:border-cyan-700/60 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">💧</span>
+        <div className="bg-[#051d12]/80 border border-cyan-800/40 rounded-xl p-4 sm:p-5 transition-colors hover:border-cyan-700/60 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">💧</span>
               <div>
-                <span className="text-sm font-bold text-white">Water Conservation Priority</span>
-                <span className="text-[11px] text-cyan-300/70 block">
+                <span className="text-base font-extrabold text-white">Water Conservation Priority</span>
+                <span className="text-xs text-cyan-200/80 block mt-0.5">
                   Crops with low water demand (e.g. Chickpea, Lentil vs high-demand Boro Rice)
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap sm:justify-end">
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-cyan-950/90 text-cyan-200 border border-cyan-800/80">
+              <span className="text-sm font-mono font-bold px-2.5 py-1 rounded bg-cyan-950/90 text-cyan-200 border border-cyan-800/80">
                 Level {priorities.water}/5
               </span>
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+              <span className="text-sm font-mono font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
                 {waterMultiplier.toFixed(2)}× Multiplier
               </span>
-              <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-cyan-400 text-[#04140d]">
+              <span className="text-sm font-mono font-extrabold px-3 py-1 rounded-full bg-cyan-400 text-[#04140d]">
                 Eff. Weight: {effectiveWaterWeight}
               </span>
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-4">
+          <div className="mt-3.5 flex items-center gap-4">
             <input
               type="range"
               min="1"
@@ -97,13 +97,13 @@ export default function PrioritySlider({
               step="1"
               value={priorities.water}
               onChange={(e) => handlePriorityChange('water', e.target.value)}
-              className="w-full accent-cyan-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
+              className="w-full accent-cyan-400 cursor-pointer h-2.5 bg-[#03140c] rounded-lg appearance-none"
             />
-            <span className="text-sm font-black text-cyan-300 w-4 text-center">{priorities.water}</span>
+            <span className="text-base font-black text-cyan-300 w-5 text-center">{priorities.water}</span>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-emerald-300/50 font-mono">
+          <div className="mt-2.5 flex justify-between text-xs text-emerald-300/70 font-mono">
             <span>1 (Minimal water concern)</span>
-            <span>Current NASA Adjusted Stress: {(safeWaterStress * 100).toFixed(1)}% {irrigationAvailable ? '(Irrigation factor 0.7 applied)' : '(Rainfed)'}</span>
+            <span>NASA Adjusted Stress: {(safeWaterStress * 100).toFixed(1)}% {irrigationAvailable ? '(Irrigation factor 0.7 applied)' : '(Rainfed)'}</span>
             <span>5 (Critical water saving)</span>
           </div>
         </div>
