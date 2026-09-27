@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCrops, evaluateRotation } from '../services/api';
+import { INITIAL_CROPS } from '../data/initialData';
 import PrioritySlider from '../components/PrioritySlider';
 import RotationCard from '../components/RotationCard';
 
@@ -8,8 +9,8 @@ import RotationCard from '../components/RotationCard';
  * Interactive seasonal crop sequence builder and NASA-aware evaluation hub.
  */
 export default function RotationPlanner({ selectedField }) {
-  const [crops, setCrops] = useState([]);
-  const [isLoadingCrops, setIsLoadingCrops] = useState(true);
+  const [crops, setCrops] = useState(INITIAL_CROPS);
+  const [isLoadingCrops, setIsLoadingCrops] = useState(false);
 
   // Rotation planning state
   const [cycleMode, setCycleMode] = useState('continue_after_current'); // 'continue_after_current' | 'start_new_cycle'
@@ -30,25 +31,17 @@ export default function RotationPlanner({ selectedField }) {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evalError, setEvalError] = useState(null);
 
-  // Load canonical crops
+  // Load canonical crops in background
   useEffect(() => {
     async function loadCrops() {
       try {
-        setIsLoadingCrops(true);
         const data = await fetchCrops();
         const loadedCrops = data.crops || [];
-        setCrops(loadedCrops);
-
-        // Dynamically find canonical default crops: Chickpea (Rabi) and Mung Bean (Kharif-1)
-        const chickpea = loadedCrops.find(c => c.name.toLowerCase().includes('chickpea'));
-        const mung = loadedCrops.find(c => c.name.toLowerCase().includes('mung'));
-        if (chickpea && mung) {
-          setSelectedCropIds([chickpea.id, mung.id]);
+        if (loadedCrops.length > 0) {
+          setCrops(loadedCrops);
         }
       } catch (err) {
-        console.error('Failed to load crops:', err);
-      } finally {
-        setIsLoadingCrops(false);
+        console.warn('Background crops sync:', err);
       }
     }
     loadCrops();
