@@ -15,11 +15,12 @@
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.5;
-    background-color: #04140d;
+    background-color: #0b2419;
     background-image: 
-      radial-gradient(ellipse at 50% 0%, #0e3b24 0%, transparent 65%),
-      radial-gradient(circle at 15% 35%, #08291a 0%, transparent 45%),
-      radial-gradient(circle at 85% 75%, #062316 0%, transparent 45%);
+      radial-gradient(ellipse at 50% -10%, #1e5c3b 0%, transparent 75%),
+      radial-gradient(circle at 15% 25%, #164b30 0%, transparent 55%),
+      radial-gradient(circle at 85% 65%, #185034 0%, transparent 55%),
+      linear-gradient(180deg, rgba(30, 92, 59, 0.25) 0%, rgba(11, 36, 25, 0.75) 100%);
     background-attachment: fixed;
     color: #f0fdf4;
     min-height: 100vh;
@@ -71,34 +72,112 @@
   line-height: 1.2 !important;
 }
 
+/* 
+ * Universal Surface Luminance & Elevation Overrides:
+ * Brightens cards, containers, and inner wells so the UI is crisp,
+ * legible, and vibrant without feeling like a gloomy black terminal.
+ */
+.bg-\[\#092619\]\/90, .bg-\[\#092619\] {
+  background-color: rgba(20, 58, 40, 0.90) !important;
+  border-color: rgba(52, 211, 153, 0.32) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), 0 0 20px rgba(16, 185, 129, 0.06) !important;
+}
+
+.bg-\[\#051d12\]\/80, .bg-\[\#051d12\]\/90, .bg-\[\#051d12\]\/60, .bg-\[\#051d12\] {
+  background-color: rgba(15, 45, 31, 0.86) !important;
+  border-color: rgba(52, 211, 153, 0.22) !important;
+}
+
+.bg-\[\#042116\]\/90, .bg-\[\#042116\] {
+  background-color: rgba(24, 68, 46, 0.92) !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+
+.bg-\[\#03130b\], .bg-\[\#03140c\], .bg-\[\#03130b\]\/60 {
+  background-color: rgba(12, 38, 26, 0.90) !important;
+}
+
+.bg-\[\#062115\]\/90, header.bg-\[\#062115\]\/90 {
+  background-color: rgba(18, 52, 36, 0.95) !important;
+  border-bottom-color: rgba(52, 211, 153, 0.25) !important;
+}
+
+.bg-\[\#08281a\] {
+  background-color: rgba(22, 62, 43, 0.90) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+footer.bg-\[\#03130b\], .bg-\[\#03130b\] {
+  background-color: rgba(13, 38, 27, 0.96) !important;
+  border-top-color: rgba(52, 211, 153, 0.20) !important;
+}
+
+/* 
+ * Bright / High-Contrast Mode:
+ * Gives even higher luminance, ideal for bright rooms, daylight, or presentations.
+ */
+.theme-bright {
+  background-color: #123828 !important;
+  background-image: 
+    radial-gradient(ellipse at 50% -10%, #297a52 0%, transparent 80%),
+    radial-gradient(circle at 15% 25%, #206642 0%, transparent 65%),
+    radial-gradient(circle at 85% 65%, #236d47 0%, transparent 65%),
+    linear-gradient(180deg, rgba(41, 122, 82, 0.32) 0%, rgba(18, 56, 40, 0.85) 100%) !important;
+}
+
+.theme-bright .bg-\[\#092619\]\/90, .theme-bright .bg-\[\#092619\] {
+  background-color: rgba(28, 76, 54, 0.94) !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2), 0 0 25px rgba(52, 211, 153, 0.12) !important;
+}
+
+.theme-bright .bg-\[\#051d12\]\/80, .theme-bright .bg-\[\#051d12\]\/90, .theme-bright .bg-\[\#051d12\]\/60, .theme-bright .bg-\[\#051d12\] {
+  background-color: rgba(21, 60, 42, 0.90) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+.theme-bright .bg-\[\#062115\]\/90, .theme-bright header.bg-\[\#062115\]\/90 {
+  background-color: rgba(24, 70, 49, 0.96) !important;
+  border-bottom-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+.theme-bright .bg-\[\#08281a\] {
+  background-color: rgba(30, 82, 58, 0.95) !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+
+.theme-bright footer.bg-\[\#03130b\], .theme-bright .bg-\[\#03130b\] {
+  background-color: rgba(18, 52, 37, 0.98) !important;
+}
+
 /* Custom agricultural scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #04140d;
+  background: #0b2419;
 }
 ::-webkit-scrollbar-thumb {
-  background: #0f3d27;
+  background: #1b5437;
   border-radius: 4px;
-  border: 2px solid #04140d;
+  border: 2px solid #0b2419;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #165b38;
+  background: #236c47;
 }
 
 /* Leaflet Map overrides for botanical dark theme */
 .leaflet-container {
-  background-color: #04140d !important;
+  background-color: #0b2419 !important;
   font-family: var(--font-sans) !important;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  background: #092619 !important;
+  background: #143e2b !important;
   color: #f0fdf4 !important;
-  border: 1px solid rgba(52, 211, 153, 0.25) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(52, 211, 153, 0.35) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
 }
 
 .leaflet-popup-content {
@@ -107,12 +186,12 @@
 }
 
 .leaflet-control-layers {
-  background: #092619 !important;
+  background: #143e2b !important;
   color: #f0fdf4 !important;
-  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+  border: 1px solid rgba(52, 211, 153, 0.35) !important;
   border-radius: 12px !important;
   padding: 6px 10px !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
 .leaflet-control-layers label {
@@ -123,12 +202,12 @@
 }
 
 .leaflet-bar a {
-  background-color: #092619 !important;
+  background-color: #143e2b !important;
   color: #34d399 !important;
-  border-bottom: 1px solid rgba(52, 211, 153, 0.2) !important;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.25) !important;
 }
 
 .leaflet-bar a:hover {
-  background-color: #0e3b24 !important;
+  background-color: #1b5437 !important;
   color: #6ee7b7 !important;
 }
