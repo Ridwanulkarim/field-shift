@@ -64,7 +64,7 @@ export default function RotationPlanner({ selectedField }) {
     : 0.2;
 
   // Run evaluation
-  const handleEvaluate = async () => {
+  const handleEvaluate = async (shouldScroll = false) => {
     if (!selectedField) return;
     try {
       setIsEvaluating(true);
@@ -105,9 +105,11 @@ export default function RotationPlanner({ selectedField }) {
         }));
       }
       setEvaluationResult(evaluated);
-      setTimeout(() => {
-        document.getElementById('candidate-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      if (shouldScroll) {
+        setTimeout(() => {
+          document.getElementById('candidate-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
     } catch (err) {
       console.error('Evaluation failed:', err);
       setEvalError(err.message);
@@ -116,12 +118,44 @@ export default function RotationPlanner({ selectedField }) {
     }
   };
 
-  // Evaluate automatically on mount or field switch
-  useEffect(() => {
-    if (crops.length > 0 && selectedField) {
-      handleEvaluate();
+  // Switch cycle mode with instant visual & seasonal sequence adaptation
+  const handleSwitchCycleMode = (newMode) => {
+    setCycleMode(newMode);
+
+    const chickpeaId = crops.find(c => c.name.toLowerCase().includes('chickpea'))?.id || 12;
+    const mungId = crops.find(c => c.name.toLowerCase().includes('mung'))?.id || 5;
+    const amanId = crops.find(c => c.name.toLowerCase().includes('aman'))?.id || 3;
+    const wheatId = crops.find(c => c.name.toLowerCase().includes('wheat'))?.id || 8;
+
+    if (newMode === 'continue_after_current') {
+      // In continue_after_current, we plan post-harvest seasons that follow the active standing crop:
+      setSelectedSeasons(['Kharif-1', 'Kharif-2']);
+      setSelectedCropIds([mungId, amanId]);
+    } else {
+      // In start_new_cycle, we plan a complete fresh annual cycle starting from Rabi:
+      setSelectedSeasons(['Rabi', 'Kharif-1', 'Kharif-2']);
+      const rabiDefault = selectedField?.soil_type?.toLowerCase().includes('clay') ? chickpeaId : wheatId;
+      setSelectedCropIds([rabiDefault, mungId, amanId]);
     }
-  }, [selectedField?.id, crops.length]);
+  };
+
+  // Evaluate automatically whenever field, cycleMode, crop sequence, or priorities change
+  useEffect(() => {
+    if (crops.length > 0 && selectedField && selectedCropIds.length > 0) {
+      handleEvaluate(false);
+    }
+  }, [
+    selectedField?.id,
+    crops.length,
+    cycleMode,
+    selectedCropIds.join(','),
+    selectedSeasons.join(','),
+    priorities.water,
+    priorities.heat,
+    priorities.soil,
+    priorities.diversity,
+    priorities.profitability
+  ]);
 
   // Handler to update crop selection for a sequence step
   const handleCropChange = (index, cropId) => {
@@ -243,32 +277,118 @@ export default function RotationPlanner({ selectedField }) {
           {/* Cycle Mode Switcher */}
           <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
             <button
-              onClick={() => setCycleMode('continue_after_current')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+              onClick={() => handleSwitchCycleMode('continue_after_current')}
+              className={`px-3.5 py-1.5 rounded-lg font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
                 cycleMode === 'continue_after_current'
-                  ? 'bg-emerald-500 text-white shadow-sm'
+                  ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/20'
                   : 'text-emerald-300/70 hover:text-white'
               }`}
-              title="Next crops follow standing current crop"
+              title="Plan next crops to follow active standing crop in field"
             >
-              Follow Current Standing
+              <span>🌾</span> Follow Current Standing
             </button>
             <button
-              onClick={() => setCycleMode('start_new_cycle')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+              onClick={() => handleSwitchCycleMode('start_new_cycle')}
+              className={`px-3.5 py-1.5 rounded-lg font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
                 cycleMode === 'start_new_cycle'
-                  ? 'bg-emerald-500 text-white shadow-sm'
+                  ? 'bg-cyan-400 text-[#04140d] shadow-md shadow-cyan-400/20'
                   : 'text-emerald-300/70 hover:text-white'
               }`}
-              title="New cycle starts fresh from previous season"
+              title="Plan fresh 3-season annual crop rotation starting from Rabi"
             >
-              Start New Cycle
+              <span>🔄</span> Start New Cycle
             </button>
           </div>
         </div>
 
+        {/* Dynamic Mode Explanatory Banner */}
+        {cycleMode === 'continue_after_current' ? (
+          <div className="mb-6 p-4 rounded-xl bg-[#031d12] border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl mt-0.5">🌾</span>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-extrabold text-white">Interface: Follow Current Standing Crop</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
+                    Active in Field: {selectedField?.current_crop} ({selectedField?.current_crop_family})
+                  </span>
+                </div>
+                <p className="text-xs text-emerald-200/80 mt-1">
+                  The field currently has standing <strong>{selectedField?.current_crop}</strong>. You are planning the next crops to plant sequentially after harvest ({selectedSeasons.join(' ➔ ')}).
+                </p>
+              </div>
+            </div>
+            <div className="text-xs font-mono text-emerald-300 bg-[#021009] px-3 py-1.5 rounded-lg border border-emerald-800/60 shrink-0">
+              Repeat Context: <strong className="text-white">{selectedField?.current_crop}</strong>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-6 p-4 rounded-xl bg-[#031b20] border border-cyan-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl mt-0.5">🔄</span>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-extrabold text-white">Interface: Start New Annual Cycle</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-400/25 text-cyan-200 border border-cyan-400/40">
+                    Fresh 3-Season Sequence
+                  </span>
+                </div>
+                <p className="text-xs text-cyan-200/80 mt-1">
+                  Planning a complete new annual crop rotation sequence starting fresh from <strong>Rabi</strong>. Evaluated against prior cycle crop ({selectedField?.previous_crop}).
+                </p>
+              </div>
+            </div>
+            <div className="text-xs font-mono text-cyan-200 bg-[#020e12] px-3 py-1.5 rounded-lg border border-cyan-800/60 shrink-0">
+              Prior Cycle Context: <strong className="text-white">{selectedField?.previous_crop || 'T. Aman Rice'}</strong>
+            </div>
+          </div>
+        )}
+
         {/* Step-by-Step Crop Selectors */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* If Follow Standing Mode: Display Step 0 Standing Crop Card */}
+          {cycleMode === 'continue_after_current' && (
+            <div className="bg-[#03150d] border-2 border-emerald-500/50 rounded-xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-emerald-500 text-[#021109] text-[9px] font-black uppercase px-2.5 py-0.5 rounded-bl-lg tracking-wider shadow">
+                STANDING NOW
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span className="font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Step 0: In Field
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400/80 mr-14">
+                    Current Crop
+                  </span>
+                </div>
+
+                <div className="bg-[#020d07] border border-emerald-700/60 rounded-xl p-3 mb-3">
+                  <div className="text-base font-extrabold text-white flex items-center gap-2">
+                    <span>🌾</span> {selectedField?.current_crop || 'Current Crop'}
+                  </div>
+                  <div className="text-xs text-emerald-400 font-semibold mt-0.5">
+                    Family: {selectedField?.current_crop_family || 'Standing'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#020d07]/90 p-3 rounded-lg border border-emerald-900/60 space-y-1 text-[11px] text-emerald-200/70">
+                <div className="flex justify-between">
+                  <span>Active Season:</span>
+                  <strong className="text-emerald-300">Rabi (Growth Phase)</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Rotation Role:</span>
+                  <strong className="text-white">Succession Baseline</strong>
+                </div>
+                <div className="text-[10px] text-emerald-400/80 mt-1 pt-1.5 border-t border-emerald-900/40 italic">
+                  Next crops (Steps 1 & 2) follow after this crop is harvested.
+                </div>
+              </div>
+            </div>
+          )}
+
           {selectedSeasons.map((season, idx) => {
             const currentCropId = selectedCropIds[idx];
             const currentCrop = crops.find(c => c.id === currentCropId);
@@ -279,13 +399,15 @@ export default function RotationPlanner({ selectedField }) {
                   ? currentCrop.suitable_seasons.includes(season)
                   : String(currentCrop.suitable_seasons || '').includes(season))
               : true;
+            
+            const stepNumber = idx + 1;
 
             return (
               <div key={season} className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-4 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between text-xs mb-2">
                     <span className="font-bold text-emerald-300 uppercase tracking-wider">
-                      Step {idx + 1}: {season}
+                      Step {stepNumber}: {season}
                     </span>
                     <span className="text-[10px] font-mono text-emerald-400/80">
                       Window: {seasonMaxDays}d
