@@ -19,10 +19,17 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
 
   const isInitialLoadRef = useRef(true);
 
+  // Strict bounds bounding Bangladesh (with comfortable padding):
+  // Southwest: [20.3, 87.5], Northeast: [26.8, 93.0]
+  const bangladeshBounds = L.latLngBounds(
+    [20.3, 87.5],
+    [26.8, 93.0]
+  );
+
   const handleFitAll = () => {
     if (mapInstanceRef.current && fields.length > 0) {
       const bounds = L.latLngBounds(fields.map(f => [f.latitude, f.longitude]));
-      mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40] });
+      mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
     }
   };
 
@@ -33,40 +40,68 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [24.0, 89.6],
+        center: [24.0, 89.8],
         zoom: 7,
+        minZoom: 6.5,
+        maxZoom: 18,
+        maxBounds: bangladeshBounds,
+        maxBoundsViscosity: 1.0,
         zoomControl: true,
         attributionControl: false
       });
 
-      // Esri World Imagery (High-res satellite view - free, no API key required, authentic NASA agro context)
-      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      // 1. Esri World Imagery (High-res satellite view) + Official English Labels
+      const satelliteImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Earthstar Geographics'
       });
+      const satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: '&copy; Esri'
+      });
+      const satelliteGroup = L.layerGroup([satelliteImagery, satelliteLabels]);
 
-      // OpenStreetMap standard (Free, no API key, clean topography & cities)
-      const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // 2. CartoDB Voyager (Street & Topographic with crisp English labels - replaces standard OSM)
+      const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
       });
 
-      // Default to Satellite for authentic agricultural Earth Observation context
-      satelliteLayer.addTo(map);
+      // 3. CartoDB Dark Matter (High-tech Dark Theme matching dashboard)
+      const darkMatterLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+      });
 
-      // Add layer switcher (Satellite vs Street Map)
+      // Default to Satellite + English Labels for authentic Earth Observation context
+      satelliteGroup.addTo(map);
+
+      // Add layer switcher with English labeled layers
       L.control.layers({
-        '🛰️ Satellite': satelliteLayer,
-        '🗺️ OpenStreetMap': osmLayer
+        '🛰️ Satellite (Esri + English Labels)': satelliteGroup,
+        '🗺️ Street Map (English Topo)': voyagerLayer,
+        '🌙 Dark Dashboard (CARTO)': darkMatterLayer
       }, null, { position: 'topright', collapsed: true }).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
       geojsonLayerRef.current = L.layerGroup().addTo(map);
 
       mapInstanceRef.current = map;
+
+      // Invalidate size after container renders
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 150);
     }
 
     const map = mapInstanceRef.current;
+    if (map) {
+      map.invalidateSize();
+    }
 
     // Refresh field marker pins (all 5 fields rendered)
     if (markersLayerRef.current) {
@@ -77,17 +112,20 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         const badge = getConditionBadge(f.condition_score?.label);
 
         const marker = L.circleMarker([f.latitude, f.longitude], {
-          radius: isSelected ? 11 : 8,
+          radius: isSelected ? 12 : 9,
           color: isSelected ? '#38bdf8' : '#0f172a',
-          weight: isSelected ? 3 : 2,
+          weight: isSelected ? 3.5 : 2,
           fillColor: badge.color,
-          fillOpacity: 0.9
+          fillOpacity: 0.95
         });
 
+        const district = f.name.includes('(') ? f.name.split('(')[1].replace(')', '') : f.name;
         marker.bindTooltip(`
-          <div style="font-family: sans-serif; font-size: 11px; padding: 2px;">
-            <strong>${f.name.split('(')[0]}</strong><br/>
-            <span>Score: ${f.condition_score?.score || 'N/A'} • ${f.condition_score?.label || ''}</span>
+          <div style="font-family: sans-serif; font-size: 11px; padding: 4px; min-width: 140px;">
+            <div style="font-weight: 800; color: #0f172a; margin-bottom: 2px;">Field #${f.id}: ${district}</div>
+            <div style="font-size: 10px; color: #475569; font-family: monospace;">${f.latitude.toFixed(4)}°N, ${f.longitude.toFixed(4)}°E</div>
+            <div style="font-size: 10px; font-weight: 700; color: #0284c7; margin-top: 2px;">Crop: ${f.current_crop} (${f.current_crop_family})</div>
+            <div style="font-size: 10px; font-weight: 700; color: #166534; margin-top: 1px;">Condition: ${f.condition_score?.score || 'N/A'}/100 • ${f.condition_score?.label || ''}</div>
           </div>
         `, { direction: 'top', offset: [0, -10] });
 
@@ -126,7 +164,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
     if (map && fields.length > 0) {
       if (isInitialLoadRef.current) {
         const bounds = L.latLngBounds(fields.map(f => [f.latitude, f.longitude]));
-        map.fitBounds(bounds, { padding: [40, 40] });
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
         isInitialLoadRef.current = false;
       } else if (selectedField) {
         map.flyTo([selectedField.latitude, selectedField.longitude], 9, {
