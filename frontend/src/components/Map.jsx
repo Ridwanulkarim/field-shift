@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getConditionBadge } from '../utils/formatting';
+import bangladeshGeoJson from '../data/bangladeshGeoJson.json';
 
 /**
  * Leaflet & GeoJSON Agro-Ecological Map Component (Spec Section 46, 51)
@@ -13,6 +14,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   const mapInstanceRef = useRef(null);
   const geojsonLayerRef = useRef(null);
   const markersLayerRef = useRef(null);
+  const countryMaskRef = useRef(null);
   const [mapMode, setMapMode] = useState('leaflet'); // 'leaflet' | 'vector'
 
   const selectedField = fields.find(f => f.id === selectedFieldId) || fields[0];
@@ -70,11 +72,47 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
       // Default to Satellite + English Labels for authentic Earth Observation context
       satelliteGroup.addTo(map);
 
-      // Add layer switcher with only Satellite and Street Map (clean & no API key)
-      L.control.layers({
-        '🛰️ Satellite': satelliteGroup,
-        '🗺️ Street Map': streetMapLayer
-      }, null, { position: 'topright', collapsed: true }).addTo(map);
+      // Bangladesh Boundary Mask: Inverts the country polygon to mask out
+      // neighboring territories (Kolkata, Malda, Siliguri, Assam, etc.)
+      const bdCoords = bangladeshGeoJson.features[0].geometry.coordinates[0].map(([lon, lat]) => [lat, lon]);
+      const outerWorld = [
+        [90, -180],
+        [90, 180],
+        [-90, 180],
+        [-90, -180]
+      ];
+
+      const countryMask = L.polygon([outerWorld, bdCoords], {
+        color: '#10b981',
+        weight: 2,
+        opacity: 0.9,
+        fillColor: '#04140d',
+        fillOpacity: 0.85,
+        interactive: false
+      });
+      countryMask.addTo(map);
+      countryMaskRef.current = countryMask;
+
+      // Glowing dashed border along Bangladesh's national perimeter
+      L.polyline(bdCoords, {
+        color: '#34d399',
+        weight: 2.2,
+        opacity: 0.95,
+        dashArray: '6 4',
+        interactive: false
+      }).addTo(map);
+
+      // Add layer switcher with Satellite, Street Map, and optional Focus Mask overlay
+      L.control.layers(
+        {
+          '🛰️ Satellite': satelliteGroup,
+          '🗺️ Street Map': streetMapLayer
+        },
+        {
+          '🛡️ Bangladesh Focus Shroud': countryMask
+        },
+        { position: 'topright', collapsed: true }
+      ).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
       geojsonLayerRef.current = L.layerGroup().addTo(map);
