@@ -61,28 +61,19 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
       });
       const satelliteGroup = L.layerGroup([satelliteImagery, satelliteLabels]);
 
-      // 2. CartoDB Voyager (Street & Topographic with crisp English labels - replaces standard OSM)
-      const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
-      });
-
-      // 3. CartoDB Dark Matter (High-tech Dark Theme matching dashboard)
-      const darkMatterLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+      // 2. Esri World Street Map (Clean street & city view in English - 100% Free, NO API key required)
+      const streetMapLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: '&copy; Esri &mdash; OpenStreetMap contributors'
       });
 
       // Default to Satellite + English Labels for authentic Earth Observation context
       satelliteGroup.addTo(map);
 
-      // Add layer switcher with English labeled layers
+      // Add layer switcher with only Satellite and Street Map (clean & no API key)
       L.control.layers({
-        '🛰️ Satellite (Esri + English Labels)': satelliteGroup,
-        '🗺️ Street Map (English Topo)': voyagerLayer,
-        '🌙 Dark Dashboard (CARTO)': darkMatterLayer
+        '🛰️ Satellite': satelliteGroup,
+        '🗺️ Street Map': streetMapLayer
       }, null, { position: 'topright', collapsed: true }).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
