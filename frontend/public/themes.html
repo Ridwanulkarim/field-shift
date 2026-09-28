@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Field Shift - Color Theme Showcase</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-8 min-h-screen bg-[#071018] text-slate-100">
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- Header -->
+    <div class="text-center space-y-3 pb-6 border-b border-slate-800">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+        🎨 Live Interactive Color Palette Preview
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+        Field Shift Color Theme Comparison
+      </h1>
+      <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+        নিচের ৪টি থিমের যেকোনো একটিতে ক্লিক করে লাইভ প্রিভিউ দেখুন। বর্তমান ঘোলাটে ও ডার্ক গ্রিনের বদলে এই রঙগুলো কেমন দেখাবে তা পরীক্ষা করুন।
+      </p>
+
+      <!-- Theme Switcher Tabs -->
+      <div class="flex flex-wrap items-center justify-center gap-2 pt-4" id="theme-buttons">
+        <button onclick="switchTheme(1)" id="btn-1" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all border shadow-lg flex items-center gap-2 bg-emerald-500 text-white border-emerald-400 shadow-emerald-500/20">
+          <span>🌿 ১. Modern Mint & Slate Teal</span>
+          <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono">Popular</span>
+        </button>
+        <button onclick="switchTheme(2)" id="btn-2" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all border text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800">
+          <span>🛰️ ২. Space-Ag Emerald & Cyan</span>
+          <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded font-mono">NASA</span>
+        </button>
+        <button onclick="switchTheme(3)" id="btn-3" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all border text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800">
+          <span>🌱 ৩. Soft Sage & Forest</span>
+          <span class="text-[10px] bg-emerald-800/30 text-emerald-300 px-1.5 py-0.5 rounded font-mono">Matte</span>
+        </button>
+        <button onclick="switchTheme(4)" id="btn-4" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all border text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800">
+          <span>☀️ ৪. Clean Crisp Light-Ag</span>
+          <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">Daylight</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Theme Overview Card -->
+    <div id="theme-banner" class="rounded-2xl p-6 border transition-all">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span id="theme-badge" class="text-xs font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-2"></span>
+          <h2 id="theme-title" class="text-2xl font-black"></h2>
+          <p id="theme-desc" class="text-sm mt-1 max-w-2xl"></p>
+        </div>
+        <div class="flex items-center gap-2" id="color-chips">
+          <!-- Swatches rendered via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE MOCKUP PREVIEW WINDOW -->
+    <div class="rounded-3xl p-6 sm:p-8 border shadow-2xl transition-all duration-300 relative overflow-hidden" id="preview-window">
+      
+      <!-- Mock Top Navbar -->
+      <div id="mock-nav" class="rounded-2xl p-4 border mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md transition-all">
+        <div class="flex items-center gap-3">
+          <div id="mock-logo" class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-md">
+            🌾
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="mock-brand" class="font-black text-base tracking-tight">FIELD SHIFT</span>
+              <span id="mock-version" class="text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">MVP v6.2</span>
+            </div>
+            <p id="mock-tagline" class="text-xs mt-0.5">Adapting Farms with NASA Earth Observations • Bangladesh</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button id="mock-tab-1" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all">Dashboard</button>
+          <button id="mock-tab-2" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold opacity-70">Planner</button>
+          <button id="mock-tab-3" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold opacity-70">Recommendations</button>
+          <div id="mock-health" class="px-3 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-2 ml-2">
+            <span class="w-2 h-2 rounded-full animate-ping" id="mock-pulse"></span>
+            <span>API: Online</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mock Dashboard Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Field Details Card -->
+        <div id="mock-card-1" class="rounded-2xl p-5 border shadow-lg space-y-4">
+          <div class="flex items-start justify-between">
+            <div>
+              <span id="mock-field-badge" class="text-[11px] font-mono font-bold uppercase tracking-wider block">Field #1 Overview</span>
+              <h3 id="mock-field-title" class="text-lg font-black mt-0.5">Godagari Barind Terrace</h3>
+              <p id="mock-field-loc" class="text-xs">Rajshahi • 24.4715°N, 88.3325°E</p>
+            </div>
+            <span id="mock-cond-badge" class="px-2.5 py-1 rounded-full text-xs font-bold font-mono">Moderate Stress</span>
+          </div>
+
+          <!-- Parameter grid -->
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div id="mock-param-1" class="p-3 rounded-xl border">
+              <span class="opacity-70 block text-[11px]">Soil Texture</span>
+              <strong class="font-bold text-sm block mt-0.5">Silty Clay Loam</strong>
+            </div>
+            <div id="mock-param-2" class="p-3 rounded-xl border">
+              <span class="opacity-70 block text-[11px]">Soil pH</span>
+              <strong class="font-bold text-sm block mt-0.5">5.80 (Acidic)</strong>
+            </div>
+            <div id="mock-param-3" class="p-3 rounded-xl border">
+              <span class="opacity-70 block text-[11px]">Standing Crop</span>
+              <strong class="font-bold text-sm block mt-0.5">Chickpea (Legume)</strong>
+            </div>
+            <div id="mock-param-4" class="p-3 rounded-xl border">
+              <span class="opacity-70 block text-[11px]">Irrigation Mode</span>
+              <strong class="font-bold text-sm block mt-0.5">Rainfed (Drought)</strong>
+            </div>
+          </div>
+
+          <button id="mock-btn-action" class="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all shadow-md">
+            View Earth Observation Data →
+          </button>
+        </div>
+
+        <!-- Middle: Condition & Stresses Card -->
+        <div id="mock-card-2" class="rounded-2xl p-5 border shadow-lg space-y-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <span id="mock-score-badge" class="text-[11px] font-mono font-bold uppercase tracking-wider block">Field Condition Index</span>
+              <h3 id="mock-score-title" class="text-lg font-black mt-0.5">NASA Satellite Stress</h3>
+            </div>
+            <div id="mock-score-circle" class="w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-black text-lg border shadow-inner">
+              48
+            </div>
+          </div>
+
+          <div class="space-y-3.5 text-xs">
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span>Vegetation Health (HLS EVI)</span>
+                <span class="font-mono">68.6 / 100</span>
+              </div>
+              <div id="mock-prog-1" class="h-2 rounded-full overflow-hidden">
+                <div class="h-full w-[68%]" id="mock-bar-1"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span>Root Moisture (SMAP / GPM)</span>
+                <span class="font-mono">3.1 / 100 (Severe)</span>
+              </div>
+              <div id="mock-prog-2" class="h-2 rounded-full overflow-hidden">
+                <div class="h-full w-[15%]" id="mock-bar-2"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span>Thermal Index (MODIS LST)</span>
+                <span class="font-mono">87.7 / 100</span>
+              </div>
+              <div id="mock-prog-3" class="h-2 rounded-full overflow-hidden">
+                <div class="h-full w-[88%]" id="mock-bar-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="mock-intel" class="p-3 rounded-xl border text-xs leading-relaxed">
+            💡 <strong>Agronomic Insight:</strong> High winter water deficit detected. Deep taproot pulses or moisture-conserving oilseeds recommended.
+          </div>
+        </div>
+
+        <!-- Right: Rotation Recommendation Preview -->
+        <div id="mock-card-3" class="rounded-2xl p-5 border shadow-lg space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span id="mock-rec-badge" class="text-[11px] font-mono font-bold uppercase tracking-wider block">Spec Section 50</span>
+              <h3 id="mock-rec-title" class="text-lg font-black mt-0.5">Recommended Rotation</h3>
+            </div>
+            <span id="mock-match-pill" class="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold">Score 59.1</span>
+          </div>
+
+          <!-- Sequence Chips -->
+          <div class="space-y-2">
+            <div id="mock-seq-1" class="p-3 rounded-xl border flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold block">1. Kharif-1: Mung Bean</span>
+                <span class="opacity-70 text-[11px]">Legume • 65 days • N-Fixing</span>
+              </div>
+              <span class="font-mono font-bold">BARI Mung-6</span>
+            </div>
+
+            <div id="mock-seq-2" class="p-3 rounded-xl border flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold block">2. Kharif-2: T. Aman Rice</span>
+                <span class="opacity-70 text-[11px]">Cereal • 115 days • Monsoon Rainfed</span>
+              </div>
+              <span class="font-mono font-bold">BRRI dhan75</span>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button id="mock-btn-adopt" class="w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2">
+              <span>🌾 Select & Plan This Sequence</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Color Palette Details & Selection Guidance -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+      <div class="p-5 rounded-2xl bg-[#0b1622] border border-slate-800 space-y-2">
+        <h4 class="font-bold text-white flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-400"></span> ১. Modern Mint & Slate
+        </h4>
+        <p class="text-xs text-slate-400">স্পেসএক্স ও ক্লাইমেট-টেক স্টাইল। কোনো ঘোলাটে ভাব নেই। ক্রিস্প ও প্রিমিয়াম লুক।</p>
+        <div class="pt-2">
+          <button onclick="switchTheme(1)" class="w-full py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500 hover:text-white transition-all">
+            Apply Theme 1
+          </button>
+        </div>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-[#0b1622] border border-slate-800 space-y-2">
+        <h4 class="font-bold text-white flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-cyan-400"></span> ২. Space-Ag Emerald & Cyan
+        </h4>
+        <p class="text-xs text-slate-400">নাসা উপগ্রহ ও স্পেস অ্যাপসের জন্য সেরা। নীল কসমিক ক্যানভাস ও উজ্জ্বল এমারেল্ড।</p>
+        <div class="pt-2">
+          <button onclick="switchTheme(2)" class="w-full py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500 hover:text-white transition-all">
+            Apply Theme 2
+          </button>
+        </div>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-[#0b1622] border border-slate-800 space-y-2">
+        <h4 class="font-bold text-white flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-600"></span> ৩. Soft Sage & Forest
+        </h4>
+        <p class="text-xs text-slate-400">সফট অর্গানিক ম্যাট লুক। চোখের জন্য সবচেয়ে আরামদায়ক, কোনো অতিরিক্ত উজ্জ্বলতা নেই।</p>
+        <div class="pt-2">
+          <button onclick="switchTheme(3)" class="w-full py-1.5 rounded-lg text-xs font-bold bg-emerald-700/20 text-emerald-300 border border-emerald-700/40 hover:bg-emerald-700 hover:text-white transition-all">
+            Apply Theme 3
+          </button>
+        </div>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-[#0b1622] border border-slate-800 space-y-2">
+        <h4 class="font-bold text-white flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-amber-400"></span> ৪. Clean Crisp Light-Ag
+        </h4>
+        <p class="text-xs text-slate-400">সম্পূর্ণ লাইট মোড। অন্ধকার একেবারেই পছন্দ না হলে এটি ক্লিন ও ঝকঝকে।</p>
+        <div class="pt-2">
+          <button onclick="switchTheme(4)" class="w-full py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-900 transition-all">
+            Apply Theme 4
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const THEMES = {
+      1: {
+        id: 1,
+        title: "Modern Mint & Slate Teal",
+        badge: "Clean High-Tech • Zero Muddy Green",
+        desc: "ক্লিন স্লেট-নেভি ক্যানভাসের ওপর ক্রিস্টাল ক্লিয়ার মিন্ট ও টিল গ্রিন অ্যাকসেন্ট। কোন শ্যাওলাটে বা ডার্ক ভাব থাকবে না, অত্যন্ত ঝকঝকে ও আধুনিক।",
+        swatches: ["#0b131f", "#111f30", "#10b981", "#14b8a6", "#e2e8f0"],
+        // Window styles
+        winBg: "background: linear-gradient(135deg, #0b131f 0%, #101c2b 100%); color: #f1f5f9; border-color: #1e293b;",
+        navBg: "background: rgba(17, 31, 48, 0.85); border-color: rgba(51, 65, 85, 0.6);",
+        logoBg: "background: linear-gradient(135deg, #10b981, #14b8a6); color: white;",
+        brandColor: "color: #ffffff;",
+        versionBadge: "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);",
+        taglineColor: "color: #94a3b8;",
+        activeTab: "background: #10b981; color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);",
+        healthBadge: "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);",
+        pulseBg: "background: #10b981;",
+        cardBg: "background: rgba(17, 31, 48, 0.80); border-color: rgba(51, 65, 85, 0.7); box-shadow: 0 10px 25px rgba(0,0,0,0.3);",
+        fieldBadge: "color: #34d399;",
+        condBadge: "background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);",
+        paramBox: "background: rgba(11, 19, 31, 0.6); border-color: rgba(51, 65, 85, 0.5);",
+        btnAction: "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);",
+        btnActionHover: "#10b981",
+        scoreCircle: "background: rgba(11, 19, 31, 0.8); border-color: #f59e0b; color: #fbbf24;",
+        bar1: "background: #10b981;",
+        bar2: "background: #ef4444;",
+        bar3: "background: #10b981;",
+        progTrack: "background: #0f172a;",
+        intelBox: "background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.25); color: #cbd5e1;",
+        matchPill: "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);",
+        seqBox: "background: rgba(11, 19, 31, 0.6); border-color: rgba(51, 65, 85, 0.5);",
+        btnAdopt: "background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);",
+        bannerBg: "background: #0f1c2d; border-color: #1e293b;",
+        bannerBadge: "background: rgba(16, 185, 129, 0.2); color: #34d399;"
+      },
+      2: {
+        id: 2,
+        title: "Space-Ag Emerald & Satellite Cyan",
+        badge: "Official NASA Space Apps Aesthetic",
+        desc: "কসমিক ডার্ক নেভি ব্যাকগ্রাউন্ডের সাথে স্যাটেলাইটের সাইয়ান ব্লু এবং কৃষির এমারেল্ড গ্রিন। নাসা জাজদের জন্য এটি সবচেয়ে আকর্ষণীয় ও বিজ্ঞানসম্মত।",
+        swatches: ["#07131e", "#0b1d2e", "#059669", "#06b6d4", "#f8fafc"],
+        winBg: "background: linear-gradient(135deg, #07131e 0%, #0d2235 100%); color: #f8fafc; border-color: #15324d;",
+        navBg: "background: rgba(11, 29, 46, 0.88); border-color: rgba(6, 182, 212, 0.25);",
+        logoBg: "background: linear-gradient(135deg, #059669, #06b6d4); color: white;",
+        brandColor: "color: #ffffff;",
+        versionBadge: "background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3);",
+        taglineColor: "color: #94a3b8;",
+        activeTab: "background: #059669; color: #ffffff; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);",
+        healthBadge: "background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3);",
+        pulseBg: "background: #06b6d4;",
+        cardBg: "background: rgba(11, 29, 46, 0.82); border-color: rgba(6, 182, 212, 0.22); box-shadow: 0 10px 25px rgba(0,0,0,0.4);",
+        fieldBadge: "color: #38bdf8;",
+        condBadge: "background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);",
+        paramBox: "background: rgba(7, 19, 30, 0.7); border-color: rgba(21, 50, 77, 0.6);",
+        btnAction: "background: rgba(6, 182, 212, 0.12); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3);",
+        scoreCircle: "background: rgba(7, 19, 30, 0.8); border-color: #f59e0b; color: #fbbf24;",
+        bar1: "background: #059669;",
+        bar2: "background: #ef4444;",
+        bar3: "background: #06b6d4;",
+        progTrack: "background: #07131e;",
+        intelBox: "background: rgba(6, 182, 212, 0.08); border-color: rgba(6, 182, 212, 0.25); color: #cbd5e1;",
+        matchPill: "background: rgba(5, 150, 105, 0.18); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.3);",
+        seqBox: "background: rgba(7, 19, 30, 0.7); border-color: rgba(21, 50, 77, 0.6);",
+        btnAdopt: "background: linear-gradient(135deg, #059669, #0284c7); color: white; box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);",
+        bannerBg: "background: #0b1f32; border-color: #173b5c;",
+        bannerBadge: "background: rgba(6, 182, 212, 0.2); color: #38bdf8;"
+      },
+      3: {
+        id: 3,
+        title: "Soft Sage & Forest Minimalist",
+        badge: "Natural & Calming • Organic Agriculture",
+        desc: "চোখের জন্য সবচেয়ে আরামদায়ক। কোনো নিয়ন বা উগ্রতা নেই। সফট ম্যাট সেজ গ্রিন এবং আর্দি চারকোল ফরেস্টের পরিমিত কম্বিনেশন।",
+        swatches: ["#141c18", "#1c2822", "#4a7c59", "#84a98c", "#e8f0ec"],
+        winBg: "background: linear-gradient(135deg, #141c18 0%, #1e2b24 100%); color: #e8f0ec; border-color: #2a3d34;",
+        navBg: "background: rgba(28, 40, 34, 0.9); border-color: rgba(74, 124, 89, 0.3);",
+        logoBg: "background: #4a7c59; color: white;",
+        brandColor: "color: #ffffff;",
+        versionBadge: "background: rgba(132, 169, 140, 0.15); color: #a3c4bc; border: 1px solid rgba(132, 169, 140, 0.3);",
+        taglineColor: "color: #a3c4bc;",
+        activeTab: "background: #4a7c59; color: white;",
+        healthBadge: "background: rgba(132, 169, 140, 0.15); color: #a3c4bc; border: 1px solid rgba(132, 169, 140, 0.3);",
+        pulseBg: "background: #84a98c;",
+        cardBg: "background: rgba(28, 40, 34, 0.85); border-color: rgba(74, 124, 89, 0.25); box-shadow: 0 10px 25px rgba(0,0,0,0.25);",
+        fieldBadge: "color: #84a98c;",
+        condBadge: "background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);",
+        paramBox: "background: rgba(20, 28, 24, 0.7); border-color: rgba(42, 61, 52, 0.6);",
+        btnAction: "background: rgba(74, 124, 89, 0.15); color: #a3c4bc; border: 1px solid rgba(74, 124, 89, 0.3);",
+        scoreCircle: "background: rgba(20, 28, 24, 0.8); border-color: #f59e0b; color: #fbbf24;",
+        bar1: "background: #84a98c;",
+        bar2: "background: #e76f51;",
+        bar3: "background: #52b788;",
+        progTrack: "background: #141c18;",
+        intelBox: "background: rgba(74, 124, 89, 0.1); border-color: rgba(74, 124, 89, 0.25); color: #d8e2dc;",
+        matchPill: "background: rgba(74, 124, 89, 0.2); color: #a3c4bc; border: 1px solid rgba(74, 124, 89, 0.3);",
+        seqBox: "background: rgba(20, 28, 24, 0.7); border-color: rgba(42, 61, 52, 0.6);",
+        btnAdopt: "background: #4a7c59; color: white;",
+        bannerBg: "background: #1e2c25; border-color: #2d4237;",
+        bannerBadge: "background: rgba(132, 169, 140, 0.2); color: #a3c4bc;"
+      },
+      4: {
+        id: 4,
+        title: "Clean Crisp Light-Ag Theme",
+        badge: "100% Daylight Mode • Ultra Crisp",
+        desc: "সম্পূর্ণ ব্রাইট ও ঝকঝকে হোয়াইট থিম। ব্যাকগ্রাউন্ডে কোনো ডার্কনেস নেই। সাদা কার্ড, চমৎকার ড্রপ শ্যাডো এবং ক্রিস্প ফরেস্ট গ্রিন হেডিং।",
+        swatches: ["#f8fafc", "#ffffff", "#047857", "#059669", "#0f172a"],
+        winBg: "background: #f1f5f9; color: #0f172a; border-color: #cbd5e1;",
+        navBg: "background: #ffffff; border-color: #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.04);",
+        logoBg: "background: linear-gradient(135deg, #059669, #10b981); color: white;",
+        brandColor: "color: #064e3b;",
+        versionBadge: "background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;",
+        taglineColor: "color: #64748b;",
+        activeTab: "background: #047857; color: white; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);",
+        healthBadge: "background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;",
+        pulseBg: "background: #10b981;",
+        cardBg: "background: #ffffff; border-color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.06);",
+        fieldBadge: "color: #047857;",
+        condBadge: "background: #fffbeb; color: #b45309; border: 1px solid #fde68a;",
+        paramBox: "background: #f8fafc; border-color: #e2e8f0;",
+        btnAction: "background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;",
+        scoreCircle: "background: #fffbeb; border-color: #f59e0b; color: #b45309;",
+        bar1: "background: #059669;",
+        bar2: "background: #ef4444;",
+        bar3: "background: #0284c7;",
+        progTrack: "background: #e2e8f0;",
+        intelBox: "background: #f0fdf4; border-color: #bbf7d0; color: #166534;",
+        matchPill: "background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;",
+        seqBox: "background: #f8fafc; border-color: #e2e8f0;",
+        btnAdopt: "background: linear-gradient(135deg, #047857, #065f46); color: white; box-shadow: 0 6px 20px rgba(4, 120, 87, 0.3);",
+        bannerBg: "background: #ffffff; border-color: #cbd5e1; color: #0f172a;",
+        bannerBadge: "background: #ecfdf5; color: #047857;"
+      }
+    };
+
+    function switchTheme(themeId) {
+      const theme = THEMES[themeId];
+      if (!theme) return;
+
+      // Update switcher buttons
+      [1, 2, 3, 4].forEach(i => {
+        const btn = document.getElementById(`btn-${i}`);
+        if (i === themeId) {
+          btn.className = "px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all border shadow-lg flex items-center gap-2 bg-emerald-500 text-white border-emerald-400 shadow-emerald-500/20";
+        } else {
+          btn.className = "px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all border text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800";
+        }
+      });
+
+      // Update banner
+      const banner = document.getElementById('theme-banner');
+      banner.style = theme.bannerBg;
+      document.getElementById('theme-title').innerText = theme.title;
+      document.getElementById('theme-badge').innerText = theme.badge;
+      document.getElementById('theme-badge').style = theme.bannerBadge;
+      document.getElementById('theme-desc').innerText = theme.desc;
+
+      // Update swatches
+      const chips = document.getElementById('color-chips');
+      chips.innerHTML = theme.swatches.map(hex => `
+        <div class="flex flex-col items-center">
+          <div class="w-8 h-8 rounded-xl shadow-md border border-white/20" style="background: ${hex};"></div>
+          <span class="text-[9px] font-mono mt-1 opacity-70">${hex}</span>
+        </div>
+      `).join('');
+
+      // Update Mock Window
+      document.getElementById('preview-window').style = theme.winBg;
+      document.getElementById('mock-nav').style = theme.navBg;
+      document.getElementById('mock-logo').style = theme.logoBg;
+      document.getElementById('mock-brand').style = theme.brandColor;
+      document.getElementById('mock-version').style = theme.versionBadge;
+      document.getElementById('mock-tagline').style = theme.taglineColor;
+      document.getElementById('mock-tab-1').style = theme.activeTab;
+      document.getElementById('mock-health').style = theme.healthBadge;
+      document.getElementById('mock-pulse').style = theme.pulseBg;
+
+      // Cards
+      document.getElementById('mock-card-1').style = theme.cardBg;
+      document.getElementById('mock-card-2').style = theme.cardBg;
+      document.getElementById('mock-card-3').style = theme.cardBg;
+
+      document.getElementById('mock-field-badge').style = theme.fieldBadge;
+      document.getElementById('mock-cond-badge').style = theme.condBadge;
+      document.getElementById('mock-param-1').style = theme.paramBox;
+      document.getElementById('mock-param-2').style = theme.paramBox;
+      document.getElementById('mock-param-3').style = theme.paramBox;
+      document.getElementById('mock-param-4').style = theme.paramBox;
+      document.getElementById('mock-btn-action').style = theme.btnAction;
+
+      document.getElementById('mock-score-badge').style = theme.fieldBadge;
+      document.getElementById('mock-score-circle').style = theme.scoreCircle;
+      document.getElementById('mock-bar-1').style = theme.bar1;
+      document.getElementById('mock-bar-2').style = theme.bar2;
+      document.getElementById('mock-bar-3').style = theme.bar3;
+      document.getElementById('mock-prog-1').style = theme.progTrack;
+      document.getElementById('mock-prog-2').style = theme.progTrack;
+      document.getElementById('mock-prog-3').style = theme.progTrack;
+      document.getElementById('mock-intel').style = theme.intelBox;
+
+      document.getElementById('mock-rec-badge').style = theme.fieldBadge;
+      document.getElementById('mock-match-pill').style = theme.matchPill;
+      document.getElementById('mock-seq-1').style = theme.seqBox;
+      document.getElementById('mock-seq-2').style = theme.seqBox;
+      document.getElementById('mock-btn-adopt').style = theme.btnAdopt;
+    }
+
+    // Init with Theme 1
+    switchTheme(1);
+  </script>
+</body>
+</html>
