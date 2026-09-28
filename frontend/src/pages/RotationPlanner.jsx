@@ -511,8 +511,16 @@ export default function RotationPlanner({ selectedField }) {
         </div>
 
         {evalError && (
-          <div className="mt-4 bg-rose-950/70 border border-rose-800 p-4 rounded-xl text-sm text-rose-200">
-            <strong>Evaluation Error:</strong> {evalError}
+          <div className="mt-4 bg-rose-950/70 border border-rose-800 p-4 rounded-xl text-sm text-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <strong>Evaluation Notice:</strong> {evalError}
+            </div>
+            <button
+              onClick={() => handleEvaluate(true)}
+              className="px-4 py-1.5 rounded-lg bg-rose-800/80 hover:bg-rose-700 text-white font-bold text-xs transition-all w-fit cursor-pointer"
+            >
+              🔄 Retry Evaluation
+            </button>
           </div>
         )}
       </div>

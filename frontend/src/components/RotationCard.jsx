@@ -12,6 +12,7 @@ export default function RotationCard({
   rotation,
   rank = 1,
   isTopCandidate = false,
+  compact = false,
   onSelect
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -193,30 +194,34 @@ export default function RotationCard({
         <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
           Component Scores & Effective NASA Weightings
         </span>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className={`grid ${compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-5'} gap-2.5`}>
           {components.map((comp) => {
             const hasScore = comp.score != null;
             const val = hasScore ? Math.round(comp.score * 10) / 10 : 0;
             return (
-              <div key={comp.name} className="bg-[#051d12]/80 border border-emerald-800/40 rounded-xl p-3 shadow-sm">
-                <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="flex items-center gap-1 text-emerald-100 font-medium">
-                    <span>{comp.icon}</span> {comp.name}
+              <div
+                key={comp.name}
+                className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-2.5 shadow-sm flex flex-col justify-between overflow-hidden min-w-0"
+              >
+                <div className="flex items-center justify-between gap-1.5 mb-1.5 min-w-0">
+                  <span className="flex items-center gap-1 text-emerald-100 font-semibold text-[11px] truncate min-w-0" title={comp.name}>
+                    <span className="shrink-0 text-xs">{comp.icon}</span>
+                    <span className="truncate">{comp.name}</span>
                   </span>
-                  <span className="font-extrabold text-white font-mono">
+                  <span className="font-mono text-xs font-black text-white px-1.5 py-0.5 rounded bg-black/50 border border-emerald-700/60 shrink-0">
                     {hasScore ? val : 'N/A'}
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-[#03130b] rounded-full h-1.5 overflow-hidden mb-1.5">
+                <div className="w-full bg-[#03130b] rounded-full h-1.5 overflow-hidden mb-1.5 shrink-0">
                   <div
                     className={`h-full ${comp.color} rounded-full transition-all duration-500`}
                     style={{ width: `${hasScore ? Math.min(100, Math.max(0, val)) : 0}%` }}
-                  ></div>
+                  />
                 </div>
                 {comp.weight != null && (
-                  <div className="text-[10px] text-emerald-300/60 font-mono flex justify-between">
-                    <span>Eff. Wt:</span>
+                  <div className="text-[10px] text-emerald-300/70 font-mono flex items-center justify-between gap-1 whitespace-nowrap pt-1 border-t border-emerald-800/30">
+                    <span className="text-emerald-400/80">Eff. Wt:</span>
                     <span className="text-emerald-200 font-bold">{Number(comp.weight).toFixed(2)}</span>
                   </div>
                 )}

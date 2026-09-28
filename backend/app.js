@@ -26,29 +26,82 @@ app.use(cors());
 app.use(express.json());
 
 let isDbInitialized = false;
+let initPromise = null;
+
+async function loadFromFixtures(fixtures) {
+  for (const [table, rows] of Object.entries(fixtures)) {
+    if (!rows || !rows.length) continue;
+    const cols = Object.keys(rows[0]);
+    const colList = cols.map(c => '"' + c + '"').join(', ');
+    const chunkSize = 40;
+    for (let i = 0; i < rows.length; i += chunkSize) {
+      const chunk = rows.slice(i, i + chunkSize);
+      const valPlaceholders = [];
+      const params = [];
+      let pIdx = 1;
+      for (const row of chunk) {
+        valPlaceholders.push('(' + cols.map(() => '$' + (pIdx++)).join(', ') + ')');
+        for (const col of cols) {
+          const val = row[col];
+          params.push(val != null && typeof val === 'object' ? JSON.stringify(val) : val);
+        }
+      }
+      await db.query(
+        'INSERT INTO ' + table + ' (' + colList + ') VALUES ' + valPlaceholders.join(', ') + ' ON CONFLICT DO NOTHING;',
+        params
+      );
+    }
+  }
+}
 
 async function initializeDatabase() {
-  if (isDbInitialized) return;
-  try {
-    const res = await db.query('SELECT count(*) FROM fields;');
-    if (parseInt(res.rows[0].count, 10) >= 5) {
-      isDbInitialized = true;
-      return;
-    }
-  } catch (err) {
-    // Schema or table does not exist yet in memory
-  }
+  if (isDbInitialized) return Promise.resolve();
+  if (initPromise) return initPromise;
 
-  console.log('[App] Auto-initializing database schema and reference demo datasets...');
-  await runMigration();
-  await seedReferenceData();
-  await seedCropsData();
-  await seedDemoFieldsData();
-  await seedObservations();
-  await seedBaselines();
-  await seedFieldConditionScores();
-  isDbInitialized = true;
-  console.log('[App] Database auto-initialization complete.');
+  initPromise = (async () => {
+    try {
+      const res = await db.query('SELECT count(*) FROM fields;');
+      if (parseInt(res.rows[0].count, 10) >= 5) {
+        isDbInitialized = true;
+        return;
+      }
+    } catch (err) {
+      // Schema or table does not exist yet in memory
+    }
+
+    console.log('[App] Auto-initializing database schema and reference demo datasets...');
+    await runMigration();
+
+    // Fast-path: load precomputed fixtures if available
+    let fixtures = null;
+    try {
+      fixtures = require('./db/fixtures');
+    } catch (e) {
+      fixtures = null;
+    }
+
+    if (fixtures && fixtures.fields && fixtures.fields.length >= 5) {
+      console.log('[App] Loading authoritative demo dataset from pre-compiled fixtures...');
+      await loadFromFixtures(fixtures);
+    } else {
+      console.log('[App] Pre-compiled fixtures unavailable; falling back to dynamic computational seeding...');
+      await seedReferenceData();
+      await seedCropsData();
+      await seedDemoFieldsData();
+      await seedObservations();
+      await seedBaselines();
+      await seedFieldConditionScores();
+    }
+
+    isDbInitialized = true;
+    console.log('[App] Database auto-initialization complete.');
+  })().catch((err) => {
+    initPromise = null; // Reset so next attempt can retry if this one failed
+    console.error('[App] Database auto-initialization error:', err);
+    throw err;
+  });
+
+  return initPromise;
 }
 
 // Ensure database is initialized before serving requests

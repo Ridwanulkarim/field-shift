@@ -389,11 +389,13 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
             rotation={section40RotationA}
             rank={isAWinner ? 1 : 2}
             isTopCandidate={isAWinner}
+            compact={true}
           />
           <RotationCard
             rotation={section40RotationB}
             rank={!isAWinner ? 1 : 2}
             isTopCandidate={!isAWinner}
+            compact={true}
           />
         </div>
       ) : (
@@ -411,6 +413,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
                   rotation={rot}
                   rank={rot.rank || idx + 1}
                   isTopCandidate={rot.rank === 1}
+                  compact={true}
                 />
               ))}
             </div>
