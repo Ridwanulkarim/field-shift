@@ -95,7 +95,7 @@ export default function App() {
           <div className="absolute -top-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent pointer-events-none" />
 
           <div className="flex items-center justify-between gap-2 sm:gap-4 w-full min-w-0">
-            {/* Left: Brand Identity Pod with Bespoke Earth-Flora NASA Mark */}
+            {/* Left: Brand Identity Pod with Bespoke Earth-Flora NASA Mark & Unified Live Telemetry */}
             <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-[0_0_12px_rgba(16,185,129,0.35)] ring-1 ring-emerald-300/50 flex items-center justify-center shrink-0">
                 <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -108,9 +108,12 @@ export default function App() {
                   <span className="text-sm sm:text-base font-black tracking-widest text-white font-mono leading-none bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
                     FIELD SHIFT
                   </span>
-                  <span className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono shadow-sm flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    NASA EO
+                  <span className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono shadow-sm flex items-center gap-1.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                    </span>
+                    <span>NASA EO • {health?.status === 'ok' ? 'Live' : 'Sync'}</span>
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-300 hidden 2xl:block mt-0.5 font-medium tracking-tight">
@@ -150,8 +153,8 @@ export default function App() {
               })}
             </nav>
 
-            {/* Right: Field Switcher Pod, Language & Telemetry Controls */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Right: Field Switcher Pod & Language Controls */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               {/* Field Command Pod (Visible on sm+ screens) */}
               <div className="relative hidden sm:flex items-center">
                 <div className="relative flex items-center bg-[#091729]/90 border border-emerald-500/35 rounded-xl p-0.5 shadow-inner hover:border-emerald-400 transition-all">
@@ -161,7 +164,7 @@ export default function App() {
                   <select
                     value={selectedFieldId}
                     onChange={(e) => setSelectedFieldId(Number(e.target.value))}
-                    className="bg-transparent text-xs font-semibold text-slate-100 pl-1.5 pr-6 py-1 focus:outline-none cursor-pointer appearance-none max-w-[120px] sm:max-w-[145px] md:max-w-[165px] truncate"
+                    className="bg-transparent text-xs font-semibold text-slate-100 pl-1.5 pr-6 py-1 focus:outline-none cursor-pointer appearance-none max-w-[125px] sm:max-w-[150px] md:max-w-[170px] truncate"
                   >
                     {fields.map(f => (
                       <option key={f.id} value={f.id} className="bg-[#0b1726] text-slate-100">
@@ -179,7 +182,7 @@ export default function App() {
               <div className="inline-flex rounded-xl bg-[#091729]/90 p-0.5 border border-emerald-500/35 text-xs shadow-inner shrink-0">
                 <button
                   onClick={() => setLang('en')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
                     lang === 'en'
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
                       : 'text-slate-300 hover:text-white'
@@ -190,7 +193,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setLang('bn')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
                     lang === 'bn'
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
                       : 'text-slate-300 hover:text-white'
@@ -199,17 +202,6 @@ export default function App() {
                 >
                   বাং
                 </button>
-              </div>
-
-              {/* NASA EO Telemetry Status */}
-              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-medium bg-[#091729]/90 border border-emerald-500/35 shadow-sm shrink-0">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-                </span>
-                <span className="text-slate-300 text-[11px] whitespace-nowrap font-mono">
-                  <span className="hidden xl:inline">NASA EO: </span><strong className="text-emerald-300 font-semibold">{health?.status === 'ok' ? 'Online' : 'Syncing'}</strong>
-                </span>
               </div>
 
               {/* Mobile/Tablet Three-Dot Menu Button (Strictly on screens < lg) */}
