@@ -88,139 +88,162 @@ export default function App() {
           backgroundImage: `radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 65%), linear-gradient(180deg, rgba(10, 20, 34, 0.35) 0%, rgba(8, 16, 28, 0.58) 100%), url(${farmBg})`,
         }}
       />
-      {/* Top Navbar - Unified Single-Tier Enterprise Header */}
-      <header className="sticky top-0 z-40 bg-[#0a1628]/95 border-b border-emerald-500/30 backdrop-blur-2xl px-3 sm:px-6 md:px-8 py-2.5 shadow-xl shadow-black/40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-          {/* Left: Brand Identity with Bespoke Earth-Flora NASA Mark */}
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 ring-1 ring-emerald-300/40 flex items-center justify-center shrink-0">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-              </svg>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-sm sm:text-base md:text-lg font-black tracking-wider text-white font-mono leading-none">
-                  FIELD SHIFT
-                </span>
-                <span className="text-[9px] sm:text-[10px] font-semibold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 font-mono">
-                  NASA EO
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-300 hidden 2xl:block mt-0.5 font-medium">
-                {lang === 'bn' ? 'নাসা স্যাটেলাইট ভিত্তিক জলবায়ু সহনশীল কৃষি সিদ্ধান্ত • বাংলাদেশ' : 'NASA Earth Observations • Climate Resilience Bangladesh'}
-              </p>
-            </div>
-          </div>
+      {/* Floating Island HUD Navigation Deck (Bespoke NASA Earth Mission Bar) */}
+      <div className="sticky top-2 sm:top-3.5 z-40 px-2.5 sm:px-4 md:px-6 pointer-events-none">
+        <header className="pointer-events-auto relative max-w-[1440px] mx-auto rounded-2xl md:rounded-3xl bg-gradient-to-r from-[#071322]/95 via-[#0a1b2e]/95 to-[#071322]/95 border border-emerald-400/35 backdrop-blur-2xl shadow-[0_16px_50px_rgba(0,0,0,0.7),0_0_25px_rgba(16,185,129,0.18)] ring-1 ring-white/10 px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 transition-all">
+          {/* Cybernetic Laser-Line Rim Accent */}
+          <div className="absolute -top-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent pointer-events-none" />
 
-          {/* Center: Navigation Tabs (Desktop Single-Row Capsule) */}
-          <nav className="hidden lg:flex items-center p-1 rounded-2xl bg-[#071322]/80 border border-emerald-500/25 shadow-inner shadow-black/50 backdrop-blur-md gap-1">
-            {[
-              { id: 'dashboard', icon: DashboardIcon, label: t('nav_dashboard', lang) },
-              { id: 'planner', icon: PlannerIcon, label: t('nav_planner', lang) },
-              { id: 'comparison', icon: ComparisonIcon, label: t('nav_comparison', lang) },
-              { id: 'recommendation', icon: RecommendationIcon, label: t('nav_recommendation', lang) },
-              { id: 'fields', icon: FieldsIcon, label: t('nav_fields', lang) },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              const Icon = tab.icon;
-              return (
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            {/* Left: Brand Identity Pod with Bespoke Earth-Flora NASA Mark */}
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-emerald-300/50 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                </svg>
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-sm sm:text-base md:text-lg font-black tracking-widest text-white font-mono leading-none bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
+                    FIELD SHIFT
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono shadow-sm flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    NASA EO
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-300 hidden 2xl:block mt-0.5 font-medium tracking-tight">
+                  {lang === 'bn' ? 'নাসা স্যাটেলাইট ভিত্তিক জলবায়ু সহনশীল কৃষি সিদ্ধান্ত • বাংলাদেশ' : 'NASA Earth Observations • Climate Resilience Bangladesh'}
+                </p>
+              </div>
+            </div>
+
+            {/* Center: Mission Station Segment Deck (Desktop Single-Row Capsule) */}
+            <nav className="hidden lg:flex items-center p-1 rounded-2xl bg-[#030914]/85 border border-emerald-500/25 shadow-inner shadow-black/60 backdrop-blur-md gap-1">
+              {[
+                { id: 'dashboard', icon: DashboardIcon, label: t('nav_dashboard', lang) },
+                { id: 'planner', icon: PlannerIcon, label: t('nav_planner', lang) },
+                { id: 'comparison', icon: ComparisonIcon, label: t('nav_comparison', lang) },
+                { id: 'recommendation', icon: RecommendationIcon, label: t('nav_recommendation', lang) },
+                { id: 'fields', icon: FieldsIcon, label: t('nav_fields', lang) },
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`group relative flex items-center gap-1.5 xl:gap-2 px-3 xl:px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-500 text-white font-bold shadow-[0_2px_14px_rgba(16,185,129,0.5)] border border-emerald-300/50'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800/60 font-medium border border-transparent'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 shrink-0 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-emerald-400'}`} />
+                    <span>{tab.label}</span>
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_#fff] animate-pulse shrink-0 ml-0.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Right: Field Switcher Pod, Language & Telemetry Controls */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+              {/* Field Command Pod (Visible on sm+ screens) */}
+              <div className="relative hidden sm:flex items-center">
+                <div className="relative flex items-center bg-[#091729]/90 border border-emerald-500/35 rounded-xl p-0.5 shadow-inner hover:border-emerald-400 transition-all">
+                  <div className="pointer-events-none pl-2.5 flex items-center text-emerald-400">
+                    <PinIcon className="w-3.5 h-3.5" />
+                  </div>
+                  <select
+                    value={selectedFieldId}
+                    onChange={(e) => setSelectedFieldId(Number(e.target.value))}
+                    className="bg-transparent text-xs font-semibold text-slate-100 pl-2 pr-7 py-1 focus:outline-none cursor-pointer appearance-none max-w-[135px] md:max-w-[185px] truncate"
+                  >
+                    {fields.map(f => (
+                      <option key={f.id} value={f.id} className="bg-[#0b1726] text-slate-100">
+                        Field #{f.id}: {f.name.split('(')[0].trim()}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute right-2 flex items-center text-emerald-400/70">
+                    <ChevronDownIcon className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+
+                {/* Live Field Condition Pill (Instant Telemetry Feedback) */}
+                {selectedField?.condition_score?.score != null && (
+                  <div className={`hidden 2xl:inline-flex items-center gap-1 ml-1.5 px-2 py-0.5 rounded-lg text-[10px] font-bold border font-mono ${
+                    selectedField.condition_score.score >= 70
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
+                      : selectedField.condition_score.score >= 40
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-400/40'
+                      : 'bg-rose-500/20 text-rose-300 border-rose-400/40'
+                  }`}>
+                    <span>{Math.round(selectedField.condition_score.score)} pts</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Language Switcher */}
+              <div className="inline-flex rounded-xl bg-[#091729]/90 p-0.5 border border-emerald-500/35 text-xs shadow-inner">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-md shadow-emerald-500/30 border border-emerald-300/40'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60 font-medium border border-transparent'
+                  onClick={() => setLang('en')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
+                    lang === 'en'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
+                      : 'text-slate-300 hover:text-white'
                   }`}
+                  title="Switch to English"
                 >
-                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-400'}`} />
-                  <span>{tab.label}</span>
+                  EN
                 </button>
-              );
-            })}
-          </nav>
-
-          {/* Right: Field Switcher, Language & Status Controls */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Field Dropdown Selector (Visible on sm+ screens) */}
-            <div className="relative hidden sm:block">
-              <div className="pointer-events-none absolute inset-y-0 left-0 pl-2.5 flex items-center text-emerald-400">
-                <PinIcon className="w-3.5 h-3.5" />
+                <button
+                  onClick={() => setLang('bn')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
+                    lang === 'bn'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="বাংলায় দেখুন"
+                >
+                  বাং
+                </button>
               </div>
-              <select
-                value={selectedFieldId}
-                onChange={(e) => setSelectedFieldId(Number(e.target.value))}
-                className="bg-[#0e1d30]/90 border border-emerald-500/30 text-xs font-semibold text-slate-100 rounded-xl pl-7 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400/40 hover:border-emerald-400 cursor-pointer appearance-none shadow-sm transition-all max-w-[145px] md:max-w-[190px] truncate"
-              >
-                {fields.map(f => (
-                  <option key={f.id} value={f.id} className="bg-[#0b1726] text-slate-100">
-                    Field #{f.id}: {f.name.split('(')[0].trim()}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center text-emerald-400/70">
-                <ChevronDownIcon className="w-3.5 h-3.5" />
-              </div>
-            </div>
 
-            {/* Language Switcher */}
-            <div className="inline-flex rounded-xl bg-[#0e1d30]/90 p-0.5 border border-emerald-500/30 text-xs shadow-inner">
+              {/* NASA EO Telemetry Status */}
+              <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-[#091729]/90 border border-emerald-500/35 shadow-sm shrink-0">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                </span>
+                <span className="text-slate-300 text-[11px] whitespace-nowrap font-mono">
+                  NASA EO: <strong className="text-emerald-300 font-semibold">{health?.status === 'ok' ? 'Online' : 'Syncing'}</strong>
+                </span>
+              </div>
+
+              {/* Mobile/Tablet Three-Dot Menu Button (Strictly on screens < lg) */}
               <button
-                onClick={() => setLang('en')}
-                className={`px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
-                  lang === 'en'
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white'
+                onClick={() => setIsMenuOpen(prev => !prev)}
+                className={`lg:hidden w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                  isMenuOpen
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
+                    : 'bg-[#091729]/90 border border-emerald-500/35 text-emerald-300 hover:text-white'
                 }`}
-                title="Switch to English"
+                aria-label="Navigation Menu"
+                title="Navigation Menu"
               >
-                EN
-              </button>
-              <button
-                onClick={() => setLang('bn')}
-                className={`px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
-                  lang === 'bn'
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-                title="বাংলায় দেখুন"
-              >
-                বাং
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5" r="2.2" />
+                  <circle cx="12" cy="12" r="2.2" />
+                  <circle cx="12" cy="19" r="2.2" />
+                </svg>
               </button>
             </div>
-
-            {/* NASA EO Telemetry Status */}
-            <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-[#0e1d30]/90 border border-emerald-500/30 shadow-sm shrink-0">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-              </span>
-              <span className="text-slate-300 text-[11px] whitespace-nowrap">
-                NASA EO: <strong className="text-emerald-300 font-semibold">{health?.status === 'ok' ? 'Online' : 'Syncing'}</strong>
-              </span>
-            </div>
-
-            {/* Mobile/Tablet Three-Dot Menu Button (Strictly on screens < lg) */}
-            <button
-              onClick={() => setIsMenuOpen(prev => !prev)}
-              className={`lg:hidden w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
-                isMenuOpen
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
-                  : 'bg-[#0e1d30] border border-emerald-500/30 text-emerald-300 hover:text-white'
-              }`}
-              aria-label="Navigation Menu"
-              title="Navigation Menu"
-            >
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <circle cx="12" cy="5" r="2.2" />
-                <circle cx="12" cy="12" r="2.2" />
-                <circle cx="12" cy="19" r="2.2" />
-              </svg>
-            </button>
           </div>
-        </div>
 
         {/* Three-Dot Floating Dropdown Menu (Frosted Glass - for Mobile & Tablet) */}
         {isMenuOpen && (
@@ -337,6 +360,7 @@ export default function App() {
           </>
         )}
       </header>
+      </div>
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto w-full px-3.5 sm:px-6 md:px-8 py-5 sm:py-7 md:py-8 flex-1">
