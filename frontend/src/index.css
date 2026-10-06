@@ -32,24 +32,24 @@
   }
 
   /* 
-   * Scenic Bright Farm Landscape Canvas:
+   * Scenic Farm Landscape Canvas:
    * Features golden morning light, rolling green fields, and crops
-   * with a vibrant luminous emerald veil for high-contrast, crystal-clear readability.
+   * with a luminous slate-tinted atmospheric veil for maximum clarity and vibrancy.
    */
   body {
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.5;
-    background-color: #04140d;
+    background-color: #0a1524;
     background-image: 
-      radial-gradient(ellipse at 50% -10%, rgba(52, 211, 153, 0.18) 0%, transparent 70%),
-      linear-gradient(180deg, rgba(6, 26, 17, 0.52) 0%, rgba(4, 18, 12, 0.78) 100%),
+      radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 65%),
+      linear-gradient(180deg, rgba(10, 20, 34, 0.35) 0%, rgba(8, 16, 28, 0.58) 100%),
       url('/assets/farm-bg.jpg');
     background-size: cover;
     background-position: center top;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    color: #f0fdf4;
+    color: #f8fafc;
     min-height: 100vh;
     width: 100%;
     max-width: 100vw;
@@ -103,107 +103,108 @@
 }
 
 /* 
- * Frosted Glass Box Architecture ("lekha gula glassbox"):
- * Elegant translucent glass panels with frosted blur, specular top reflection,
- * and high-contrast glowing borders so the scenic farm landscape softly shows through.
+ * Frosted Glass Box Architecture:
+ * Modern high-tech slate-teal glass panels with vibrant mint borders,
+ * specular reflection, and crystal-clear contrast over the sunny farm background.
  */
 .glass-box,
-.bg-\[\#092619\]\/90, .bg-\[\#092619\] {
-  background: rgba(10, 36, 24, 0.74) !important;
-  backdrop-filter: blur(18px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+.bg-\[\#092619\]\/90, .bg-\[\#092619\], .bg-\[\#0a2e1d\] {
+  background: rgba(13, 27, 44, 0.76) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  border: 1px solid rgba(52, 211, 153, 0.28) !important;
   box-shadow: 
     0 20px 50px 0 rgba(0, 0, 0, 0.40),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
-    0 0 25px rgba(52, 211, 153, 0.10) !important;
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 25px rgba(16, 185, 129, 0.12) !important;
+  color: #f8fafc !important;
 }
 
 /* Inner Glass Parameter Tiles */
 .glass-tile,
 .bg-\[\#051d12\]\/80, .bg-\[\#051d12\]\/90, .bg-\[\#051d12\]\/60, .bg-\[\#051d12\] {
-  background: rgba(7, 26, 17, 0.62) !important;
+  background: rgba(9, 20, 34, 0.68) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(52, 211, 153, 0.18) !important;
   box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
     0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Callout Glass Banners */
-.bg-\[\#042116\]\/90, .bg-\[\#042116\] {
-  background: rgba(14, 48, 33, 0.75) !important;
+.bg-\[\#042116\]\/90, .bg-\[\#042116\], .bg-\[\#031d12\] {
+  background: rgba(14, 30, 50, 0.82) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+  border: 1px solid rgba(52, 211, 153, 0.40) !important;
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.30) !important;
+    0 8px 24px rgba(0, 0, 0, 0.30),
+    inset 0 1px 1px rgba(255, 255, 255, 0.20) !important;
 }
 
-/* Inset Glass Wells & Progress Tracks */
+/* Inset Wells & Progress Tracks */
 .bg-\[\#03130b\], .bg-\[\#03140c\], .bg-\[\#03130b\]\/60, .bg-\[\#04140d\] {
-  background: rgba(6, 26, 18, 0.70) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(7, 15, 26, 0.75) !important;
+  border: 1px solid rgba(52, 211, 153, 0.18) !important;
 }
 
 /* Top Navigation Frosted Glass Bar */
 .bg-\[\#062115\]\/95, .bg-\[\#062115\]\/90, header {
-  background: rgba(12, 44, 30, 0.85) !important;
+  background: rgba(10, 22, 36, 0.88) !important;
   backdrop-filter: blur(24px) saturate(200%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30) !important;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.28) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Quick Glass Pills & Controls */
-.bg-\[\#08281a\] {
-  background: rgba(18, 54, 38, 0.75) !important;
+.bg-\[\#08281a\], .bg-\[\#072418\], .bg-\[\#072618\] {
+  background: rgba(14, 29, 48, 0.82) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.24) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  border: 1px solid rgba(52, 211, 153, 0.28) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
 /* Footer Glass Bar */
-footer.bg-\[\#03130b\], .bg-\[\#03130b\] {
-  background: rgba(10, 32, 22, 0.85) !important;
+footer.bg-\[\#03130b\], .bg-\[\#03130b\], footer {
+  background: rgba(8, 17, 28, 0.90) !important;
   backdrop-filter: blur(18px) !important;
   -webkit-backdrop-filter: blur(18px) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1px solid rgba(52, 211, 153, 0.22) !important;
 }
 
-/* Custom agricultural scrollbars */
+/* Custom modern scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #061c12;
+  background: #091524;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1b5437;
+  background: #10b981;
   border-radius: 4px;
-  border: 2px solid #061c12;
+  border: 2px solid #091524;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #236c47;
+  background: #34d399;
 }
 
-/* Leaflet Map overrides for botanical dark theme */
+/* Leaflet Map overrides for modern space-ag theme */
 .leaflet-container {
-  background-color: #061c12 !important;
+  background-color: #091524 !important;
   font-family: var(--font-sans) !important;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  background: rgba(12, 38, 26, 0.90) !important;
+  background: rgba(13, 27, 44, 0.92) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  color: #f0fdf4 !important;
-  border: 1px solid rgba(52, 211, 153, 0.35) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.40) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(52, 211, 153, 0.40) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45) !important;
 }
 
 .leaflet-popup-content {
@@ -212,10 +213,10 @@ footer.bg-\[\#03130b\], .bg-\[\#03130b\] {
 }
 
 .leaflet-control-layers {
-  background: rgba(12, 38, 26, 0.85) !important;
+  background: rgba(13, 27, 44, 0.88) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  color: #f0fdf4 !important;
+  color: #f8fafc !important;
   border: 1px solid rgba(52, 211, 153, 0.35) !important;
   border-radius: 12px !important;
   padding: 6px 10px !important;
@@ -230,13 +231,13 @@ footer.bg-\[\#03130b\], .bg-\[\#03130b\] {
 }
 
 .leaflet-bar a {
-  background-color: rgba(12, 38, 26, 0.85) !important;
+  background-color: rgba(13, 27, 44, 0.88) !important;
   backdrop-filter: blur(10px) !important;
   color: #34d399 !important;
   border-bottom: 1px solid rgba(52, 211, 153, 0.25) !important;
 }
 
 .leaflet-bar a:hover {
-  background-color: rgba(22, 68, 48, 0.95) !important;
+  background-color: rgba(16, 36, 60, 0.95) !important;
   color: #6ee7b7 !important;
 }
