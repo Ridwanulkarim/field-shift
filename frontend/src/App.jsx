@@ -17,7 +17,6 @@ import {
   PinIcon,
   ChevronDownIcon
 } from './components/icons/NavIcons';
-import BrandLogo from './components/icons/BrandLogo';
 
 export default function App() {
   // Pre-loaded initial state provides instantaneous 0ms first-paint without waiting for network
@@ -95,8 +94,13 @@ export default function App() {
           {/* Brand & Mobile Quick Controls */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              {/* Official NASA-Agritech Brand Emblem */}
-              <BrandLogo className="w-10 h-10" />
+              {/* Bespoke Earth-Flora NASA Mark */}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 ring-1 ring-emerald-300/40 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                </svg>
+              </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-base sm:text-lg font-black tracking-wider text-white font-mono leading-none">
