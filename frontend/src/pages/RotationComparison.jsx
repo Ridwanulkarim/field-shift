@@ -190,13 +190,13 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
   return (
     <div className="space-y-6">
       {/* Top Header & Context */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-emerald-800/40">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
               Spec Section 40 & 55 Decision Support Matrix
             </span>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
               Rotation Comparison & NASA Ranking Shift
             </h2>
             <p className="text-xs text-emerald-300/70 mt-1 max-w-3xl leading-relaxed">
@@ -205,26 +205,26 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
           </div>
 
           {/* Mode Switcher */}
-          <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs w-full sm:w-auto gap-1">
             <button
               onClick={() => setDemoMode('section40_fixture')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+              className={`px-3 py-2 rounded-lg font-bold transition-all text-center ${
                 demoMode === 'section40_fixture'
                   ? 'bg-emerald-500 text-white shadow-sm'
                   : 'text-emerald-300/70 hover:text-white'
               }`}
             >
-              📐 Section 40 Canonical Fixture (80/40 vs 40/80)
+              📐 Section 40 Fixture (80/40 vs 40/80)
             </button>
             <button
               onClick={() => setDemoMode('bangladesh_crops')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+              className={`px-3 py-2 rounded-lg font-bold transition-all text-center ${
                 demoMode === 'bangladesh_crops'
                   ? 'bg-emerald-500 text-white shadow-sm'
                   : 'text-emerald-300/70 hover:text-white'
               }`}
             >
-              🌾 Live Bangladesh Crops (Chickpea vs Wheat)
+              🌾 Live BD Crops (Chickpea vs Wheat)
             </button>
           </div>
         </div>
@@ -351,31 +351,31 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
       </div>
 
       {/* Ranking Shift Banner */}
-      <div className={`p-4 rounded-2xl border shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+      <div className={`p-3.5 sm:p-4 rounded-2xl border shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
         isField1
           ? 'bg-[#082a1b] border-emerald-500/50 text-emerald-100'
           : 'bg-[#062125] border-cyan-500/50 text-cyan-100'
       }`}>
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{isAWinner ? '🌱' : '🌾'}</span>
+        <div className="flex items-start sm:items-center gap-3">
+          <span className="text-2xl mt-0.5 sm:mt-0">{isAWinner ? '🌱' : '🌾'}</span>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wider font-bold text-emerald-400">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-bold text-emerald-400">
                 NASA Ranking Inversion Proved:
               </span>
               <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-[#03130b] text-white">
                 Δ = {scoreDelta} pts
               </span>
             </div>
-            <p className="text-sm font-bold text-white mt-0.5">
+            <p className="text-xs sm:text-sm font-bold text-white mt-1">
               {isAWinner
                 ? `Option A ranks #1 on ${activeField?.name?.split('(')[0] || 'Barind'} due to high water stress (+${((waterMultiplier - 1) * 100).toFixed(0)}% weight boost).`
                 : `Option B ranks #1 on ${activeField?.name?.split('(')[0] || 'Dinajpur'} because irrigation reduces water stress, allowing heat resilience to dominate.`}
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-[11px] text-emerald-300/70 block">Spec Section 50 Label:</span>
+        <div className="text-left sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/40 shrink-0">
+          <span className="text-[10px] sm:text-[11px] text-emerald-300/70 block">Spec Section 50 Label:</span>
           <span className="text-xs font-black text-emerald-300 bg-emerald-950/90 px-3 py-1 rounded-full border border-emerald-700/60 inline-block mt-0.5">
             🏆 Highest-scoring rotation: {isAWinner ? 'Option A' : 'Option B'}
           </span>

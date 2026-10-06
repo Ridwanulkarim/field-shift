@@ -279,18 +279,18 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-800/40">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-700/80 text-emerald-300">
+              <span className="text-[11px] sm:text-xs font-mono font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-700/80 text-emerald-300">
                 Spec Section 55 Step 10 & 11
               </span>
-              <span className="text-xs text-emerald-400 font-semibold">
+              <span className="text-[11px] sm:text-xs text-emerald-400 font-semibold truncate max-w-[200px] sm:max-w-none">
                 Field #{selectedField?.id}: {selectedField?.name}
               </span>
             </div>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
               {lang === 'bn' ? 'কৃষি সিদ্ধান্ত সহায়তা ও চূড়ান্ত সুপারিশ' : 'Seasonal Rotation Recommendation & Action Plan'}
             </h2>
             <p className="text-xs text-emerald-300/70 mt-1 max-w-2xl leading-relaxed">
@@ -304,7 +304,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => window.print()}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#051d12] hover:bg-[#072417] border border-emerald-700/60 text-emerald-200 transition-all flex items-center gap-1.5 shadow-sm"
+              className="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-[#051d12] hover:bg-[#072417] border border-emerald-700/60 text-emerald-200 transition-all flex items-center gap-1.5 shadow-sm"
             >
               <span>🖨️</span> {lang === 'bn' ? 'প্রিন্ট / সংরক্ষণ' : 'Print Action Plan'}
             </button>
@@ -312,36 +312,36 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
         </div>
 
         {/* Executive Summary Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-5 text-xs">
-          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
-            <span className="text-emerald-400/80 font-bold block mb-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 mt-4 sm:mt-5 text-xs">
+          <div className="bg-[#051d12]/80 p-3 sm:p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1 text-[11px] sm:text-xs">
               {lang === 'bn' ? 'মাঠের অবস্থান' : 'Agro-Ecological Zone'}
             </span>
-            <span className="text-white font-extrabold truncate block" title={selectedField?.name}>
+            <span className="text-white font-extrabold truncate block text-xs sm:text-sm" title={selectedField?.name}>
               {selectedField?.name?.split('(')[0]}
             </span>
           </div>
-          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
-            <span className="text-emerald-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3 sm:p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1 text-[11px] sm:text-xs">
               {lang === 'bn' ? 'বর্তমান ফসল' : 'Standing Crop'}
             </span>
-            <span className="text-emerald-300 font-bold">
-              {selectedField?.current_crop} ({selectedField?.current_crop_family})
+            <span className="text-emerald-300 font-bold text-xs sm:text-sm truncate block">
+              {selectedField?.current_crop}
             </span>
           </div>
-          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
-            <span className="text-emerald-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3 sm:p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1 text-[11px] sm:text-xs">
               {lang === 'bn' ? 'সেচ প্রাপ্যতা' : 'Irrigation Access'}
             </span>
-            <span className={`font-bold ${selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}`}>
-              {selectedField?.irrigation_available ? 'Irrigated (STW / Canal)' : 'Rainfed (No STW)'}
+            <span className={`font-bold text-xs sm:text-sm ${selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}`}>
+              {selectedField?.irrigation_available ? 'Irrigated (STW)' : 'Rainfed'}
             </span>
           </div>
-          <div className="bg-[#051d12]/80 p-3.5 rounded-xl border border-emerald-800/50">
-            <span className="text-emerald-400/80 font-bold block mb-1">
+          <div className="bg-[#051d12]/80 p-3 sm:p-3.5 rounded-xl border border-emerald-800/50">
+            <span className="text-emerald-400/80 font-bold block mb-1 text-[11px] sm:text-xs">
               {lang === 'bn' ? 'মাটির পিএইচ' : 'Soil pH & Drainage'}
             </span>
-            <span className="text-white font-extrabold">
+            <span className="text-white font-extrabold text-xs sm:text-sm">
               pH {selectedField?.soil_ph?.toFixed(1)} • {selectedField?.drainage}
             </span>
           </div>
@@ -356,12 +356,12 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
         </div>
       ) : topRotation ? (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-black text-white flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
               <span>🌾</span> {lang === 'bn' ? 'নির্বাচিত ফসল ঘূর্ণন প্রোফাইল' : 'Top Candidate Rotation Profile'}
             </h3>
-            <span className="text-xs text-emerald-400 font-mono">
-              Spec Section 50 Terminology: <strong>Highest-scoring rotation</strong>
+            <span className="text-[11px] sm:text-xs text-emerald-400 font-mono">
+              Spec Section 50: <strong>Highest-scoring rotation</strong>
             </span>
           </div>
 
@@ -378,8 +378,8 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
       )}
 
       {/* Farm-Gate Action Plan & Agronomic Stewardship Advisories */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <h3 className="text-lg font-black text-white mb-4 pb-3 border-b border-emerald-800/40 flex items-center gap-2">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+        <h3 className="text-base sm:text-lg font-black text-white mb-4 pb-3 border-b border-emerald-800/40 flex items-center gap-2">
           <span>📋</span> {lang === 'bn' ? 'মাঠ পর্যায়ের বাস্তবায়ন পরামর্শ ও সতর্কতা' : 'Farm-Gate Agronomic Management Advisories'}
         </h3>
 

@@ -46,17 +46,17 @@ export default function DataQuality({ conditionScore, nasaMetadata }) {
   ];
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3.5 border-b border-emerald-800/40">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
             Spec Section 52 Data Quality Audit
           </span>
-          <h3 className="text-xl font-extrabold text-white flex items-center gap-2.5 tracking-tight">
+          <h3 className="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
             NASA Earth Observation Data Status
           </h3>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             ✓ 4 of 4 NASA Families Active

@@ -8,62 +8,62 @@ export default function Charts({ fieldId, nasaMetadata }) {
   const [activeTab, setActiveTab] = useState('water'); // 'water' | 'heat' | 'vegetation'
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
             Time-Series Dynamics (Dec 30, 2023 – Feb 28, 2024)
           </span>
-          <h3 className="text-xl font-extrabold text-white tracking-tight">
+          <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
             61-Day Environmental Stress Trends
           </h3>
         </div>
 
         {/* Tab Controls */}
-        <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
+        <div className="grid grid-cols-3 sm:inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs w-full sm:w-auto gap-0.5">
           <button
             onClick={() => setActiveTab('water')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+            className={`px-2 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate ${
               activeTab === 'water'
                 ? 'bg-cyan-500 text-white shadow-sm'
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            💧 Water Stress
+            💧 Water<span className="hidden sm:inline"> Stress</span>
           </button>
           <button
             onClick={() => setActiveTab('heat')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+            className={`px-2 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate ${
               activeTab === 'heat'
                 ? 'bg-amber-500 text-white shadow-sm'
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            🔥 Heat & LST
+            🔥 Heat<span className="hidden sm:inline"> & LST</span>
           </button>
           <button
             onClick={() => setActiveTab('vegetation')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+            className={`px-2 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate ${
               activeTab === 'vegetation'
                 ? 'bg-emerald-500 text-white shadow-sm'
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            🌱 Vegetation EVI
+            🌱 Veg<span className="hidden sm:inline">etation EVI</span>
           </button>
         </div>
       </div>
 
       {/* SVG Chart Display */}
-      <div className="w-full aspect-[16/7] min-h-[220px] bg-[#04140d] rounded-2xl border border-emerald-800/60 p-5 relative overflow-hidden flex flex-col justify-between shadow-inner">
+      <div className="w-full aspect-[16/7] min-h-[220px] bg-[#04140d] rounded-2xl border border-emerald-800/60 p-3.5 sm:p-5 relative overflow-hidden flex flex-col justify-between shadow-inner">
         
         {/* WATER STRESS TAB */}
         {activeTab === 'water' && (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs mb-3">
               <span className="font-bold text-cyan-300">SMAP Volumetric Soil Moisture & IMERG 30d Rolling Rainfall</span>
               {/* Mandatory Spec Section 52 NASA Source Attribution */}
-              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-800 text-cyan-200">
+              <span className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-full bg-cyan-950/80 border border-cyan-800 text-cyan-200 break-words self-start sm:self-auto leading-tight">
                 Source: {nasaMetadata?.smap_product || 'SPL3SMP_E'}.{nasaMetadata?.smap_version || '006'} (9km) & {nasaMetadata?.gpm_product || 'GPM_3IMERGDF'}.{nasaMetadata?.gpm_version || '07'} {nasaMetadata?.gpm_latency_class || 'Final'} (~10km)
               </span>
             </div>
@@ -98,8 +98,8 @@ export default function Charts({ fieldId, nasaMetadata }) {
               />
             </svg>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-emerald-200/70 pt-2.5 border-t border-emerald-900/60 gap-2">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-200/70 pt-2 border-t border-emerald-900/60 gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-cyan-400"></span> GPM 30d Rainfall Sum</span>
                 <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-cyan-600 border-b border-dashed"></span> SMAP 0-5cm Moisture</span>
               </div>
@@ -111,10 +111,10 @@ export default function Charts({ fieldId, nasaMetadata }) {
         {/* HEAT STRESS TAB */}
         {activeTab === 'heat' && (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs mb-3">
               <span className="font-bold text-amber-300">MODIS Daytime & Nighttime LST (°C) + Hot-Day Frequency</span>
               {/* Mandatory Spec Section 52 NASA Source Attribution */}
-              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-800 text-amber-200">
+              <span className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-full bg-amber-950/80 border border-amber-800 text-amber-200 break-words self-start sm:self-auto leading-tight">
                 Source: MODIS Terra MOD11A1 & Aqua MYD11A1 v{nasaMetadata?.modis_version || '061'} (1km Thermal)
               </span>
             </div>
@@ -147,8 +147,8 @@ export default function Charts({ fieldId, nasaMetadata }) {
               />
             </svg>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-emerald-200/70 pt-2.5 border-t border-emerald-900/60 gap-2">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-200/70 pt-2 border-t border-emerald-900/60 gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-400"></span> Daytime LST (Terra)</span>
                 <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-300 border-b border-dashed"></span> Nighttime LST (Aqua)</span>
                 <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-rose-500"></span> Threshold z ≥ 1.0</span>
@@ -161,10 +161,10 @@ export default function Charts({ fieldId, nasaMetadata }) {
         {/* VEGETATION TAB */}
         {activeTab === 'vegetation' && (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs mb-3">
               <span className="font-bold text-emerald-300">Harmonized Landsat-Sentinel (HLS) 30m EVI Canopy Anomaly</span>
               {/* Mandatory Spec Section 52 NASA Source Attribution */}
-              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-emerald-200">
+              <span className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-full bg-emerald-950/80 border border-emerald-800 text-emerald-200 break-words self-start sm:self-auto leading-tight">
                 Source: HLS HLSL30_VI & HLSS30_VI v{nasaMetadata?.hls_version || '2.0'} (30m Optical/NIR/SWIR)
               </span>
             </div>
@@ -193,8 +193,8 @@ export default function Charts({ fieldId, nasaMetadata }) {
               ))}
             </svg>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-emerald-200/70 pt-2.5 border-t border-emerald-900/60 gap-2">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-200/70 pt-2 border-t border-emerald-900/60 gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Valid HLS Optical Observations</span>
               </div>
               <span className="text-emerald-100 font-medium italic">10–12 Cloud-free scenes across 30d window</span>

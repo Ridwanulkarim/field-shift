@@ -10,13 +10,13 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
   const [expandedDisclosure, setExpandedDisclosure] = useState(null);
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-emerald-800/40">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-1">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-amber-400 block mb-1">
             Spec Section 56 Mandatory Compliance
           </span>
-          <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+          <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <span>🛡️</span> {t('disclosures_title', lang)}
           </h3>
           <p className="text-xs text-emerald-300/70 mt-1">
@@ -24,7 +24,7 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
           </p>
         </div>
 
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm">
+        <span className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
           7 of 7 Disclosures Active
         </span>

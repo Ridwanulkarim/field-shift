@@ -71,28 +71,51 @@ export default function App() {
   return (
     <div className={`min-h-screen text-emerald-50 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-300 ${theme === 'bright' ? 'theme-bright' : ''}`}>
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 bg-[#062115]/90 border-b border-emerald-800/40 backdrop-blur-md px-4 sm:px-8 py-3.5 shadow-lg shadow-black/25">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/25 ring-1 ring-emerald-400/30">
-              🌾
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-extrabold tracking-tight text-white leading-none">FIELD SHIFT</h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-700/60 text-emerald-300 font-semibold tracking-wide">
-                  MVP v6.2
-                </span>
+      <header className="sticky top-0 z-40 bg-[#062115]/95 border-b border-emerald-800/40 backdrop-blur-md px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 shadow-lg shadow-black/25">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3">
+          {/* Brand & Mobile Quick Toggles */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 flex items-center justify-center text-white font-black text-lg sm:text-xl shadow-lg shadow-emerald-500/25 ring-1 ring-emerald-400/30 shrink-0">
+                🌾
               </div>
-              <p className="text-[11px] text-emerald-200/70 mt-1">Adapting Farms with NASA Earth Observations • Bangladesh Decision Support</p>
+              <div>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white leading-none">FIELD SHIFT</h1>
+                  <span className="text-[9px] sm:text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-700/60 text-emerald-300 font-semibold tracking-wide">
+                    MVP v6.2
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-emerald-200/70 mt-0.5 truncate max-w-[240px] sm:max-w-none">
+                  Adapting Farms with NASA Earth Observations • Bangladesh
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile Only: Language & Theme Quick Toggles */}
+            <div className="flex items-center gap-1.5 md:hidden">
+              <button
+                onClick={() => setTheme(prev => prev === 'bright' ? 'rich' : 'bright')}
+                className="w-8 h-8 rounded-xl bg-[#08281a] border border-emerald-700/60 flex items-center justify-center text-xs text-white"
+                title={theme === 'bright' ? 'Rich' : 'Bright'}
+              >
+                {theme === 'bright' ? '☀️' : '🌿'}
+              </button>
+              <div className="inline-flex rounded-xl bg-[#08281a] p-0.5 border border-emerald-700/60 text-[11px]">
+                <button
+                  onClick={() => setLang(l => l === 'en' ? 'bn' : 'en')}
+                  className="px-2 py-1 rounded-lg font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-400/30"
+                >
+                  {lang === 'en' ? 'EN' : 'বাং'}
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Quick Field Switcher, Theme Toggle, Language Toggle & Live API Indicator */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Background Theme / Luminance Toggle */}
-            <div className="inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
+          <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-2.5 flex-wrap">
+            {/* Desktop Theme & Language Toggles */}
+            <div className="hidden md:inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
               <button
                 onClick={() => setTheme(prev => prev === 'bright' ? 'rich' : 'bright')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
@@ -106,8 +129,7 @@ export default function App() {
               </button>
             </div>
 
-            {/* Language Switcher Toggle (Spec Section 53) */}
-            <div className="inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
+            <div className="hidden md:inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
               <button
                 onClick={() => setLang('en')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
@@ -133,11 +155,11 @@ export default function App() {
             </div>
 
             {/* Field Dropdown Selector */}
-            <div className="relative">
+            <div className="relative flex-1 md:flex-initial min-w-0">
               <select
                 value={selectedFieldId}
                 onChange={(e) => setSelectedFieldId(Number(e.target.value))}
-                className="bg-[#08281a] border border-emerald-700/60 text-xs font-semibold text-emerald-100 rounded-xl px-3.5 py-2 pr-9 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 hover:border-emerald-500/60 cursor-pointer appearance-none shadow-sm transition-all"
+                className="w-full md:w-auto bg-[#08281a] border border-emerald-700/60 text-[11px] sm:text-xs font-semibold text-emerald-100 rounded-xl px-3 py-1.5 sm:py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 hover:border-emerald-500/60 cursor-pointer appearance-none shadow-sm transition-all truncate"
               >
                 {fields.map(f => (
                   <option key={f.id} value={f.id} className="bg-[#062115] text-emerald-100">
@@ -151,16 +173,15 @@ export default function App() {
             </div>
 
             {/* API Health Pill */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium bg-[#08281a] border border-emerald-800/60 shadow-sm">
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-[#08281a] border border-emerald-800/60 shadow-sm shrink-0">
               <span className={`w-2 h-2 rounded-full ${health?.status === 'ok' ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`}></span>
               <span className="text-emerald-200/80">API: <strong className="text-white">{health?.status === 'ok' ? 'Online' : 'Connecting'}</strong></span>
-              {health?.version && <span className="text-emerald-400/60 font-mono">({health.version})</span>}
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs - Mobile Scrollable */}
-        <div className="max-w-7xl mx-auto flex items-center gap-2 mt-3 pt-2.5 border-t border-emerald-800/30 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        {/* Desktop Navigation Tabs (Hidden on mobile phones, shown on md and above) */}
+        <div className="max-w-7xl mx-auto hidden md:flex items-center gap-2 mt-3 pt-2.5 border-t border-emerald-800/30 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -169,7 +190,7 @@ export default function App() {
                 : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
             }`}
           >
-            {t('nav_dashboard', lang)}
+            📊 {t('nav_dashboard', lang)}
           </button>
           <button
             onClick={() => setActiveTab('planner')}
@@ -179,7 +200,7 @@ export default function App() {
                 : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
             }`}
           >
-            {t('nav_planner', lang)}
+            🌾 {t('nav_planner', lang)}
           </button>
           <button
             onClick={() => setActiveTab('comparison')}
@@ -189,7 +210,7 @@ export default function App() {
                 : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
             }`}
           >
-            {t('nav_comparison', lang)}
+            ⚖️ {t('nav_comparison', lang)}
           </button>
           <button
             onClick={() => setActiveTab('recommendation')}
@@ -199,7 +220,7 @@ export default function App() {
                 : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
             }`}
           >
-            {t('nav_recommendation', lang)}
+            💡 {t('nav_recommendation', lang)}
           </button>
           <button
             onClick={() => setActiveTab('fields')}
@@ -209,7 +230,7 @@ export default function App() {
                 : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
             }`}
           >
-            {t('nav_fields', lang)}
+            🗺️ {t('nav_fields', lang)}
           </button>
           <span className="text-xs text-emerald-800/80 px-2 hidden lg:inline">|</span>
           <span className="text-[11px] text-emerald-400/70 italic hidden lg:inline whitespace-nowrap">
@@ -219,7 +240,7 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 flex-1">
+      <main className="max-w-7xl mx-auto w-full px-3.5 sm:px-6 md:px-8 py-5 md:py-8 pb-24 md:pb-8 flex-1">
         {error && (
           <div className="bg-rose-950/50 border border-rose-800 p-4 rounded-xl text-xs text-rose-300 mb-6 flex items-center justify-between">
             <span>⚠ Error connecting to backend API: {error}</span>
@@ -325,6 +346,69 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Fixed Bottom Navigation Bar (md:hidden) */}
+      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#04160e]/95 backdrop-blur-xl border-t border-emerald-800/60 shadow-[0_-10px_25px_rgba(0,0,0,0.6)] px-1.5 py-1.5 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <button
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
+            activeTab === 'dashboard'
+              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
+              : 'text-emerald-400/60 hover:text-emerald-200'
+          }`}
+        >
+          <span className="text-base sm:text-lg leading-none">📊</span>
+          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_dashboard', lang)}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('planner')}
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
+            activeTab === 'planner'
+              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
+              : 'text-emerald-400/60 hover:text-emerald-200'
+          }`}
+        >
+          <span className="text-base sm:text-lg leading-none">🌾</span>
+          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_planner', lang)}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('comparison')}
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
+            activeTab === 'comparison'
+              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
+              : 'text-emerald-400/60 hover:text-emerald-200'
+          }`}
+        >
+          <span className="text-base sm:text-lg leading-none">⚖️</span>
+          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_comparison', lang)}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('recommendation')}
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
+            activeTab === 'recommendation'
+              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
+              : 'text-emerald-400/60 hover:text-emerald-200'
+          }`}
+        >
+          <span className="text-base sm:text-lg leading-none">💡</span>
+          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_recommendation', lang)}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('fields')}
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
+            activeTab === 'fields'
+              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
+              : 'text-emerald-400/60 hover:text-emerald-200'
+          }`}
+        >
+          <span className="text-base sm:text-lg leading-none">🗺️</span>
+          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_fields', lang)}</span>
+        </button>
+      </nav>
     </div>
   );
 }

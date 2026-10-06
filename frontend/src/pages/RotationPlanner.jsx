@@ -195,60 +195,60 @@ export default function RotationPlanner({ selectedField }) {
   return (
     <div className="space-y-6">
       {/* Active Field Context Header */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-800/40">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-sm font-mono font-bold px-2.5 py-1 rounded bg-[#04140d] border border-emerald-800 text-emerald-300">
+              <span className="text-xs sm:text-sm font-mono font-bold px-2.5 py-0.5 sm:py-1 rounded bg-[#04140d] border border-emerald-800 text-emerald-300">
                 Field #{selectedField?.id}
               </span>
-              <span className="text-sm text-emerald-400 font-semibold">
+              <span className="text-xs sm:text-sm text-emerald-400 font-semibold">
                 Rotation Planning Workbench
               </span>
             </div>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {selectedField?.name || 'Godagari Barind Terrace'}
             </h2>
-            <p className="text-sm text-emerald-200/80 mt-1.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-emerald-200/80 mt-1.5 leading-relaxed">
               Soil: <strong className="text-white">{selectedField?.soil_type}</strong> (pH {selectedField?.soil_ph?.toFixed(1)}, {selectedField?.drainage} drainage) • Irrigation: <strong className={selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}>{selectedField?.irrigation_available ? 'Irrigated' : 'Rainfed'}</strong>
             </p>
           </div>
 
           {/* Quick Presets */}
-          <div className="flex items-center gap-2 flex-wrap sm:justify-end">
-            <span className="text-sm text-emerald-400 font-semibold">Quick Presets:</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:justify-end w-full sm:w-auto">
+            <span className="text-xs sm:text-sm text-emerald-400 font-semibold w-full sm:w-auto">Quick Presets:</span>
             <button
               onClick={() => loadPreset('barind_pulse')}
-              className="px-3.5 py-2 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-cyan-800/60 text-sm font-bold text-cyan-200 transition-colors shadow-sm cursor-pointer"
+              className="flex-1 sm:flex-none px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-cyan-800/60 text-xs sm:text-sm font-bold text-cyan-200 transition-colors shadow-sm cursor-pointer text-center"
             >
-              🌱 Barind 2-Crop (Chickpea → Mung)
+              🌱 Barind 2-Crop
             </button>
             <button
               onClick={() => loadPreset('triple_crop')}
-              className="px-3.5 py-2 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/60 text-sm font-bold text-emerald-200 transition-colors shadow-sm cursor-pointer"
+              className="flex-1 sm:flex-none px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/60 text-xs sm:text-sm font-bold text-emerald-200 transition-colors shadow-sm cursor-pointer text-center"
             >
-              🌾 Alluvial 3-Crop (Wheat → Mung → Rice)
+              🌾 Alluvial 3-Crop
             </button>
           </div>
         </div>
 
         {/* Standing & Previous Crop Succession Context (Spec Section 30) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-1">
-          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 flex items-center gap-3.5">
-            <span className="text-3xl">🌾</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-5 pt-1">
+          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-3.5 sm:p-4 flex items-center gap-3.5">
+            <span className="text-2xl sm:text-3xl">🌾</span>
             <div>
-              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Current Standing Crop</span>
-              <span className="text-lg font-extrabold text-white">
-                {selectedField?.current_crop} <span className="text-emerald-400 text-sm font-medium">({selectedField?.current_crop_family})</span>
+              <span className="text-[11px] sm:text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Current Standing Crop</span>
+              <span className="text-base sm:text-lg font-extrabold text-white">
+                {selectedField?.current_crop} <span className="text-emerald-400 text-xs sm:text-sm font-medium">({selectedField?.current_crop_family})</span>
               </span>
             </div>
           </div>
-          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-4 flex items-center gap-3.5">
-            <span className="text-3xl">⏮</span>
+          <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-3.5 sm:p-4 flex items-center gap-3.5">
+            <span className="text-2xl sm:text-3xl">⏮</span>
             <div>
-              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Previous Season Crop</span>
-              <span className="text-lg font-extrabold text-emerald-100">
-                {selectedField?.previous_crop} <span className="text-emerald-400 text-sm font-medium">({selectedField?.previous_crop_family})</span>
+              <span className="text-[11px] sm:text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Previous Season Crop</span>
+              <span className="text-base sm:text-lg font-extrabold text-emerald-100">
+                {selectedField?.previous_crop} <span className="text-emerald-400 text-xs sm:text-sm font-medium">({selectedField?.previous_crop_family})</span>
               </span>
             </div>
           </div>
@@ -256,33 +256,33 @@ export default function RotationPlanner({ selectedField }) {
       </div>
 
       {/* Rotation Builder Card */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-6 sm:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
           <div>
-            <span className="text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
               Spec Section 28–31 Succession Setup
             </span>
-            <h3 className="text-2xl font-black text-white tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               Build Candidate Crop Rotation
             </h3>
           </div>
 
           {/* Cycle Mode Switcher */}
-          <div className="inline-flex rounded-xl bg-[#04140d] p-1.5 border border-emerald-800/60 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs sm:text-sm w-full sm:w-auto gap-1">
             <button
               onClick={() => handleSwitchCycleMode('continue_after_current')}
-              className={`px-4 py-2 rounded-lg font-black transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 rounded-lg font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 cycleMode === 'continue_after_current'
                   ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/20'
                   : 'text-emerald-300/80 hover:text-white'
               }`}
               title="Plan next crops to follow active standing crop in field"
             >
-              <span>🌾</span> Follow Current Standing
+              <span>🌾</span> Follow Standing Crop
             </button>
             <button
               onClick={() => handleSwitchCycleMode('start_new_cycle')}
-              className={`px-4 py-2 rounded-lg font-black transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 rounded-lg font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 cycleMode === 'start_new_cycle'
                   ? 'bg-cyan-400 text-[#04140d] shadow-md shadow-cyan-400/20'
                   : 'text-emerald-300/80 hover:text-white'
@@ -455,33 +455,33 @@ export default function RotationPlanner({ selectedField }) {
         </div>
 
         {/* Add/Remove Season Button & Evaluate Action */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-emerald-800/40">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-4 border-t border-emerald-800/40">
           <div>
             {selectedSeasons.length === 2 ? (
               <button
                 onClick={handleAddSeason}
-                className="text-sm font-bold text-emerald-300 hover:text-emerald-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="text-xs sm:text-sm font-bold text-emerald-300 hover:text-emerald-100 flex items-center gap-1.5 transition-colors cursor-pointer py-1"
               >
                 <span>+</span> Add Third Season (Kharif-2 T. Aman Rice)
               </button>
             ) : (
               <button
                 onClick={handleRemoveSeason}
-                className="text-sm font-bold text-rose-300/80 hover:text-rose-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="text-xs sm:text-sm font-bold text-rose-300/80 hover:text-rose-200 flex items-center gap-1.5 transition-colors cursor-pointer py-1"
               >
                 <span>✕</span> Revert to 2-Season Rotation (Rabi → Kharif-1)
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap sm:justify-end">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             {evaluationResult && (
-              <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#04140d] border border-emerald-700/60 text-sm">
+              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-[#04140d] border border-emerald-700/60 text-xs sm:text-sm">
                 <span className="text-emerald-400 font-bold">Evaluated:</span>
-                <span className="font-mono text-base font-black text-white">
+                <span className="font-mono text-sm sm:text-base font-black text-white">
                   {Math.round(evaluationResult.overall_score * 10) / 10} / 100
                 </span>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                <span className={`px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold ${
                   evaluationResult.feasibility_status === 'Seasonally feasible'
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-600/50'
                     : 'bg-rose-500/20 text-rose-300 border border-rose-600/50'
@@ -494,11 +494,11 @@ export default function RotationPlanner({ selectedField }) {
             <button
               onClick={() => handleEvaluate(true)}
               disabled={isEvaluating}
-              className="px-7 py-3 rounded-xl font-black text-base bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-[#04140d] shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto justify-center px-5 sm:px-7 py-3 rounded-xl font-black text-sm sm:text-base bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-[#04140d] shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isEvaluating ? (
                 <>
-                  <span className="w-5 h-5 border-2 border-[#04140d] border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-[#04140d] border-t-transparent rounded-full animate-spin"></span>
                   Evaluating NASA Multipliers...
                 </>
               ) : (

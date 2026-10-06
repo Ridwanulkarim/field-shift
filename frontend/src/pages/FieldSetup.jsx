@@ -10,14 +10,14 @@ export default function FieldSetup({ fields, selectedFieldId, onSelectField }) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-emerald-800/40">
         <div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Select Demonstration Field</h2>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Select Demonstration Field</h2>
           <p className="text-xs text-emerald-300/70 mt-1">
             5 Pre-configured Agro-Ecological Zones with pre-processed NASA observations (Spec Section 51)
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {fields.map((f) => {
           const isSelected = f.id === selectedFieldId;
           const badge = getConditionBadge(f.condition_score?.label);
@@ -26,7 +26,7 @@ export default function FieldSetup({ fields, selectedFieldId, onSelectField }) {
             <div
               key={f.id}
               onClick={() => onSelectField(f.id)}
-              className={`p-5 rounded-2xl border cursor-pointer transition-all duration-200 relative overflow-hidden flex flex-col justify-between shadow-lg ${
+              className={`p-4 sm:p-5 rounded-2xl border cursor-pointer transition-all duration-200 relative overflow-hidden flex flex-col justify-between shadow-lg ${
                 isSelected
                   ? 'bg-[#0a2e1d] border-emerald-400 shadow-emerald-500/15 ring-2 ring-emerald-500/50'
                   : 'bg-[#092619]/90 border-emerald-500/20 hover:bg-[#0c3523] hover:border-emerald-400/50'

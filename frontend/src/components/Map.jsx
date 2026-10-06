@@ -182,14 +182,14 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   };
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-5 sm:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3.5 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3.5 border-b border-emerald-800/40">
         <div>
-          <h3 className="text-base font-extrabold text-white flex items-center gap-2 tracking-tight">
+          <h3 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2 tracking-tight">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
             Bangladesh Geographic & Agro-Ecological Map
           </h3>
-          <p className="text-xs text-emerald-300/70 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-emerald-300/70 mt-0.5">
             {mapMode === 'leaflet'
               ? 'Real-Time Leaflet Map (Satellite & OpenStreetMap) with Field GeoJSON'
               : 'Bangladesh Agro-Ecological Zones (AEZ) Vector Map'}
@@ -201,17 +201,17 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
           {mapMode === 'leaflet' && (
             <button
               onClick={handleFitAll}
-              className="px-2.5 py-1.5 rounded-xl bg-[#04140d] border border-emerald-700/60 text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl bg-[#04140d] border border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
               title="Fit all 5 demo fields across Bangladesh"
             >
-              <span>🔍</span> Fit All 5 Fields
+              <span>🔍</span> Fit All
             </button>
           )}
 
           <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
             <button
               onClick={() => setMapMode('leaflet')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold transition-all cursor-pointer text-[11px] sm:text-xs ${
                 mapMode === 'leaflet' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
@@ -219,18 +219,18 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
             </button>
             <button
               onClick={() => setMapMode('vector')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold transition-all cursor-pointer text-[11px] sm:text-xs ${
                 mapMode === 'vector' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
-              AEZ Vector Map
+              AEZ Vector
             </button>
           </div>
         </div>
       </div>
 
       {/* Map View Area */}
-      <div className="relative w-full aspect-[4/5] max-w-[500px] mx-auto bg-[#04140d] rounded-2xl border border-emerald-800/60 overflow-hidden shadow-inner">
+      <div className="relative w-full h-[320px] sm:h-[400px] md:h-[460px] mx-auto bg-[#04140d] rounded-2xl border border-emerald-800/60 overflow-hidden shadow-inner">
         {mapMode === 'leaflet' ? (
           <div ref={mapContainerRef} className="w-full h-full z-0" />
         ) : (
@@ -284,12 +284,12 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         )}
 
         {/* Floating Controls & Legend */}
-        <div className="absolute bottom-3 left-3 right-3 bg-[#051d12]/92 backdrop-blur-md p-2.5 rounded-xl border border-emerald-800/60 flex flex-wrap items-center justify-between gap-1.5 text-[10px] text-emerald-200 z-10 pointer-events-auto shadow-lg">
-          <span className="font-bold text-white">Condition:</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400"></span> Healthy (75-100)</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400"></span> Watch (50-74)</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400"></span> Moderate (25-49)</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400"></span> High (0-24)</span>
+        <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-[#051d12]/92 backdrop-blur-md p-1.5 sm:p-2.5 rounded-xl border border-emerald-800/60 flex items-center justify-between gap-1 text-[9px] sm:text-[10px] text-emerald-200 z-10 pointer-events-auto shadow-lg overflow-x-auto">
+          <span className="font-bold text-white hidden sm:inline">Condition:</span>
+          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-emerald-400"></span> Healthy</span>
+          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-amber-400"></span> Watch</span>
+          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-orange-400"></span> Moderate</span>
+          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-rose-400"></span> High</span>
         </div>
       </div>
     </div>
