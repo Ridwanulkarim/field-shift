@@ -32,17 +32,17 @@
   }
 
   /* 
-   * Scenic Lush Farm Landscape Canvas (with farmer removed per request):
-   * Features golden morning light, rolling green hills, foliage, and crops
-   * with a refined emerald atmospheric veil for perfect text contrast.
+   * Scenic Bright Farm Landscape Canvas:
+   * Features golden morning light, rolling green fields, and crops
+   * with a vibrant luminous emerald veil for high-contrast, crystal-clear readability.
    */
   body {
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.5;
-    background-color: #061c12;
+    background-color: #082417;
     background-image: 
-      linear-gradient(180deg, rgba(6, 26, 17, 0.74) 0%, rgba(4, 18, 12, 0.84) 100%),
+      linear-gradient(180deg, rgba(8, 38, 25, 0.48) 0%, rgba(5, 26, 17, 0.65) 100%),
       url('/assets/farm-bg.jpg');
     background-size: cover;
     background-position: center top;
@@ -103,120 +103,82 @@
 
 /* 
  * Frosted Glass Box Architecture ("lekha gula glassbox"):
- * Elegant translucent glass panels with frosted blur, specular top reflection,
- * and glowing borders so the lush farm landscape softly shows through.
+ * Radiant translucent glass panels with frosted blur, specular top reflection,
+ * and bright glowing borders for maximum clarity and brightness.
  */
 .glass-box,
 .bg-\[\#092619\]\/90, .bg-\[\#092619\] {
-  background: rgba(8, 28, 19, 0.65) !important;
-  backdrop-filter: blur(20px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  box-shadow: 
-    0 20px 50px 0 rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
-    0 0 25px rgba(52, 211, 153, 0.10) !important;
-}
-
-/* Inner Glass Parameter Tiles */
-.glass-tile,
-.bg-\[\#051d12\]\/80, .bg-\[\#051d12\]\/90, .bg-\[\#051d12\]\/60, .bg-\[\#051d12\] {
-  background: rgba(5, 20, 13, 0.55) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
-    0 4px 16px rgba(0, 0, 0, 0.25) !important;
-}
-
-/* Callout Glass Banners */
-.bg-\[\#042116\]\/90, .bg-\[\#042116\] {
-  background: rgba(12, 42, 29, 0.70) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(52, 211, 153, 0.40) !important;
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.30),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
-}
-
-/* Inset Glass Wells & Progress Tracks */
-.bg-\[\#03130b\], .bg-\[\#03140c\], .bg-\[\#03130b\]\/60 {
-  background: rgba(4, 16, 11, 0.65) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
-}
-
-/* Top Navigation Frosted Glass Bar */
-.bg-\[\#062115\]\/90, header.bg-\[\#062115\]\/90 {
-  background: rgba(7, 24, 16, 0.72) !important;
-  backdrop-filter: blur(24px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
-}
-
-/* Quick Glass Pills & Controls */
-.bg-\[\#08281a\] {
-  background: rgba(12, 36, 25, 0.65) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-}
-
-/* Footer Glass Bar */
-footer.bg-\[\#03130b\], .bg-\[\#03130b\] {
-  background: rgba(6, 20, 14, 0.80) !important;
-  backdrop-filter: blur(18px) !important;
-  -webkit-backdrop-filter: blur(18px) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-/* 
- * Bright / High-Contrast Glass Mode:
- * Gives higher luminance with sunnier transparency through the farm scenery.
- */
-.theme-bright {
-  background-image: 
-    linear-gradient(180deg, rgba(8, 36, 24, 0.58) 0%, rgba(5, 24, 16, 0.72) 100%),
-    url('/assets/farm-bg.jpg') !important;
-  background-size: cover !important;
-  background-position: center top !important;
-  background-attachment: fixed !important;
-}
-
-.theme-bright .bg-\[\#092619\]\/90, .theme-bright .bg-\[\#092619\] {
-  background: rgba(16, 52, 36, 0.75) !important;
+  background: rgba(16, 52, 36, 0.78) !important;
   backdrop-filter: blur(20px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
   box-shadow: 
     0 20px 50px 0 rgba(0, 0, 0, 0.35),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.30),
-    0 0 30px rgba(52, 211, 153, 0.15) !important;
+    0 0 30px rgba(52, 211, 153, 0.18) !important;
 }
 
-.theme-bright .bg-\[\#051d12\]\/80, .theme-bright .bg-\[\#051d12\]\/90, .theme-bright .bg-\[\#051d12\]\/60, .theme-bright .bg-\[\#051d12\] {
-  background: rgba(10, 36, 25, 0.65) !important;
+/* Inner Glass Parameter Tiles */
+.glass-tile,
+.bg-\[\#051d12\]\/80, .bg-\[\#051d12\]\/90, .bg-\[\#051d12\]\/60, .bg-\[\#051d12\] {
+  background: rgba(10, 36, 25, 0.68) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
   border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.20),
+    0 4px 16px rgba(0, 0, 0, 0.22) !important;
 }
 
-.theme-bright .bg-\[\#062115\]\/90, .theme-bright header.bg-\[\#062115\]\/90 {
-  background: rgba(12, 42, 29, 0.80) !important;
+/* Callout Glass Banners */
+.bg-\[\#042116\]\/90, .bg-\[\#042116\] {
+  background: rgba(14, 48, 33, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.30) !important;
+}
+
+/* Inset Glass Wells & Progress Tracks */
+.bg-\[\#03130b\], .bg-\[\#03140c\], .bg-\[\#03130b\]\/60, .bg-\[\#04140d\] {
+  background: rgba(6, 26, 18, 0.70) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Top Navigation Frosted Glass Bar */
+.bg-\[\#062115\]\/95, .bg-\[\#062115\]\/90, header {
+  background: rgba(12, 44, 30, 0.85) !important;
   backdrop-filter: blur(24px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30) !important;
 }
 
-.theme-bright .bg-\[\#08281a\] {
+/* Mobile Fixed Bottom Navigation Bar */
+.bg-\[\#04160e\]\/95 {
+  background: rgba(10, 38, 26, 0.92) !important;
+  backdrop-filter: blur(24px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.20) !important;
+}
+
+/* Quick Glass Pills & Controls */
+.bg-\[\#08281a\] {
   background: rgba(18, 54, 38, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
-.theme-bright footer.bg-\[\#03130b\], .theme-bright .bg-\[\#03130b\] {
+/* Footer Glass Bar */
+footer.bg-\[\#03130b\], .bg-\[\#03130b\] {
   background: rgba(10, 32, 22, 0.85) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
 }
 
 /* Custom agricultural scrollbars */

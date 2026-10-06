@@ -18,7 +18,6 @@ export default function App() {
   const [health, setHealth] = useState({ status: 'ok', version: 'v6.2' });
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'planner' | 'comparison' | 'recommendation' | 'fields'
   const [lang, setLang] = useState('en'); // 'en' | 'bn'
-  const [theme, setTheme] = useState('rich'); // 'rich' | 'bright'
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [error, setError] = useState(null);
 
@@ -69,7 +68,7 @@ export default function App() {
   }, [selectedFieldId, fields]);
 
   return (
-    <div className={`min-h-screen text-emerald-50 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-300 ${theme === 'bright' ? 'theme-bright' : ''}`}>
+    <div className="min-h-screen text-emerald-50 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-300">
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 bg-[#062115]/95 border-b border-emerald-800/40 backdrop-blur-md px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 shadow-lg shadow-black/25">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3">
@@ -92,19 +91,12 @@ export default function App() {
               </div>
             </div>
 
-            {/* Mobile Only: Language & Theme Quick Toggles */}
+            {/* Mobile Only: Language Quick Toggle */}
             <div className="flex items-center gap-1.5 md:hidden">
-              <button
-                onClick={() => setTheme(prev => prev === 'bright' ? 'rich' : 'bright')}
-                className="w-8 h-8 rounded-xl bg-[#08281a] border border-emerald-700/60 flex items-center justify-center text-xs text-white"
-                title={theme === 'bright' ? 'Rich' : 'Bright'}
-              >
-                {theme === 'bright' ? '☀️' : '🌿'}
-              </button>
               <div className="inline-flex rounded-xl bg-[#08281a] p-0.5 border border-emerald-700/60 text-[11px]">
                 <button
                   onClick={() => setLang(l => l === 'en' ? 'bn' : 'en')}
-                  className="px-2 py-1 rounded-lg font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-400/30"
+                  className="px-2.5 py-1 rounded-lg font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-400/30"
                 >
                   {lang === 'en' ? 'EN' : 'বাং'}
                 </button>
@@ -112,23 +104,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick Field Switcher, Theme Toggle, Language Toggle & Live API Indicator */}
+          {/* Quick Field Switcher, Language Toggle & Live API Indicator */}
           <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-2.5 flex-wrap">
-            {/* Desktop Theme & Language Toggles */}
-            <div className="hidden md:inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
-              <button
-                onClick={() => setTheme(prev => prev === 'bright' ? 'rich' : 'bright')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-                  theme === 'bright'
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-emerald-300/80 hover:text-white'
-                }`}
-                title={theme === 'bright' ? 'Switch to Rich Theme' : 'Switch to Bright High-Contrast Theme'}
-              >
-                {theme === 'bright' ? '☀️ Bright' : '🌿 Lush'}
-              </button>
-            </div>
-
+            {/* Desktop Language Toggle */}
             <div className="hidden md:inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
               <button
                 onClick={() => setLang('en')}
