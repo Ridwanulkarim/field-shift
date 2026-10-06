@@ -18,6 +18,7 @@ export default function App() {
   const [health, setHealth] = useState({ status: 'ok', version: 'v6.2' });
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'planner' | 'comparison' | 'recommendation' | 'fields'
   const [lang, setLang] = useState('en'); // 'en' | 'bn'
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [error, setError] = useState(null);
 
@@ -91,7 +92,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Mobile Only: Language Quick Toggle */}
+            {/* Mobile Only: Language Quick Toggle & Three-Dot Menu Button */}
             <div className="flex items-center gap-1.5 md:hidden">
               <div className="inline-flex rounded-xl bg-[#08281a] p-0.5 border border-emerald-700/60 text-[11px]">
                 <button
@@ -101,34 +102,72 @@ export default function App() {
                   {lang === 'en' ? 'EN' : 'বাং'}
                 </button>
               </div>
+
+              {/* Three-Dot Menu Button (Mobile) */}
+              <button
+                onClick={() => setIsMenuOpen(prev => !prev)}
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                  isMenuOpen
+                    ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
+                    : 'bg-[#08281a] border border-emerald-700/60 text-emerald-200 hover:text-white'
+                }`}
+                aria-label="Navigation Menu"
+                title="Navigation Menu"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5" r="2.2" />
+                  <circle cx="12" cy="12" r="2.2" />
+                  <circle cx="12" cy="19" r="2.2" />
+                </svg>
+              </button>
             </div>
           </div>
 
           {/* Quick Field Switcher, Language Toggle & Live API Indicator */}
           <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-2.5 flex-wrap">
-            {/* Desktop Language Toggle */}
-            <div className="hidden md:inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
+            {/* Desktop Language Toggle & Three-Dot Menu */}
+            <div className="hidden md:inline-flex items-center gap-1.5">
+              <div className="inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
+                <button
+                  onClick={() => setLang('en')}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                    lang === 'en'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'text-emerald-300/70 hover:text-white'
+                  }`}
+                  title="Switch to English"
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLang('bn')}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                    lang === 'bn'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'text-emerald-300/70 hover:text-white'
+                  }`}
+                  title="বাংলায় দেখুন"
+                >
+                  বাংলা
+                </button>
+              </div>
+
+              {/* Three-Dot Menu Button (Desktop) */}
               <button
-                onClick={() => setLang('en')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
-                  lang === 'en'
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-emerald-300/70 hover:text-white'
+                onClick={() => setIsMenuOpen(prev => !prev)}
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                  isMenuOpen
+                    ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
+                    : 'bg-[#08281a] border border-emerald-700/60 text-emerald-200 hover:text-white'
                 }`}
-                title="Switch to English"
+                aria-label="Navigation Menu"
+                title="Navigation Menu"
               >
-                EN
-              </button>
-              <button
-                onClick={() => setLang('bn')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
-                  lang === 'bn'
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-emerald-300/70 hover:text-white'
-                }`}
-                title="বাংলায় দেখুন"
-              >
-                বাংলা
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5" r="2.2" />
+                  <circle cx="12" cy="12" r="2.2" />
+                  <circle cx="12" cy="19" r="2.2" />
+                </svg>
               </button>
             </div>
 
@@ -215,10 +254,83 @@ export default function App() {
             {t('checkpoint_badge', lang)}
           </span>
         </div>
+
+        {/* Three-Dot Floating Dropdown Menu (Frosted Glass) */}
+        {isMenuOpen && (
+          <>
+            {/* Backdrop for outside-click dismissal */}
+            <div
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px]"
+              onClick={() => setIsMenuOpen(false)}
+            />
+
+            {/* Menu Dropdown Card */}
+            <div className="absolute right-3 sm:right-6 md:right-8 top-full mt-2 z-50 w-72 max-w-[calc(100vw-1.5rem)] bg-[#072417]/95 backdrop-blur-2xl border border-emerald-500/40 rounded-2xl shadow-2xl shadow-black/80 p-3 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-emerald-800/50">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-emerald-400 font-bold text-sm">⋮</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                    {lang === 'bn' ? 'মেনু নেভিগেশন' : 'Navigation Menu'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-6 h-6 rounded-lg bg-emerald-950/90 border border-emerald-800 flex items-center justify-center text-xs text-emerald-300 hover:text-white cursor-pointer"
+                  aria-label="Close Menu"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                {[
+                  { id: 'dashboard', icon: '📊', name: t('nav_dashboard', lang), desc: lang === 'bn' ? 'সারসংক্ষেপ, স্কোর ও মানচিত্র' : 'Condition Score & Map' },
+                  { id: 'planner', icon: '🌾', name: t('nav_planner', lang), desc: lang === 'bn' ? 'মৌসুমি ফসল নির্বাচন ও ঘূর্ণন' : 'Seasonal Crop Sequences' },
+                  { id: 'comparison', icon: '⚖️', name: t('nav_comparison', lang), desc: lang === 'bn' ? 'নাসা স্ট্রেস র‍্যাংকিং তুলনা' : 'NASA Stress Ranking Shift' },
+                  { id: 'recommendation', icon: '💡', name: t('nav_recommendation', lang), desc: lang === 'bn' ? 'চূড়ান্ত সুপারিশ ও কর্মপরিকল্পনা' : 'Action Plan & Stewardship' },
+                  { id: 'fields', icon: '🗺️', name: t('nav_fields', lang), desc: lang === 'bn' ? '৫টি পরীক্ষামূলক কৃষি অঞ্চল' : '5 Demo Field Zones' },
+                ].map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        setIsMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left cursor-pointer ${
+                        isActive
+                          ? 'bg-emerald-500/25 border border-emerald-400/60 text-white shadow-sm'
+                          : 'hover:bg-[#0c3523] text-emerald-200/90 hover:text-white border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="text-lg shrink-0">{item.icon}</span>
+                        <div className="min-w-0 truncate">
+                          <div className={`text-xs font-bold truncate ${isActive ? 'text-white' : 'text-emerald-100'}`}>
+                            {item.name}
+                          </div>
+                          <div className="text-[10px] text-emerald-400/70 truncate">
+                            {item.desc}
+                          </div>
+                        </div>
+                      </div>
+                      {isActive && (
+                        <span className="text-xs font-black text-emerald-400 px-1.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-700/80 shrink-0 ml-1">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto w-full px-3.5 sm:px-6 md:px-8 py-5 md:py-8 pb-24 md:pb-8 flex-1">
+      <main className="max-w-7xl mx-auto w-full px-3.5 sm:px-6 md:px-8 py-5 sm:py-7 md:py-8 flex-1">
         {error && (
           <div className="bg-rose-950/50 border border-rose-800 p-4 rounded-xl text-xs text-rose-300 mb-6 flex items-center justify-between">
             <span>⚠ Error connecting to backend API: {error}</span>
@@ -324,69 +436,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-
-      {/* Mobile Fixed Bottom Navigation Bar (md:hidden) */}
-      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#04160e]/95 backdrop-blur-xl border-t border-emerald-800/60 shadow-[0_-10px_25px_rgba(0,0,0,0.6)] px-1.5 py-1.5 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <button
-          onClick={() => setActiveTab('dashboard')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
-            activeTab === 'dashboard'
-              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
-              : 'text-emerald-400/60 hover:text-emerald-200'
-          }`}
-        >
-          <span className="text-base sm:text-lg leading-none">📊</span>
-          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_dashboard', lang)}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('planner')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
-            activeTab === 'planner'
-              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
-              : 'text-emerald-400/60 hover:text-emerald-200'
-          }`}
-        >
-          <span className="text-base sm:text-lg leading-none">🌾</span>
-          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_planner', lang)}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('comparison')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
-            activeTab === 'comparison'
-              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
-              : 'text-emerald-400/60 hover:text-emerald-200'
-          }`}
-        >
-          <span className="text-base sm:text-lg leading-none">⚖️</span>
-          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_comparison', lang)}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('recommendation')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
-            activeTab === 'recommendation'
-              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
-              : 'text-emerald-400/60 hover:text-emerald-200'
-          }`}
-        >
-          <span className="text-base sm:text-lg leading-none">💡</span>
-          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_recommendation', lang)}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('fields')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-xl transition-all ${
-            activeTab === 'fields'
-              ? 'text-emerald-200 font-extrabold bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
-              : 'text-emerald-400/60 hover:text-emerald-200'
-          }`}
-        >
-          <span className="text-base sm:text-lg leading-none">🗺️</span>
-          <span className="text-[10px] tracking-tight mt-1 font-semibold">{t('nav_fields', lang)}</span>
-        </button>
-      </nav>
     </div>
   );
 }

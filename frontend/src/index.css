@@ -156,14 +156,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30) !important;
 }
 
-/* Mobile Fixed Bottom Navigation Bar */
-.bg-\[\#04160e\]\/95 {
-  background: rgba(10, 38, 26, 0.92) !important;
-  backdrop-filter: blur(24px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.20) !important;
-}
-
 /* Quick Glass Pills & Controls */
 .bg-\[\#08281a\] {
   background: rgba(18, 54, 38, 0.75) !important;
