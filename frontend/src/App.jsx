@@ -7,6 +7,16 @@ import RotationPlanner from './pages/RotationPlanner';
 import RotationComparison from './pages/RotationComparison';
 import Recommendation from './pages/Recommendation';
 import { t } from './utils/i18n';
+import farmBg from './assets/farm-bg.jpg';
+import {
+  DashboardIcon,
+  PlannerIcon,
+  ComparisonIcon,
+  RecommendationIcon,
+  FieldsIcon,
+  PinIcon,
+  ChevronDownIcon
+} from './components/icons/NavIcons';
 
 export default function App() {
   // Pre-loaded initial state provides instantaneous 0ms first-paint without waiting for network
@@ -69,35 +79,49 @@ export default function App() {
   }, [selectedFieldId, fields]);
 
   return (
-    <div className="min-h-screen text-emerald-50 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-300">
+    <div className="relative min-h-screen text-emerald-50 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-300">
+      {/* Scenic Farm Field Landscape Canvas (Lush rolling fields with glowing sunlight) */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `radial-gradient(ellipse at 50% -10%, rgba(52, 211, 153, 0.18) 0%, transparent 70%), linear-gradient(180deg, rgba(6, 26, 17, 0.52) 0%, rgba(4, 18, 12, 0.78) 100%), url(${farmBg})`,
+        }}
+      />
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-[#062115]/95 border-b border-emerald-800/40 backdrop-blur-md px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 shadow-lg shadow-black/25">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3">
-          {/* Brand & Mobile Quick Toggles */}
+      <header className="sticky top-0 z-40 bg-[#062115]/90 border-b border-emerald-500/25 backdrop-blur-xl px-3.5 sm:px-6 md:px-8 py-3 shadow-xl shadow-black/30">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+          {/* Brand & Mobile Quick Controls */}
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 flex items-center justify-center text-white font-black text-lg sm:text-xl shadow-lg shadow-emerald-500/25 ring-1 ring-emerald-400/30 shrink-0">
-                🌾
+            <div className="flex items-center gap-3">
+              {/* Bespoke Earth-Flora NASA Mark */}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 ring-1 ring-emerald-300/40 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                </svg>
               </div>
               <div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white leading-none">FIELD SHIFT</h1>
-                  <span className="text-[9px] sm:text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-700/60 text-emerald-300 font-semibold tracking-wide">
-                    MVP v6.2
+                <div className="flex items-center gap-2">
+                  <h1 className="text-base sm:text-lg font-black tracking-wider text-white font-mono leading-none">
+                    FIELD SHIFT
+                  </h1>
+                  <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300">
+                    NASA EO
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-emerald-200/70 mt-0.5 truncate max-w-[240px] sm:max-w-none">
-                  Adapting Farms with NASA Earth Observations • Bangladesh
+                <p className="text-[11px] text-emerald-200/75 mt-0.5 truncate max-w-[250px] sm:max-w-none font-medium">
+                  {lang === 'bn' ? 'নাসা স্যাটেলাইট ভিত্তিক জলবায়ু সহনশীল কৃষি সিদ্ধান্ত • বাংলাদেশ' : 'Climate-Resilient Agriculture with NASA Earth Observations • Bangladesh'}
                 </p>
               </div>
             </div>
 
-            {/* Mobile Only: Language Quick Toggle & Three-Dot Menu Button */}
+            {/* Mobile Controls: Language Pill & Three-Dot Button */}
             <div className="flex items-center gap-1.5 md:hidden">
-              <div className="inline-flex rounded-xl bg-[#08281a] p-0.5 border border-emerald-700/60 text-[11px]">
+              <div className="inline-flex rounded-lg bg-[#072418] p-0.5 border border-emerald-600/40 text-xs shadow-inner">
                 <button
                   onClick={() => setLang(l => l === 'en' ? 'bn' : 'en')}
-                  className="px-2.5 py-1 rounded-lg font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-400/30"
+                  className="px-2.5 py-1 rounded-md font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-400/30 text-xs"
                 >
                   {lang === 'en' ? 'EN' : 'বাং'}
                 </button>
@@ -109,7 +133,7 @@ export default function App() {
                 className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                   isMenuOpen
                     ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
-                    : 'bg-[#08281a] border border-emerald-700/60 text-emerald-200 hover:text-white'
+                    : 'bg-[#072418] border border-emerald-600/40 text-emerald-200 hover:text-white'
                 }`}
                 aria-label="Navigation Menu"
                 title="Navigation Menu"
@@ -123,14 +147,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick Field Switcher, Language Toggle & Live API Indicator */}
-          <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-2.5 flex-wrap">
-            {/* Desktop Language Toggle & Three-Dot Menu */}
-            <div className="hidden md:inline-flex items-center gap-1.5">
-              <div className="inline-flex rounded-xl bg-[#08281a] p-1 border border-emerald-700/60 text-xs shadow-sm">
+          {/* Controls: Field Switcher, Language Toggle & Telemetry */}
+          <div className="flex items-center justify-between md:justify-end gap-2.5 flex-wrap">
+            {/* Desktop Language Switcher */}
+            <div className="hidden md:inline-flex items-center gap-2">
+              <div className="inline-flex rounded-lg bg-[#072418] p-0.5 border border-emerald-600/40 text-xs shadow-inner">
                 <button
                   onClick={() => setLang('en')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                  className={`px-3 py-1 rounded-md font-bold transition-all text-xs ${
                     lang === 'en'
                       ? 'bg-emerald-500 text-white shadow-sm'
                       : 'text-emerald-300/70 hover:text-white'
@@ -141,7 +165,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setLang('bn')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                  className={`px-3 py-1 rounded-md font-bold transition-all text-xs ${
                     lang === 'bn'
                       ? 'bg-emerald-500 text-white shadow-sm'
                       : 'text-emerald-300/70 hover:text-white'
@@ -158,7 +182,7 @@ export default function App() {
                 className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                   isMenuOpen
                     ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
-                    : 'bg-[#08281a] border border-emerald-700/60 text-emerald-200 hover:text-white'
+                    : 'bg-[#072418] border border-emerald-600/40 text-emerald-200 hover:text-white'
                 }`}
                 aria-label="Navigation Menu"
                 title="Navigation Menu"
@@ -171,89 +195,67 @@ export default function App() {
               </button>
             </div>
 
-            {/* Field Dropdown Selector */}
+            {/* Field Dropdown Selector with Pin Icon */}
             <div className="relative flex-1 md:flex-initial min-w-0">
+              <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-emerald-400">
+                <PinIcon className="w-3.5 h-3.5" />
+              </div>
               <select
                 value={selectedFieldId}
                 onChange={(e) => setSelectedFieldId(Number(e.target.value))}
-                className="w-full md:w-auto bg-[#08281a] border border-emerald-700/60 text-[11px] sm:text-xs font-semibold text-emerald-100 rounded-xl px-3 py-1.5 sm:py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 hover:border-emerald-500/60 cursor-pointer appearance-none shadow-sm transition-all truncate"
+                className="w-full md:w-auto bg-[#072418] border border-emerald-600/50 text-xs font-semibold text-emerald-100 rounded-xl pl-8 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400/40 hover:border-emerald-400 cursor-pointer appearance-none shadow-sm transition-all truncate"
               >
                 {fields.map(f => (
                   <option key={f.id} value={f.id} className="bg-[#062115] text-emerald-100">
-                    Field #{f.id}: {f.name.split('(')[0]}
+                    Field #{f.id}: {f.name.split('(')[0].trim()}
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-emerald-400 text-xs">
-                ▼
+              <div className="pointer-events-none absolute inset-y-0 right-0 pr-2.5 flex items-center text-emerald-400/70">
+                <ChevronDownIcon className="w-3.5 h-3.5" />
               </div>
             </div>
 
-            {/* API Health Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-[#08281a] border border-emerald-800/60 shadow-sm shrink-0">
-              <span className={`w-2 h-2 rounded-full ${health?.status === 'ok' ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`}></span>
-              <span className="text-emerald-200/80">API: <strong className="text-white">{health?.status === 'ok' ? 'Online' : 'Connecting'}</strong></span>
+            {/* NASA EO Telemetry Status */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#072418] border border-emerald-600/50 shadow-sm shrink-0">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
+              <span className="text-emerald-200/80 text-[11px]">
+                NASA EO: <strong className="text-white font-semibold">{health?.status === 'ok' ? 'Online' : 'Syncing'}</strong>
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Desktop Navigation Tabs (Hidden on mobile phones, shown on md and above) */}
-        <div className="max-w-7xl mx-auto hidden md:flex items-center gap-2 mt-3 pt-2.5 border-t border-emerald-800/30 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-              activeTab === 'dashboard'
-                ? 'bg-emerald-500/20 text-emerald-200 shadow-sm border border-emerald-500/40'
-                : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
-            }`}
-          >
-            📊 {t('nav_dashboard', lang)}
-          </button>
-          <button
-            onClick={() => setActiveTab('planner')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-              activeTab === 'planner'
-                ? 'bg-emerald-500/20 text-emerald-200 shadow-sm border border-emerald-500/40'
-                : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
-            }`}
-          >
-            🌾 {t('nav_planner', lang)}
-          </button>
-          <button
-            onClick={() => setActiveTab('comparison')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-              activeTab === 'comparison'
-                ? 'bg-emerald-500/20 text-emerald-200 shadow-sm border border-emerald-500/40'
-                : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
-            }`}
-          >
-            ⚖️ {t('nav_comparison', lang)}
-          </button>
-          <button
-            onClick={() => setActiveTab('recommendation')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-              activeTab === 'recommendation'
-                ? 'bg-emerald-500/20 text-emerald-200 shadow-sm border border-emerald-500/40'
-                : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
-            }`}
-          >
-            💡 {t('nav_recommendation', lang)}
-          </button>
-          <button
-            onClick={() => setActiveTab('fields')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-              activeTab === 'fields'
-                ? 'bg-emerald-500/20 text-emerald-200 shadow-sm border border-emerald-500/40'
-                : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40'
-            }`}
-          >
-            🗺️ {t('nav_fields', lang)}
-          </button>
-          <span className="text-xs text-emerald-800/80 px-2 hidden lg:inline">|</span>
-          <span className="text-[11px] text-emerald-400/70 italic hidden lg:inline whitespace-nowrap">
-            {t('checkpoint_badge', lang)}
-          </span>
-        </div>
+        {/* Desktop Navigation Tabs (Sleek SVG-driven layout) */}
+        <nav className="max-w-7xl mx-auto hidden md:flex items-center gap-2 mt-3 pt-2.5 border-t border-emerald-500/20 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          {[
+            { id: 'dashboard', icon: DashboardIcon, label: t('nav_dashboard', lang) },
+            { id: 'planner', icon: PlannerIcon, label: t('nav_planner', lang) },
+            { id: 'comparison', icon: ComparisonIcon, label: t('nav_comparison', lang) },
+            { id: 'recommendation', icon: RecommendationIcon, label: t('nav_recommendation', lang) },
+            { id: 'fields', icon: FieldsIcon, label: t('nav_fields', lang) },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                  isActive
+                    ? 'bg-emerald-500/25 text-white shadow-sm border border-emerald-400/60 ring-1 ring-emerald-400/20'
+                    : 'text-emerald-300/70 hover:text-white hover:bg-emerald-950/40 border border-transparent'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-300' : 'text-emerald-400/60'}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
         {/* Three-Dot Floating Dropdown Menu (Frosted Glass) */}
         {isMenuOpen && (
@@ -284,13 +286,14 @@ export default function App() {
 
               <div className="space-y-1">
                 {[
-                  { id: 'dashboard', icon: '📊', name: t('nav_dashboard', lang), desc: lang === 'bn' ? 'সারসংক্ষেপ, স্কোর ও মানচিত্র' : 'Condition Score & Map' },
-                  { id: 'planner', icon: '🌾', name: t('nav_planner', lang), desc: lang === 'bn' ? 'মৌসুমি ফসল নির্বাচন ও ঘূর্ণন' : 'Seasonal Crop Sequences' },
-                  { id: 'comparison', icon: '⚖️', name: t('nav_comparison', lang), desc: lang === 'bn' ? 'নাসা স্ট্রেস র‍্যাংকিং তুলনা' : 'NASA Stress Ranking Shift' },
-                  { id: 'recommendation', icon: '💡', name: t('nav_recommendation', lang), desc: lang === 'bn' ? 'চূড়ান্ত সুপারিশ ও কর্মপরিকল্পনা' : 'Action Plan & Stewardship' },
-                  { id: 'fields', icon: '🗺️', name: t('nav_fields', lang), desc: lang === 'bn' ? '৫টি পরীক্ষামূলক কৃষি অঞ্চল' : '5 Demo Field Zones' },
+                  { id: 'dashboard', icon: DashboardIcon, name: t('nav_dashboard', lang), desc: lang === 'bn' ? 'সারসংক্ষেপ, স্কোর ও মানচিত্র' : 'Condition Score & Map' },
+                  { id: 'planner', icon: PlannerIcon, name: t('nav_planner', lang), desc: lang === 'bn' ? 'মৌসুমি ফসল নির্বাচন ও ঘূর্ণন' : 'Seasonal Crop Sequences' },
+                  { id: 'comparison', icon: ComparisonIcon, name: t('nav_comparison', lang), desc: lang === 'bn' ? 'নাসা স্ট্রেস র‍্যাংকিং তুলনা' : 'NASA Stress Ranking Shift' },
+                  { id: 'recommendation', icon: RecommendationIcon, name: t('nav_recommendation', lang), desc: lang === 'bn' ? 'চূড়ান্ত সুপারিশ ও কর্মপরিকল্পনা' : 'Action Plan & Stewardship' },
+                  { id: 'fields', icon: FieldsIcon, name: t('nav_fields', lang), desc: lang === 'bn' ? '৫টি পরীক্ষামূলক কৃষি অঞ্চল' : '5 Demo Field Zones' },
                 ].map((item) => {
                   const isActive = activeTab === item.id;
+                  const Icon = item.icon;
                   return (
                     <button
                       key={item.id}
@@ -305,7 +308,11 @@ export default function App() {
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-lg shrink-0">{item.icon}</span>
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                          isActive ? 'bg-emerald-500/30 text-emerald-300' : 'bg-emerald-950/60 text-emerald-400/80'
+                        }`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
                         <div className="min-w-0 truncate">
                           <div className={`text-xs font-bold truncate ${isActive ? 'text-white' : 'text-emerald-100'}`}>
                             {item.name}
@@ -411,7 +418,7 @@ export default function App() {
             <div>
               <span className="font-bold text-emerald-100 block mb-1.5 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                {lang === 'bn' ? 'বৈজ্ঞানিক সীমাবদ্ধতা (স্পেক অনুচ্ছেদ ৫৬)' : 'Scientific Caveats (Spec Section 56)'}
+                {lang === 'bn' ? 'বৈজ্ঞানিক সীমাবদ্ধতা ও পর্যবেক্ষণ মূলনীতি' : 'Scientific Limitations & Operational Caveats'}
               </span>
               <ul className="text-[11px] leading-relaxed text-emerald-200/70 list-disc list-inside space-y-1">
                 {lang === 'bn' ? (
@@ -431,8 +438,8 @@ export default function App() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-emerald-300/50 pt-1">
-            <span>{lang === 'bn' ? 'নাসা স্পেস অ্যাপস ও বৈশ্বিক জলবায়ু অভিযোজন উদ্যোগ • বাংলাদেশ ডেমো' : 'NASA Space Apps & Global Climate Adaptation Initiative • Bangladesh Demo'}</span>
-            <span className="font-mono">Engine: PostgreSQL / pg-mem • v6.2 Spec Compliant</span>
+            <span>{lang === 'bn' ? 'নাসা স্পেস অ্যাপস ও বৈশ্বিক জলবায়ু অভিযোজন উদ্যোগ • বাংলাদেশ' : 'NASA Space Apps & Global Climate Adaptation Initiative • Bangladesh'}</span>
+            <span className="font-mono">NASA Applied Sciences • Climate-Resilient Agriculture v6.2</span>
           </div>
         </div>
       </footer>

@@ -13,11 +13,11 @@ export const translations = {
     checkpoint_badge: 'Checkpoint 3 Active • Full Disclosures & Bilingual',
 
     // Navigation
-    nav_dashboard: '📊 Field Dashboard',
-    nav_planner: '🌱 Rotation Planner',
-    nav_comparison: '⚖️ Compare Rotations',
-    nav_recommendation: '🎯 Recommendation',
-    nav_fields: '🗺️ 5 Demo Fields',
+    nav_dashboard: 'Field Dashboard',
+    nav_planner: 'Rotation Planner',
+    nav_comparison: 'Compare Rotations',
+    nav_recommendation: 'Recommendation',
+    nav_fields: '5 Demo Fields',
 
     // Field Status & Condition Labels (Spec Section 25)
     healthy_condition: 'Healthy relative condition',
@@ -81,11 +81,11 @@ export const translations = {
     checkpoint_badge: 'চেকপয়েন্ট ৩ সক্রিয় • দ্বৈত ভাষা ও সম্পূর্ণ নীতিমালা',
 
     // Navigation
-    nav_dashboard: '📊 মাঠ ড্যাশবোর্ড',
-    nav_planner: '🌱 ফসল চক্র পরিকল্পনাকারী',
-    nav_comparison: '⚖️ ঘূর্ণন তুলনা',
-    nav_recommendation: '🎯 চূড়ান্ত সুপারিশ',
-    nav_fields: '🗺️ ৫টি প্রদর্শনী মাঠ',
+    nav_dashboard: 'মাঠ ড্যাশবোর্ড',
+    nav_planner: 'ফসল চক্র পরিকল্পনা',
+    nav_comparison: 'ঘূর্ণন তুলনা',
+    nav_recommendation: 'চূড়ান্ত সুপারিশ',
+    nav_fields: '৫টি প্রদর্শনী মাঠ',
 
     // Field Status & Condition Labels (Spec Section 25)
     healthy_condition: 'তুলনামূলক স্বাস্থ্যকর অবস্থা',

@@ -14,7 +14,7 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-emerald-800/40">
         <div>
           <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-amber-400 block mb-1">
-            Spec Section 56 Mandatory Compliance
+            Scientific Disclosures & Operating Principles
           </span>
           <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <span>🛡️</span> {t('disclosures_title', lang)}
@@ -80,7 +80,7 @@ export default function WarningCard({ lang = 'en', risks = [] }) {
 
               {isExpanded && (
                 <div className="mt-3 pt-2.5 border-t border-emerald-900/60 text-[11px] text-emerald-400/80 flex items-center justify-between">
-                  <span className="italic">Clause #{item.number} • Spec Section 56 Ground Truth</span>
+                  <span className="italic">Disclosure Standard #{item.number} • Agronomic Ground Truth</span>
                   <span className="font-mono text-[10px] bg-emerald-950 px-2 py-0.5 rounded text-emerald-300 border border-emerald-800">
                     ID: {item.id}
                   </span>

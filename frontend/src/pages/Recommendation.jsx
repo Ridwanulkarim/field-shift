@@ -284,7 +284,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[11px] sm:text-xs font-mono font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-700/80 text-emerald-300">
-                Spec Section 55 Step 10 & 11
+                {lang === 'bn' ? 'নাসা ক্লাইমেট মডেল' : 'NASA Earth Intelligence'}
               </span>
               <span className="text-[11px] sm:text-xs text-emerald-400 font-semibold truncate max-w-[200px] sm:max-w-none">
                 Field #{selectedField?.id}: {selectedField?.name}
@@ -361,7 +361,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
               <span>🌾</span> {lang === 'bn' ? 'নির্বাচিত ফসল ঘূর্ণন প্রোফাইল' : 'Top Candidate Rotation Profile'}
             </h3>
             <span className="text-[11px] sm:text-xs text-emerald-400 font-mono">
-              Spec Section 50: <strong>Highest-scoring rotation</strong>
+              {lang === 'bn' ? 'মূল্যায়ন মানদণ্ড: ' : 'Evaluation Standard: '}<strong>{lang === 'bn' ? 'সর্বোচ্চ স্কোরপ্রাপ্ত ঘূর্ণন' : 'Highest-scoring sequence'}</strong>
             </span>
           </div>
 

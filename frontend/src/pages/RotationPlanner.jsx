@@ -260,7 +260,7 @@ export default function RotationPlanner({ selectedField }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
           <div>
             <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
-              Spec Section 28–31 Succession Setup
+              Seasonal Succession Architecture
             </span>
             <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               Build Candidate Crop Rotation

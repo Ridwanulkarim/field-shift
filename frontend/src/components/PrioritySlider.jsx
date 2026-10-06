@@ -40,7 +40,7 @@ export default function PrioritySlider({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
         <div>
           <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-            Spec Section 37 & 39 Farmer Priorities
+            Adaptive Environmental Weighting
           </span>
           <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
             Decision Priorities & NASA Multipliers

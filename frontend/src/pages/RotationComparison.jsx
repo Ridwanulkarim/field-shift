@@ -194,7 +194,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-emerald-800/40">
           <div>
             <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-              Spec Section 40 & 55 Decision Support Matrix
+              Agro-Ecological Stress Comparative Matrix
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
               Rotation Comparison & NASA Ranking Shift
@@ -375,7 +375,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
           </div>
         </div>
         <div className="text-left sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/40 shrink-0">
-          <span className="text-[10px] sm:text-[11px] text-emerald-300/70 block">Spec Section 50 Label:</span>
+          <span className="text-[10px] sm:text-[11px] text-emerald-300/70 block">Evaluated Outcome:</span>
           <span className="text-xs font-black text-emerald-300 bg-emerald-950/90 px-3 py-1 rounded-full border border-emerald-700/60 inline-block mt-0.5">
             🏆 Highest-scoring rotation: {isAWinner ? 'Option A' : 'Option B'}
           </span>

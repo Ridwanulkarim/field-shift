@@ -239,11 +239,11 @@ export default function RotationCard({
           className="w-full flex flex-col sm:flex-row sm:items-center justify-between px-3.5 sm:px-4 py-2.5 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/50 text-xs font-semibold text-emerald-200 transition-all shadow-sm cursor-pointer gap-1.5 sm:gap-0 text-left sm:text-center"
         >
           <span className="flex items-center gap-2">
-            <span>🔍</span>
-            <span>Spec Section 49 Agronomic Traceability & Audit Trail</span>
+            <span>🔬</span>
+            <span>Agronomic Traceability & Scientific Audit Trail</span>
           </span>
           <span className="text-emerald-400 font-bold font-mono self-end sm:self-auto">
-            {isDrawerOpen ? '▲ Hide Details' : '▼ View 8 Sub-Objects'}
+            {isDrawerOpen ? '▲ Hide Details' : '▼ View Scientific Breakdown'}
           </span>
         </button>
 
@@ -251,9 +251,9 @@ export default function RotationCard({
         {isDrawerOpen && (
           <div className="mt-3 bg-[#03140c] border border-emerald-800/60 rounded-xl p-3.5 sm:p-5 text-xs space-y-4 shadow-inner">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-emerald-800/40 gap-1.5 sm:gap-2">
-              <span className="font-bold text-white text-sm">Decision-Support Agronomic Audit Trail (8 Sub-Objects)</span>
+              <span className="font-bold text-white text-sm">Decision-Support Agronomic Audit Trail (Multi-Factor Analysis)</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 self-start sm:self-auto">
-                Scoring Engine: {explanation?.scoring_version || rotation.scoring_version || 'v6.2'}
+                Model Engine: {explanation?.scoring_version || rotation.scoring_version || 'v6.2'}
               </span>
             </div>
 
@@ -331,7 +331,7 @@ export default function RotationCard({
 
             {/* Sub-object 8: Mandatory Scientific Caveats */}
             <div className="pt-2 border-t border-emerald-800/40">
-              <strong className="text-amber-400 block font-bold mb-1">8. Spec Section 56 Mandatory Disclosures:</strong>
+              <strong className="text-amber-400 block font-bold mb-1">8. Scientific Disclosures & Operating Limitations:</strong>
               <ul className="list-disc list-inside text-emerald-300/70 text-[11px] space-y-1">
                 {caveatsList.map((c, i) => (
                   <li key={i}>{c}</li>

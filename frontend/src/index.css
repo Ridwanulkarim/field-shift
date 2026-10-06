@@ -40,9 +40,10 @@
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.5;
-    background-color: #082417;
+    background-color: #04140d;
     background-image: 
-      linear-gradient(180deg, rgba(8, 38, 25, 0.48) 0%, rgba(5, 26, 17, 0.65) 100%),
+      radial-gradient(ellipse at 50% -10%, rgba(52, 211, 153, 0.18) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(6, 26, 17, 0.52) 0%, rgba(4, 18, 12, 0.78) 100%),
       url('/assets/farm-bg.jpg');
     background-size: cover;
     background-position: center top;
@@ -103,31 +104,31 @@
 
 /* 
  * Frosted Glass Box Architecture ("lekha gula glassbox"):
- * Radiant translucent glass panels with frosted blur, specular top reflection,
- * and bright glowing borders for maximum clarity and brightness.
+ * Elegant translucent glass panels with frosted blur, specular top reflection,
+ * and high-contrast glowing borders so the scenic farm landscape softly shows through.
  */
 .glass-box,
 .bg-\[\#092619\]\/90, .bg-\[\#092619\] {
-  background: rgba(16, 52, 36, 0.78) !important;
-  backdrop-filter: blur(20px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: rgba(10, 36, 24, 0.74) !important;
+  backdrop-filter: blur(18px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
   box-shadow: 
-    0 20px 50px 0 rgba(0, 0, 0, 0.35),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.30),
-    0 0 30px rgba(52, 211, 153, 0.18) !important;
+    0 20px 50px 0 rgba(0, 0, 0, 0.40),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 25px rgba(52, 211, 153, 0.10) !important;
 }
 
 /* Inner Glass Parameter Tiles */
 .glass-tile,
 .bg-\[\#051d12\]\/80, .bg-\[\#051d12\]\/90, .bg-\[\#051d12\]\/60, .bg-\[\#051d12\] {
-  background: rgba(10, 36, 25, 0.68) !important;
+  background: rgba(7, 26, 17, 0.62) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
   box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.20),
-    0 4px 16px rgba(0, 0, 0, 0.22) !important;
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+    0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Callout Glass Banners */

@@ -12,7 +12,7 @@ export default function FieldSetup({ fields, selectedFieldId, onSelectField }) {
         <div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Select Demonstration Field</h2>
           <p className="text-xs text-emerald-300/70 mt-1">
-            5 Pre-configured Agro-Ecological Zones with pre-processed NASA observations (Spec Section 51)
+            5 Representative Bangladesh Agro-Ecological Zones with Live NASA Earth Observations
           </p>
         </div>
       </div>
