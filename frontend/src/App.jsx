@@ -32,6 +32,16 @@ export default function App() {
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [error, setError] = useState(null);
 
+  // Background Blur Mood State (Default ON as requested)
+  const [isBlurMode, setIsBlurMode] = useState(() => {
+    const saved = localStorage.getItem('fieldshift_blur_mode');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('fieldshift_blur_mode', isBlurMode);
+  }, [isBlurMode]);
+
   // Background revalidation: silently fetch latest health & fields without blocking the UI
   useEffect(() => {
     async function init() {
@@ -80,14 +90,24 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-300">
-      {/* Scenic Farm Field Landscape Canvas (Luminous natural daylight with slate-tinted contrast) */}
+      {/* Scenic Farm Field Landscape Canvas with Cinematic Blur Mood */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 65%), linear-gradient(180deg, rgba(10, 20, 34, 0.35) 0%, rgba(8, 16, 28, 0.58) 100%), url(${farmBg})`,
-        }}
-      />
+        className="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
+      >
+        <div
+          className={`absolute -inset-6 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-out ${
+            isBlurMode
+              ? 'filter blur-[14px] sm:blur-[18px] scale-110 brightness-[0.78] saturate-[1.3]'
+              : 'scale-100 filter blur-0 brightness-[0.92]'
+          }`}
+          style={{
+            backgroundImage: `radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.22) 0%, transparent 65%), linear-gradient(180deg, rgba(8, 18, 30, 0.45) 0%, rgba(5, 12, 22, 0.72) 100%), url(${farmBg})`,
+          }}
+        />
+        {/* Ambient atmospheric vignette overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-slate-950/65 pointer-events-none" />
+      </div>
       {/* Floating Island HUD Navigation Deck (Bespoke NASA Earth Mission Bar) */}
       <div className="sticky top-1 sm:top-1.5 z-40 px-1.5 sm:px-3 pointer-events-none">
         <header className="pointer-events-auto relative w-full max-w-[98%] 2xl:max-w-[98.5%] mx-auto rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#071322]/95 via-[#0a1b2e]/95 to-[#071322]/95 border border-emerald-400/35 backdrop-blur-2xl shadow-[0_16px_50px_rgba(0,0,0,0.7),0_0_25px_rgba(16,185,129,0.18)] ring-1 ring-white/10 px-2.5 sm:px-3.5 md:px-4 py-1.5 sm:py-2 transition-all">
@@ -177,6 +197,20 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              {/* Background Blur Mood Toggle */}
+              <button
+                onClick={() => setIsBlurMode(prev => !prev)}
+                className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
+                  isBlurMode
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
+                    : 'bg-[#091729]/90 text-slate-400 border-emerald-500/25 hover:text-white'
+                }`}
+                title={isBlurMode ? 'Background Blur: ON (Click for Crisp Focus)' : 'Background Blur: OFF (Click for Blur Mood)'}
+              >
+                <span>{isBlurMode ? '🌫️' : '👁️'}</span>
+                <span className="hidden md:inline">{isBlurMode ? (lang === 'bn' ? 'ব্লার মুড' : 'Blur Mood') : (lang === 'bn' ? 'স্বচ্ছ' : 'Clear')}</span>
+              </button>
 
               {/* Language Switcher */}
               <div className="inline-flex rounded-xl bg-[#091729]/90 p-0.5 border border-emerald-500/35 text-xs shadow-inner shrink-0">
@@ -285,6 +319,20 @@ export default function App() {
                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                     {health?.status === 'ok' ? 'Online' : 'Syncing'}
                   </span>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-slate-700/50 mt-1">
+                  <span>{lang === 'bn' ? 'ব্যাকগ্রাউন্ড ব্লার মুড:' : 'Background Blur Mood:'}</span>
+                  <button
+                    onClick={() => setIsBlurMode(prev => !prev)}
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                      isBlurMode
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50'
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}
+                  >
+                    {isBlurMode ? 'ON 🌫️' : 'OFF 👁️'}
+                  </button>
                 </div>
               </div>
 
