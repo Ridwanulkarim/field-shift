@@ -116,24 +116,24 @@ export default function App() {
 
           <div className="flex items-center justify-between gap-2 sm:gap-4 w-full min-w-0">
             {/* Left: Brand Identity Pod with Bespoke Earth-Flora NASA Mark & Unified Live Telemetry */}
-            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-              <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-[0_0_12px_rgba(16,185,129,0.35)] ring-1 ring-emerald-300/50 flex items-center justify-center shrink-0">
-                <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 shrink">
+              <div className="relative w-7.5 h-7.5 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-0.5 shadow-[0_0_12px_rgba(16,185,129,0.35)] ring-1 ring-emerald-300/50 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
                   <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
                 </svg>
               </div>
-              <div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="text-sm sm:text-base font-black tracking-widest text-white font-mono leading-none bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="text-xs sm:text-sm md:text-base font-black tracking-normal sm:tracking-widest text-white font-mono leading-none bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent shrink-0">
                     FIELD SHIFT
                   </span>
-                  <span className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono shadow-sm flex items-center gap-1.5">
-                    <span className="relative flex h-2 w-2">
+                  <span className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono shadow-sm flex items-center gap-1 shrink-0">
+                    <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-400" />
                     </span>
-                    <span>NASA EO • {health?.status === 'ok' ? 'Live' : 'Sync'}</span>
+                    <span><span className="hidden sm:inline">NASA EO • </span>{health?.status === 'ok' ? 'Live' : 'Sync'}</span>
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-300 hidden 2xl:block mt-0.5 font-medium tracking-tight">
@@ -174,7 +174,7 @@ export default function App() {
             </nav>
 
             {/* Right: Field Switcher Pod & Language Controls */}
-            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
               {/* Field Command Pod (Visible on sm+ screens) */}
               <div className="relative hidden sm:flex items-center">
                 <div className="relative flex items-center bg-[#091729]/90 border border-emerald-500/35 rounded-xl p-0.5 shadow-inner hover:border-emerald-400 transition-all">
@@ -213,10 +213,10 @@ export default function App() {
               </button>
 
               {/* Language Switcher */}
-              <div className="inline-flex rounded-xl bg-[#091729]/90 p-0.5 border border-emerald-500/35 text-xs shadow-inner shrink-0">
+              <div className="inline-flex rounded-xl bg-[#091729]/90 p-0.5 border border-emerald-500/35 text-[11px] sm:text-xs shadow-inner shrink-0">
                 <button
                   onClick={() => setLang('en')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
+                  className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-bold transition-all text-[11px] sm:text-xs cursor-pointer ${
                     lang === 'en'
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
                       : 'text-slate-300 hover:text-white'
@@ -227,7 +227,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setLang('bn')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all text-xs cursor-pointer ${
+                  className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-bold transition-all text-[11px] sm:text-xs cursor-pointer ${
                     lang === 'bn'
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm'
                       : 'text-slate-300 hover:text-white'
@@ -241,7 +241,7 @@ export default function App() {
               {/* Mobile/Tablet Three-Dot Menu Button (Strictly on screens < lg) */}
               <button
                 onClick={() => setIsMenuOpen(prev => !prev)}
-                className={`lg:hidden w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                className={`lg:hidden w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                   isMenuOpen
                     ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/50'
                     : 'bg-[#091729]/90 border border-emerald-500/35 text-emerald-300 hover:text-white'
@@ -249,7 +249,7 @@ export default function App() {
                 aria-label="Navigation Menu"
                 title="Navigation Menu"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" viewBox="0 0 24 24">
                   <circle cx="12" cy="5" r="2.2" />
                   <circle cx="12" cy="12" r="2.2" />
                   <circle cx="12" cy="19" r="2.2" />
