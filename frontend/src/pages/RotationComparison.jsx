@@ -188,10 +188,10 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5 sm:space-y-4">
       {/* Top Header & Context */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-emerald-800/40">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-emerald-800/40">
           <div>
             <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
               Agro-Ecological Stress Comparative Matrix

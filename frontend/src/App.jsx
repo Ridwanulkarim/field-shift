@@ -89,8 +89,8 @@ export default function App() {
         }}
       />
       {/* Floating Island HUD Navigation Deck (Bespoke NASA Earth Mission Bar) */}
-      <div className="sticky top-2 sm:top-3.5 z-40 px-2.5 sm:px-4 md:px-6 pointer-events-none">
-        <header className="pointer-events-auto relative w-full max-w-[1440px] mx-auto rounded-2xl md:rounded-3xl bg-gradient-to-r from-[#071322]/95 via-[#0a1b2e]/95 to-[#071322]/95 border border-emerald-400/35 backdrop-blur-2xl shadow-[0_16px_50px_rgba(0,0,0,0.7),0_0_25px_rgba(16,185,129,0.18)] ring-1 ring-white/10 px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 transition-all">
+      <div className="sticky top-1.5 sm:top-2 z-40 px-2 sm:px-3.5 md:px-4 pointer-events-none">
+        <header className="pointer-events-auto relative w-full max-w-[1680px] 2xl:max-w-[1820px] mx-auto rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#071322]/95 via-[#0a1b2e]/95 to-[#071322]/95 border border-emerald-400/35 backdrop-blur-2xl shadow-[0_16px_50px_rgba(0,0,0,0.7),0_0_25px_rgba(16,185,129,0.18)] ring-1 ring-white/10 px-2.5 sm:px-3.5 md:px-4 py-1.5 sm:py-2 transition-all">
           {/* Cybernetic Laser-Line Rim Accent */}
           <div className="absolute -top-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent pointer-events-none" />
 
@@ -342,7 +342,7 @@ export default function App() {
       </div>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto w-full px-3.5 sm:px-6 md:px-8 py-5 sm:py-7 md:py-8 flex-1">
+      <main className="max-w-[1680px] 2xl:max-w-[1820px] mx-auto w-full px-2.5 sm:px-4 md:px-5 py-2.5 sm:py-3.5 md:py-4 flex-1">
         {error && (
           <div className="bg-rose-950/50 border border-rose-800 p-4 rounded-xl text-xs text-rose-300 mb-6 flex items-center justify-between">
             <span>⚠ Error connecting to backend API: {error}</span>
@@ -406,8 +406,8 @@ export default function App() {
       </main>
 
       {/* Mandatory Disclosures Footer (Spec Section 56) */}
-      <footer className="bg-[#03130b] border-t border-emerald-900/50 px-4 sm:px-8 py-8 mt-16 text-xs text-emerald-200/60">
-        <div className="max-w-7xl mx-auto space-y-4">
+      <footer className="bg-[#03130b] border-t border-emerald-900/50 px-3 sm:px-6 py-5 mt-6 sm:mt-8 text-xs text-emerald-200/60">
+        <div className="max-w-[1680px] 2xl:max-w-[1820px] mx-auto space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5 border-b border-emerald-900/40">
             <div>
               <span className="font-bold text-emerald-100 block mb-1.5 flex items-center gap-2">

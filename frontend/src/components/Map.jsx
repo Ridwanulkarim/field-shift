@@ -182,14 +182,14 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   };
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3.5 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3 sm:p-3.5 md:p-4 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 sm:mb-3 pb-2.5 border-b border-emerald-800/40">
         <div>
-          <h3 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2 tracking-tight">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+          <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5 tracking-tight">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
             Bangladesh Geographic & Agro-Ecological Map
           </h3>
-          <p className="text-[11px] sm:text-xs text-emerald-300/70 mt-0.5">
+          <p className="text-[10px] sm:text-[11px] text-emerald-300/70 mt-0.5">
             {mapMode === 'leaflet'
               ? 'Real-Time Leaflet Map (Satellite & OpenStreetMap) with Field GeoJSON'
               : 'Bangladesh Agro-Ecological Zones (AEZ) Vector Map'}
@@ -197,21 +197,21 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         </div>
 
         {/* View Mode Toggle & Fit All Action */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {mapMode === 'leaflet' && (
             <button
               onClick={handleFitAll}
-              className="px-2.5 py-1.5 rounded-xl bg-[#04140d] border border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+              className="px-2 py-1 rounded-lg bg-[#04140d] border border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
               title="Fit all 5 demo fields across Bangladesh"
             >
               <span>🔍</span> Fit All
             </button>
           )}
 
-          <div className="inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs">
+          <div className="inline-flex rounded-lg bg-[#04140d] p-0.5 border border-emerald-800/60 text-xs">
             <button
               onClick={() => setMapMode('leaflet')}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold transition-all cursor-pointer text-[11px] sm:text-xs ${
+              className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md font-bold transition-all cursor-pointer text-[10px] sm:text-[11px] ${
                 mapMode === 'leaflet' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
@@ -219,7 +219,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
             </button>
             <button
               onClick={() => setMapMode('vector')}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold transition-all cursor-pointer text-[11px] sm:text-xs ${
+              className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md font-bold transition-all cursor-pointer text-[10px] sm:text-[11px] ${
                 mapMode === 'vector' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
@@ -230,7 +230,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
       </div>
 
       {/* Map View Area */}
-      <div className="relative w-full h-[320px] sm:h-[400px] md:h-[460px] mx-auto bg-[#04140d] rounded-2xl border border-emerald-800/60 overflow-hidden shadow-inner">
+      <div className="relative w-full h-[320px] sm:h-[410px] md:h-[470px] mx-auto bg-[#04140d] rounded-2xl border border-emerald-800/60 overflow-hidden shadow-inner">
         {mapMode === 'leaflet' ? (
           <div ref={mapContainerRef} className="w-full h-full z-0" />
         ) : (

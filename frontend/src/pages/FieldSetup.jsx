@@ -7,7 +7,7 @@ import { getConditionBadge, formatScore } from '../utils/formatting';
  */
 export default function FieldSetup({ fields, selectedFieldId, onSelectField }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5 sm:space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-emerald-800/40">
         <div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Select Demonstration Field</h2>

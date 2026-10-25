@@ -8,8 +8,8 @@ export default function Charts({ fieldId, nasaMetadata }) {
   const [activeTab, setActiveTab] = useState('water'); // 'water' | 'heat' | 'vegetation'
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3.5 pb-2.5 border-b border-emerald-800/40">
         <div>
           <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
             Time-Series Dynamics (Dec 30, 2023 – Feb 28, 2024)

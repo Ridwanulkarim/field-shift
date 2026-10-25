@@ -69,11 +69,11 @@ export default function RotationCard({
   );
 
   return (
-    <div className={`bg-[#092619]/90 border rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
+    <div className={`bg-[#092619]/90 border rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
       isTopCandidate ? 'border-emerald-400/60 ring-2 ring-emerald-500/40 shadow-emerald-500/10' : 'border-emerald-500/20'
     }`}>
       {/* Top Header: Rank & Feasibility */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-5 pb-4 border-b border-emerald-800/40">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-3.5 pb-2.5 border-b border-emerald-800/40">
         <div className="flex items-center gap-2 flex-wrap">
           {/* Spec Section 50: Strictly "Highest-scoring rotation", NEVER "Best rotation" */}
           {isTopCandidate ? (

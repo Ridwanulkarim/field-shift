@@ -277,10 +277,10 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
   const advisories = getAdvisories();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5 sm:space-y-4">
       {/* Header Banner */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-800/40">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-emerald-800/40">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[11px] sm:text-xs font-mono font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-700/80 text-emerald-300">
@@ -378,8 +378,8 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
       )}
 
       {/* Farm-Gate Action Plan & Agronomic Stewardship Advisories */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 md:p-7 shadow-xl shadow-black/25 backdrop-blur-md">
-        <h3 className="text-base sm:text-lg font-black text-white mb-4 pb-3 border-b border-emerald-800/40 flex items-center gap-2">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
+        <h3 className="text-base sm:text-lg font-black text-white mb-3 pb-2.5 border-b border-emerald-800/40 flex items-center gap-2">
           <span>📋</span> {lang === 'bn' ? 'মাঠ পর্যায়ের বাস্তবায়ন পরামর্শ ও সতর্কতা' : 'Farm-Gate Agronomic Management Advisories'}
         </h3>
 
