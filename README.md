@@ -146,9 +146,9 @@ Developed with dedication for the **NASA Space Apps Challenge** by **TEAM RAMT**
 
 | Avatar | Name | GitHub Profile | Role |
 | :---: | :--- | :--- | :--- |
-| <img src="https://github.com/Mohammed-Arman-Alam.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammed Arman Alam** | [@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam) | Team Leader & Research Lead |
-| <img src="https://github.com/Ridwanulkarim.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | Lead Full-Stack Developer |
-| <img src="https://github.com/Raihans-code.png" width="55" height="55" style="border-radius:50%;" /> | **Raihan Islam** | [@Raihans-code](https://github.com/Raihans-code) | Core Developer & UI Specialist |
+| <img src="https://github.com/Mohammed-Arman-Alam.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammed Arman Alam** | [@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam) | Team Leader & Frontend Developer |
+| <img src="https://github.com/Ridwanulkarim.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | Full Stack Developer |
+| <img src="https://github.com/Raihans-code.png" width="55" height="55" style="border-radius:50%;" /> | **Raihan Islam** | [@Raihans-code](https://github.com/Raihans-code) | Backend Developer |
 
 ---
 

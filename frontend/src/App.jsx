@@ -504,7 +504,7 @@ export default function App() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#071912] hover:bg-[#0a261b] border border-emerald-600/40 hover:border-emerald-400 text-white text-xs font-semibold transition-all shadow-sm"
-                title="Team Leader - Mohammed Arman Alam"
+                title="Team Leader & Frontend Developer - Mohammed Arman Alam"
               >
                 <img
                   src="https://github.com/Mohammed-Arman-Alam.png"
@@ -514,7 +514,7 @@ export default function App() {
                 />
                 <span>Mohammed Arman Alam</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
-                  {lang === 'bn' ? 'টিম লিডার' : 'Leader'}
+                  {lang === 'bn' ? 'টিম লিডার ও ফ্রন্টেন্ড' : 'Leader & Frontend'}
                 </span>
               </a>
 
@@ -523,7 +523,7 @@ export default function App() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#071912] hover:bg-[#0a261b] border border-emerald-600/40 hover:border-emerald-400 text-white text-xs font-semibold transition-all shadow-sm"
-                title="Core Contributor - Mohammad Ridwanul Karim"
+                title="Full Stack Developer - Mohammad Ridwanul Karim"
               >
                 <img
                   src="https://github.com/Ridwanulkarim.png"
@@ -533,7 +533,7 @@ export default function App() {
                 />
                 <span>Mohammad Ridwanul Karim</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold">
-                  {lang === 'bn' ? 'ডেভেলপার' : 'Dev'}
+                  {lang === 'bn' ? 'ফুল স্ট্যাক' : 'Full Stack'}
                 </span>
               </a>
 
@@ -542,7 +542,7 @@ export default function App() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#071912] hover:bg-[#0a261b] border border-emerald-600/40 hover:border-emerald-400 text-white text-xs font-semibold transition-all shadow-sm"
-                title="Core Contributor - Raihan Islam"
+                title="Backend Developer - Raihan Islam"
               >
                 <img
                   src="https://github.com/Raihans-code.png"
@@ -552,7 +552,7 @@ export default function App() {
                 />
                 <span>Raihan Islam</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold">
-                  {lang === 'bn' ? 'ডেভেলপার' : 'Dev'}
+                  {lang === 'bn' ? 'ব্যাকএন্ড' : 'Backend'}
                 </span>
               </a>
             </div>

@@ -10,9 +10,9 @@ This project was built by **TEAM RAMT** for the **NASA International Space Apps 
 
 | Contributor | GitHub | Role & Responsibilities |
 | :--- | :--- | :--- |
-| **Mohammed Arman Alam** | [@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam) | **Project Lead & Agronomic Research**<br>Agro-ecological zone analysis, research coordination, and problem formulation for Bangladesh vulnerable crop zones. |
-| **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | **Lead Full-Stack Developer & Architect**<br>NASA Earthdata pipelines (HLS, SMAP, GPM, MODIS), scientific dynamic multiplier algorithms, Express API, and automated test suite. |
-| **Raihan Islam** | [@Raihans-code](https://github.com/Raihans-code) | **Core Developer & Frontend/UI Specialist**<br>Interactive React components, responsive layouts, data visualizations, and client-side stress metric displays. |
+| **Mohammed Arman Alam** | [@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam) | **Team Leader & Frontend Developer**<br>Project leadership, frontend interface development, responsive UI layouts, and research coordination. |
+| **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | **Full Stack Developer**<br>End-to-end architecture, NASA Earthdata pipelines (HLS, SMAP, GPM, MODIS), dynamic scoring algorithms, Express API, and automated verification suites. |
+| **Raihan Islam** | [@Raihans-code](https://github.com/Raihans-code) | **Backend Developer**<br>Backend REST services, database modeling, environmental stress calculations, and server-side data workflows. |
 
 ---
 
