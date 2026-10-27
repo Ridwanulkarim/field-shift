@@ -71,6 +71,6 @@ npm test
 
 ## 👥 Contributors & Backend Credits
 - **Raihan Islam** ([@Raihans-code](https://github.com/Raihans-code)) - Backend Developer
-- **Mohammad Ridwanul Karim** ([@Ridwanulkarim](https://github.com/Ridwanulkarim)) - Full Stack Developer
+- **Mohammad Ridwanul Karim** ([@Ridwanulkarim](https://github.com/Ridwanulkarim)) - Full Stack Developer & Researcher
 - **Mohammed Arman Alam** ([@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam)) - Team Leader & Frontend Developer
 - **Md. Shahraj Mashrafe Mashfe** ([@SMash003](https://github.com/SMash003)) - UI/UX Designer

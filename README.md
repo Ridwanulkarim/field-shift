@@ -147,7 +147,7 @@ Developed with dedication for the **NASA Space Apps Challenge** by **TEAM RAMT**
 | Avatar | Name | GitHub Profile | Role |
 | :---: | :--- | :--- | :--- |
 | <img src="https://github.com/Mohammed-Arman-Alam.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammed Arman Alam** | [@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam) | Team Leader & Frontend Developer |
-| <img src="https://github.com/Ridwanulkarim.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | Full Stack Developer |
+| <img src="https://github.com/Ridwanulkarim.png" width="55" height="55" style="border-radius:50%;" /> | **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | Full Stack Developer & Researcher |
 | <img src="https://github.com/Raihans-code.png" width="55" height="55" style="border-radius:50%;" /> | **Raihan Islam** | [@Raihans-code](https://github.com/Raihans-code) | Backend Developer |
 | <img src="https://github.com/SMash003.png" width="55" height="55" style="border-radius:50%;" /> | **Md. Shahraj Mashrafe Mashfe** | [@SMash003](https://github.com/SMash003) | UI/UX Designer |
 | <img src="https://github.com/Tofayel5152.png" width="55" height="55" style="border-radius:50%;" /> | **Tofayel Ahmmed** | [@Tofayel5152](https://github.com/Tofayel5152) | Video Editor |
