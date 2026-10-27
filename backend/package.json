@@ -16,5 +16,23 @@
     "express": "^5.2.1",
     "pg": "^8.23.0",
     "pg-mem": "^3.0.14"
-  }
+  },
+  "contributors": [
+    {
+      "name": "Raihan Islam",
+      "url": "https://github.com/Raihans-code"
+    },
+    {
+      "name": "Mohammad Ridwanul Karim",
+      "url": "https://github.com/Ridwanulkarim"
+    },
+    {
+      "name": "Mohammed Arman Alam",
+      "url": "https://github.com/Mohammed-Arman-Alam"
+    },
+    {
+      "name": "Md. Shahraj Mashrafe Mashfe",
+      "url": "https://github.com/SMash003"
+    }
+  ]
 }
