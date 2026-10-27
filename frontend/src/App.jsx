@@ -555,6 +555,25 @@ export default function App() {
                   {lang === 'bn' ? 'ব্যাকএন্ড' : 'Backend'}
                 </span>
               </a>
+
+              <a
+                href="https://github.com/SMash003"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#071912] hover:bg-[#0a261b] border border-emerald-600/40 hover:border-emerald-400 text-white text-xs font-semibold transition-all shadow-sm"
+                title="UI/UX Designer - Md. Shahraj Mashrafe Mashfe"
+              >
+                <img
+                  src="https://github.com/SMash003.png"
+                  alt="Md. Shahraj Mashrafe Mashfe"
+                  className="w-5 h-5 rounded-full ring-1 ring-emerald-400/60"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+                <span>Shahraj Mashfe</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                  {lang === 'bn' ? 'ইউআই/ইউএক্স' : 'UI/UX'}
+                </span>
+              </a>
             </div>
           </div>
 
