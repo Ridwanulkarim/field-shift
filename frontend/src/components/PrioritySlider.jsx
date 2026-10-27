@@ -36,18 +36,18 @@ export default function PrioritySlider({
   };
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4 pb-2.5 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-emerald-800/40">
         <div>
-          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 block mb-1">
             Adaptive Environmental Weighting
           </span>
-          <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+          <h3 className="text-xl sm:text-2xl md:text-2xl font-black text-white tracking-tight font-heading">
             Decision Priorities & NASA Multipliers
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-medium">
+          <span className="text-xs sm:text-sm px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-medium">
             Active: <strong className="text-white">{fieldName}</strong>
           </span>
         </div>

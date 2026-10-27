@@ -17,11 +17,11 @@ export default function Dashboard({
   onSelectField
 }) {
   return (
-    <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
+    <div className="space-y-4 sm:space-y-5 md:space-y-6">
       {/* Top Section: Condition Score & Agro-Ecological Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-2.5 lg:gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
         {/* Left: Score Card */}
-        <div className="lg:col-span-7 flex flex-col gap-2 sm:gap-2.5 lg:gap-3">
+        <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-5 lg:gap-6">
           <ScoreCard
             conditionScore={selectedField?.condition_score}
             isDemo={selectedField?.is_demo}

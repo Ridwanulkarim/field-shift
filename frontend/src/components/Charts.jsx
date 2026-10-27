@@ -8,19 +8,19 @@ export default function Charts({ fieldId, nasaMetadata }) {
   const [activeTab, setActiveTab] = useState('water'); // 'water' | 'heat' | 'vegetation'
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3 sm:p-3.5 md:p-4 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 pb-2 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 pb-3 border-b border-emerald-800/40">
         <div>
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 block mb-0.5">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 block mb-1">
             Time-Series Dynamics (Dec 30, 2023 – Feb 28, 2024)
           </span>
-          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
+          <h3 className="text-xl sm:text-2xl md:text-2xl font-black text-white tracking-tight font-heading">
             61-Day Environmental Stress Trends
           </h3>
         </div>
 
         {/* Tab Controls */}
-        <div className="grid grid-cols-3 sm:inline-flex rounded-xl bg-[#04140d] p-0.5 border border-emerald-800/60 text-xs sm:text-sm w-full sm:w-auto gap-1">
+        <div className="grid grid-cols-3 sm:inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs sm:text-sm w-full sm:w-auto gap-1">
           <button
             onClick={() => setActiveTab('water')}
             className={`px-2.5 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate cursor-pointer ${

@@ -188,27 +188,27 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
   };
 
   return (
-    <div className="space-y-3.5 sm:space-y-4">
+    <div className="space-y-5 sm:space-y-6">
       {/* Top Header & Context */}
-      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-emerald-800/40">
+      <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3.5 border-b border-emerald-800/40">
           <div>
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 block mb-1">
               Agro-Ecological Stress Comparative Matrix
             </span>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-3xl font-black text-white tracking-tight font-heading">
               Rotation Comparison & NASA Ranking Shift
             </h2>
-            <p className="text-xs text-emerald-300/70 mt-1 max-w-3xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-emerald-300/80 mt-1 max-w-3xl leading-relaxed">
               Demonstrates how NASA satellite stress multipliers dynamically flip the recommendation ranking between dry Barind terraces and irrigated alluvial plains.
             </p>
           </div>
 
           {/* Mode Switcher */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs w-full sm:w-auto gap-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs sm:text-sm w-full sm:w-auto gap-1">
             <button
               onClick={() => setDemoMode('section40_fixture')}
-              className={`px-3 py-2 rounded-lg font-bold transition-all text-center ${
+              className={`px-3.5 py-2 rounded-lg font-bold transition-all text-center cursor-pointer ${
                 demoMode === 'section40_fixture'
                   ? 'bg-emerald-500 text-white shadow-sm'
                   : 'text-emerald-300/70 hover:text-white'
@@ -218,7 +218,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
             </button>
             <button
               onClick={() => setDemoMode('bangladesh_crops')}
-              className={`px-3 py-2 rounded-lg font-bold transition-all text-center ${
+              className={`px-3.5 py-2 rounded-lg font-bold transition-all text-center cursor-pointer ${
                 demoMode === 'bangladesh_crops'
                   ? 'bg-emerald-500 text-white shadow-sm'
                   : 'text-emerald-300/70 hover:text-white'
@@ -230,7 +230,7 @@ export default function RotationComparison({ fields = [], selectedFieldId = 1, o
         </div>
 
         {/* Field & Environmental Stress Controller */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mt-5">
           {/* Active Field Picker */}
           <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5 shadow-sm">
             <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block mb-2">

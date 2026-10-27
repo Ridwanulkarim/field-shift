@@ -2,6 +2,7 @@
 
 @layer base {
   :root {
+    --font-heading: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
@@ -16,14 +17,19 @@
 
   @media (min-width: 640px) {
     html {
-      font-size: 16px;
+      font-size: 16.5px;
     }
   }
 
   @media (min-width: 1024px) {
     html {
-      font-size: 16.5px;
+      font-size: 17px;
     }
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: -0.018em;
   }
 
   * {

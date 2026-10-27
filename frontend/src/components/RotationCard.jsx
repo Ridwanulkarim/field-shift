@@ -69,26 +69,26 @@ export default function RotationCard({
   );
 
   return (
-    <div className={`bg-[#092619]/90 border rounded-2xl p-3 sm:p-3.5 md:p-4 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
+    <div className={`bg-[#092619]/90 border rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
       isTopCandidate ? 'border-emerald-400/60 ring-2 ring-emerald-500/40 shadow-emerald-500/10' : 'border-emerald-500/20'
     }`}>
       {/* Top Header: Rank & Feasibility */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 pb-2 border-b border-emerald-800/40">
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 pb-3 border-b border-emerald-800/40">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* Spec Section 50: Strictly "Highest-scoring rotation", NEVER "Best rotation" */}
           {isTopCandidate ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-sm">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               🏆 Highest-scoring rotation
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-[#051d12] text-emerald-300 border border-emerald-800/60">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-[#051d12] text-emerald-300 border border-emerald-800/60">
               Rank #{rank} Candidate
             </span>
           )}
 
           {rotation.label && (
-            <span className="text-sm sm:text-base font-extrabold text-white tracking-tight break-words">
+            <span className="text-base sm:text-lg md:text-xl font-black text-white tracking-tight break-words font-heading">
               {rotation.label}
             </span>
           )}
@@ -110,31 +110,31 @@ export default function RotationCard({
       </div>
 
       {/* Main Body: Sequence & Score Circular Gauge */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center mb-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 lg:gap-6 items-center mb-5">
         {/* Left: Seasonal Crop Flow */}
-        <div className="md:col-span-8 space-y-3">
+        <div className="md:col-span-8 space-y-3.5">
           <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-2">
             Seasonal Crop Progression ({sequence.length} Seasons)
           </span>
 
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-3.5">
             {sequence.map((item, idx) => (
               <React.Fragment key={idx}>
-                <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3 sm:p-3.5 shadow-sm min-w-[120px] sm:min-w-[140px] flex-1">
-                  <div className="flex items-center justify-between text-xs font-mono font-bold text-emerald-400/90 mb-1">
+                <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5 sm:p-4 shadow-sm min-w-[130px] sm:min-w-[150px] flex-1">
+                  <div className="flex items-center justify-between text-xs font-mono font-bold text-emerald-400/90 mb-1.5">
                     <span>{item.season}</span>
                     {item.duration_days && <span>{item.duration_days}d</span>}
                   </div>
-                  <div className="text-sm sm:text-base font-black text-white truncate" title={item.crop_name || item.name}>
+                  <div className="text-base sm:text-lg font-black text-white truncate font-heading" title={item.crop_name || item.name}>
                     {item.crop_name || item.name}
                   </div>
-                  <div className="text-xs text-emerald-300/80 mt-0.5 font-medium truncate">
+                  <div className="text-xs text-emerald-300/80 mt-1 font-medium truncate">
                     {item.crop_family || item.family}
                   </div>
                 </div>
 
                 {idx < sequence.length - 1 && (
-                  <div className="text-emerald-500/70 font-black text-base sm:text-lg px-1 select-none shrink-0">
+                  <div className="text-emerald-500/70 font-black text-lg sm:text-xl px-1 select-none shrink-0">
                     →
                   </div>
                 )}
@@ -143,15 +143,15 @@ export default function RotationCard({
           </div>
 
           {!isFeasible && rotation.infeasibility_reason && (
-            <div className="bg-rose-950/60 border border-rose-800/80 rounded-xl p-3.5 text-xs sm:text-sm text-rose-200 mt-2.5">
+            <div className="bg-rose-950/60 border border-rose-800/80 rounded-xl p-3.5 text-xs sm:text-sm text-rose-200 mt-3">
               <strong>Seasonal Feasibility Warning:</strong> {rotation.infeasibility_reason}
             </div>
           )}
         </div>
 
         {/* Right: Circular Score Gauge */}
-        <div className="md:col-span-4 flex flex-col items-center justify-center bg-[#051d12]/60 border border-emerald-800/40 rounded-2xl p-4 sm:p-5">
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+        <div className="md:col-span-4 flex flex-col items-center justify-center bg-[#051d12]/60 border border-emerald-800/40 rounded-2xl p-5 sm:p-6">
+          <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               <circle
                 cx="50"
@@ -175,36 +175,36 @@ export default function RotationCard({
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-3xl sm:text-4xl font-black text-white leading-none tabular-nums">
+              <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-none tabular-nums font-heading">
                 {score}
               </span>
-              <span className="text-xs text-emerald-300/70 font-bold mt-0.5">
+              <span className="text-xs text-emerald-300/80 font-bold mt-1 font-heading">
                 / 100
               </span>
             </div>
           </div>
-          <span className="text-xs sm:text-sm font-extrabold text-emerald-200 mt-2.5 text-center">
+          <span className="text-xs sm:text-sm font-extrabold text-emerald-200 mt-3 text-center font-heading">
             Overall Rotation Score
           </span>
         </div>
       </div>
 
       {/* Component Breakdown Bars */}
-      <div className="space-y-3 mb-5 pt-4 border-t border-emerald-800/30">
-        <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-1.5">
+      <div className="space-y-3.5 mb-5 pt-4 border-t border-emerald-800/30">
+        <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-2">
           Component Scores & Effective NASA Weightings
         </span>
-        <div className={`grid ${compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-5'} gap-3`}>
+        <div className={`grid ${compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-5'} gap-3.5 sm:gap-4`}>
           {components.map((comp) => {
             const hasScore = comp.score != null;
             const val = hasScore ? Math.round(comp.score * 10) / 10 : 0;
             return (
               <div
                 key={comp.name}
-                className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-3 shadow-sm flex flex-col justify-between overflow-hidden min-w-0"
+                className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-3.5 shadow-sm flex flex-col justify-between overflow-hidden min-w-0"
               >
-                <div className="flex items-center justify-between gap-1.5 mb-2 min-w-0">
-                  <span className="flex items-center gap-1.5 text-emerald-100 font-bold text-xs truncate min-w-0" title={comp.name}>
+                <div className="flex items-center justify-between gap-1.5 mb-2.5 min-w-0">
+                  <span className="flex items-center gap-1.5 text-emerald-100 font-bold text-xs sm:text-sm truncate min-w-0" title={comp.name}>
                     <span className="shrink-0 text-sm">{comp.icon}</span>
                     <span className="truncate">{comp.name}</span>
                   </span>
@@ -213,14 +213,14 @@ export default function RotationCard({
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-[#03130b] rounded-full h-2 overflow-hidden mb-2 shrink-0">
+                <div className="w-full bg-[#03130b] rounded-full h-2.5 overflow-hidden mb-2.5 shrink-0">
                   <div
                     className={`h-full ${comp.color} rounded-full transition-all duration-500`}
                     style={{ width: `${hasScore ? Math.min(100, Math.max(0, val)) : 0}%` }}
                   />
                 </div>
                 {comp.weight != null && (
-                  <div className="text-xs text-emerald-300/80 font-mono flex items-center justify-between gap-1 whitespace-nowrap pt-1.5 border-t border-emerald-800/30 font-semibold">
+                  <div className="text-xs text-emerald-300/80 font-mono flex items-center justify-between gap-1 whitespace-nowrap pt-2 border-t border-emerald-800/30 font-semibold">
                     <span className="text-emerald-400">Eff. Wt:</span>
                     <span className="text-emerald-100 font-bold">{Number(comp.weight).toFixed(2)}</span>
                   </div>
