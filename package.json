@@ -19,5 +19,19 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "contributors": [
+    {
+      "name": "Mohammed Arman Alam",
+      "url": "https://github.com/Mohammed-Arman-Alam"
+    },
+    {
+      "name": "Mohammad Ridwanul Karim",
+      "url": "https://github.com/Ridwanulkarim"
+    },
+    {
+      "name": "Raihan Islam",
+      "url": "https://github.com/Raihans-code"
+    }
+  ]
 }

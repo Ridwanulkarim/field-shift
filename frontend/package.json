@@ -22,5 +22,19 @@
     "oxlint": "^1.81.0",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.0"
-  }
+  },
+  "contributors": [
+    {
+      "name": "Mohammed Arman Alam",
+      "url": "https://github.com/Mohammed-Arman-Alam"
+    },
+    {
+      "name": "Mohammad Ridwanul Karim",
+      "url": "https://github.com/Ridwanulkarim"
+    },
+    {
+      "name": "Raihan Islam",
+      "url": "https://github.com/Raihans-code"
+    }
+  ]
 }
