@@ -69,12 +69,12 @@ export default function RotationCard({
   );
 
   return (
-    <div className={`bg-[#092619]/90 border rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
+    <div className={`bg-[#092619]/90 border rounded-2xl p-3 sm:p-3.5 md:p-4 shadow-xl shadow-black/25 backdrop-blur-md transition-all ${
       isTopCandidate ? 'border-emerald-400/60 ring-2 ring-emerald-500/40 shadow-emerald-500/10' : 'border-emerald-500/20'
     }`}>
       {/* Top Header: Rank & Feasibility */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 pb-3 border-b border-emerald-800/40">
-        <div className="flex items-center gap-2.5 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 pb-2 border-b border-emerald-800/40">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Spec Section 50: Strictly "Highest-scoring rotation", NEVER "Best rotation" */}
           {isTopCandidate ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-sm">
@@ -97,12 +97,12 @@ export default function RotationCard({
         {/* Feasibility Pill */}
         <div className="self-start sm:self-auto">
           {isFeasible ? (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
               Seasonally Feasible
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40" title={rotation.infeasibility_reason}>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40" title={rotation.infeasibility_reason}>
               <span>⚠</span> Not Seasonally Feasible
             </span>
           )}
@@ -110,7 +110,7 @@ export default function RotationCard({
       </div>
 
       {/* Main Body: Sequence & Score Circular Gauge */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-center mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center mb-3.5">
         {/* Left: Seasonal Crop Flow */}
         <div className="md:col-span-8 space-y-3">
           <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-2">
