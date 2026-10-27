@@ -182,14 +182,14 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
   };
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3 sm:p-3.5 md:p-4 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 sm:mb-3 pb-2.5 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 sm:mb-4 pb-3 border-b border-emerald-800/40">
         <div>
-          <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5 tracking-tight">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+          <h3 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2 tracking-tight">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
             Bangladesh Geographic & Agro-Ecological Map
           </h3>
-          <p className="text-[10px] sm:text-[11px] text-emerald-300/70 mt-0.5">
+          <p className="text-xs sm:text-sm text-emerald-300/80 mt-1">
             {mapMode === 'leaflet'
               ? 'Real-Time Leaflet Map (Satellite & OpenStreetMap) with Field GeoJSON'
               : 'Bangladesh Agro-Ecological Zones (AEZ) Vector Map'}
@@ -197,11 +197,11 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         </div>
 
         {/* View Mode Toggle & Fit All Action */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           {mapMode === 'leaflet' && (
             <button
               onClick={handleFitAll}
-              className="px-2 py-1 rounded-lg bg-[#04140d] border border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-[#04140d] border border-emerald-700/60 text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
               title="Fit all 5 demo fields across Bangladesh"
             >
               <span>🔍</span> Fit All
@@ -211,7 +211,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
           <div className="inline-flex rounded-lg bg-[#04140d] p-0.5 border border-emerald-800/60 text-xs">
             <button
               onClick={() => setMapMode('leaflet')}
-              className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md font-bold transition-all cursor-pointer text-[10px] sm:text-[11px] ${
+              className={`px-2.5 sm:px-3 py-1 rounded-md font-bold transition-all cursor-pointer text-xs ${
                 mapMode === 'leaflet' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
@@ -219,7 +219,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
             </button>
             <button
               onClick={() => setMapMode('vector')}
-              className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md font-bold transition-all cursor-pointer text-[10px] sm:text-[11px] ${
+              className={`px-2.5 sm:px-3 py-1 rounded-md font-bold transition-all cursor-pointer text-xs ${
                 mapMode === 'vector' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
@@ -274,7 +274,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
                   )}
                   <circle cx={x} cy={y} r={isSelected ? "11" : "8"} fill={badge.color} stroke="#04140d" strokeWidth="2" filter={isSelected ? "url(#glow)" : undefined} />
                   <circle cx={x} cy={y} r={isSelected ? "4" : "3"} fill="#ffffff" />
-                  <text x={x + 14} y={y + 4} fill={isSelected ? '#34d399' : '#e2e8f0'} fontSize={isSelected ? "12" : "11"} fontWeight={isSelected ? "700" : "500"}>
+                  <text x={x + 14} y={y + 4} fill={isSelected ? '#34d399' : '#e2e8f0'} fontSize={isSelected ? "13" : "12"} fontWeight={isSelected ? "800" : "600"}>
                     {f.name.split('(')[1]?.replace(')', '') || f.name.split(' ')[0]}
                   </text>
                 </g>
@@ -284,12 +284,12 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         )}
 
         {/* Floating Controls & Legend */}
-        <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-[#051d12]/92 backdrop-blur-md p-1.5 sm:p-2.5 rounded-xl border border-emerald-800/60 flex items-center justify-between gap-1 text-[9px] sm:text-[10px] text-emerald-200 z-10 pointer-events-auto shadow-lg overflow-x-auto">
+        <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-[#051d12]/92 backdrop-blur-md p-2 sm:p-2.5 rounded-xl border border-emerald-800/60 flex items-center justify-between gap-1 text-xs font-bold text-emerald-200 z-10 pointer-events-auto shadow-lg overflow-x-auto">
           <span className="font-bold text-white hidden sm:inline">Condition:</span>
-          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-emerald-400"></span> Healthy</span>
-          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-amber-400"></span> Watch</span>
-          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-orange-400"></span> Moderate</span>
-          <span className="flex items-center gap-1 shrink-0"><span className="w-2 h-2 rounded-full bg-rose-400"></span> High</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Healthy</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Watch</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-orange-400"></span> Moderate</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span> High</span>
         </div>
       </div>
     </div>

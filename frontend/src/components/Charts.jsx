@@ -8,22 +8,22 @@ export default function Charts({ fieldId, nasaMetadata }) {
   const [activeTab, setActiveTab] = useState('water'); // 'water' | 'heat' | 'vegetation'
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3.5 sm:p-4.5 md:p-5 shadow-xl shadow-black/25 backdrop-blur-md">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3.5 pb-2.5 border-b border-emerald-800/40">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl shadow-black/25 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-emerald-800/40">
         <div>
-          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 block mb-1">
             Time-Series Dynamics (Dec 30, 2023 – Feb 28, 2024)
           </span>
-          <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
             61-Day Environmental Stress Trends
           </h3>
         </div>
 
         {/* Tab Controls */}
-        <div className="grid grid-cols-3 sm:inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs w-full sm:w-auto gap-0.5">
+        <div className="grid grid-cols-3 sm:inline-flex rounded-xl bg-[#04140d] p-1 border border-emerald-800/60 text-xs sm:text-sm w-full sm:w-auto gap-1">
           <button
             onClick={() => setActiveTab('water')}
-            className={`px-2 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate ${
+            className={`px-3 sm:px-4 py-2 rounded-lg font-extrabold transition-all text-center truncate cursor-pointer ${
               activeTab === 'water'
                 ? 'bg-cyan-500 text-white shadow-sm'
                 : 'text-emerald-300/70 hover:text-white'
@@ -33,7 +33,7 @@ export default function Charts({ fieldId, nasaMetadata }) {
           </button>
           <button
             onClick={() => setActiveTab('heat')}
-            className={`px-2 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate ${
+            className={`px-3 sm:px-4 py-2 rounded-lg font-extrabold transition-all text-center truncate cursor-pointer ${
               activeTab === 'heat'
                 ? 'bg-amber-500 text-white shadow-sm'
                 : 'text-emerald-300/70 hover:text-white'
@@ -43,7 +43,7 @@ export default function Charts({ fieldId, nasaMetadata }) {
           </button>
           <button
             onClick={() => setActiveTab('vegetation')}
-            className={`px-2 sm:px-3.5 py-1.5 rounded-lg font-bold transition-all text-center truncate ${
+            className={`px-3 sm:px-4 py-2 rounded-lg font-extrabold transition-all text-center truncate cursor-pointer ${
               activeTab === 'vegetation'
                 ? 'bg-emerald-500 text-white shadow-sm'
                 : 'text-emerald-300/70 hover:text-white'
@@ -55,7 +55,7 @@ export default function Charts({ fieldId, nasaMetadata }) {
       </div>
 
       {/* SVG Chart Display */}
-      <div className="w-full aspect-[16/7] min-h-[220px] bg-[#04140d] rounded-2xl border border-emerald-800/60 p-3.5 sm:p-5 relative overflow-hidden flex flex-col justify-between shadow-inner">
+      <div className="w-full aspect-[16/7] min-h-[220px] bg-[#04140d] rounded-2xl border border-emerald-800/60 p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between shadow-inner">
         
         {/* WATER STRESS TAB */}
         {activeTab === 'water' && (
