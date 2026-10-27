@@ -390,7 +390,7 @@ export default function App() {
       </div>
 
       {/* Main Content Area */}
-      <main className="w-full max-w-[99%] 2xl:max-w-[99.5%] mx-auto px-1 sm:px-2 md:px-3 py-1.5 sm:py-2.5 flex-1">
+      <main className="w-full max-w-full px-1 sm:px-2 md:px-2.5 py-1 sm:py-1.5 flex-1">
         {error && (
           <div className="bg-rose-950/50 border border-rose-800 p-4 rounded-xl text-xs text-rose-300 mb-6 flex items-center justify-between">
             <span>⚠ Error connecting to backend API: {error}</span>

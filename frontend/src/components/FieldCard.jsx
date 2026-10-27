@@ -14,25 +14,25 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
   }
 
   return (
-    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-3 sm:p-3.5 md:p-4 shadow-xl shadow-black/25 backdrop-blur-md">
+    <div className="bg-[#092619]/90 border border-emerald-500/20 rounded-2xl p-2.5 sm:p-3 md:p-3.5 shadow-xl shadow-black/25 backdrop-blur-md">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2.5 sm:mb-3 pb-2 border-b border-emerald-800/40">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1.5 mb-2 pb-1.5 border-b border-emerald-800/40">
         <div>
-          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-            <span className="text-xs sm:text-sm font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-700/60 text-emerald-300 font-bold">
+          <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+            <span className="text-xs sm:text-sm font-mono px-2 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-700/60 text-emerald-300 font-bold">
               Field #{field.id}
             </span>
-            <span className="text-xs sm:text-sm px-2.5 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-600/40 text-emerald-200 font-semibold truncate max-w-[200px] sm:max-w-none">
+            <span className="text-xs sm:text-sm px-2 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-600/40 text-emerald-200 font-semibold truncate max-w-[200px] sm:max-w-none">
               {field.data_label || 'Pre-processed NASA observations'}
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">{field.name}</h2>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug">{field.name}</h2>
           <p className="text-xs sm:text-sm text-emerald-300/80 font-mono mt-0.5">
             Lat: {field.latitude.toFixed(4)}°N, Lon: {field.longitude.toFixed(4)}°E
           </p>
         </div>
 
-        <div className="sm:text-right pt-1.5 sm:pt-0 border-t border-emerald-800/30 sm:border-t-0 flex sm:flex-col items-center sm:items-end justify-between">
+        <div className="sm:text-right pt-1 sm:pt-0 border-t border-emerald-800/30 sm:border-t-0 flex sm:flex-col items-center sm:items-end justify-between">
           <span className="text-xs font-semibold text-emerald-300/80 block sm:mb-0.5">Irrigation Access</span>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold border shadow-sm ${
             field.irrigation_available
@@ -46,11 +46,11 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
       </div>
 
       {/* Grid: Soil & Cropping Profile */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 mb-2.5 sm:mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 sm:mb-2.5">
         {/* Soil Type */}
         <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-2 sm:p-2.5 shadow-sm">
           <span className="text-xs font-black text-emerald-400 uppercase tracking-wider block mb-0.5">Soil Texture</span>
-          <span className="text-sm sm:text-base md:text-lg font-black text-white block truncate" title={field.soil_type}>
+          <span className="text-base sm:text-lg font-black text-white block truncate" title={field.soil_type}>
             {field.soil_type}
           </span>
         </div>
@@ -59,7 +59,7 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
         <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-2 sm:p-2.5 shadow-sm">
           <span className="text-xs font-black text-emerald-400 uppercase tracking-wider block mb-0.5">Soil pH</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-base sm:text-lg font-black text-white">{field.soil_ph.toFixed(2)}</span>
+            <span className="text-base sm:text-lg md:text-xl font-black text-white">{field.soil_ph.toFixed(2)}</span>
             <span className="text-xs text-emerald-300/80 font-bold">
               {field.soil_ph < 6.0 ? '(Acidic)' : field.soil_ph > 7.5 ? '(Alkaline)' : '(Neutral)'}
             </span>
@@ -69,7 +69,7 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
         {/* Drainage */}
         <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-2 sm:p-2.5 shadow-sm">
           <span className="text-xs font-black text-emerald-400 uppercase tracking-wider block mb-0.5">Drainage</span>
-          <span className="text-sm sm:text-base md:text-lg font-black text-white capitalize">
+          <span className="text-base sm:text-lg font-black text-white capitalize">
             {field.drainage}
           </span>
         </div>
@@ -77,20 +77,20 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
         {/* Organic Matter */}
         <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-2 sm:p-2.5 shadow-sm">
           <span className="text-xs font-black text-emerald-400 uppercase tracking-wider block mb-0.5">Organic Matter</span>
-          <span className="text-base sm:text-lg font-black text-white">
+          <span className="text-base sm:text-lg md:text-xl font-black text-white">
             {field.organic_matter_percent.toFixed(2)}%
           </span>
         </div>
       </div>
 
       {/* Standing & Prior Crop Context (Spec Section 30 Cycle Context) */}
-      <div className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-2.5 sm:p-3 mb-2.5 sm:mb-3 shadow-sm">
-        <h4 className="text-xs sm:text-sm font-black text-emerald-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+      <div className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-2 sm:p-2.5 mb-2 sm:mb-2.5 shadow-sm">
+        <h4 className="text-xs sm:text-sm font-black text-emerald-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
           Current Cropping Context (Rabi 2023–24)
         </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
-          <div className="flex items-center gap-2.5 bg-[#03130b]/60 p-2.5 rounded-xl border border-emerald-900/50">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-2.5 bg-[#03130b]/60 p-2 sm:p-2.5 rounded-xl border border-emerald-900/50">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 font-bold text-lg shadow-sm shrink-0">
               🌾
             </div>
@@ -103,7 +103,7 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 bg-[#03130b]/60 p-2.5 rounded-xl border border-emerald-900/50">
+          <div className="flex items-center gap-2.5 bg-[#03130b]/60 p-2 sm:p-2.5 rounded-xl border border-emerald-900/50">
             <div className="w-9 h-9 rounded-xl bg-[#0a291b] border border-emerald-800/60 flex items-center justify-center text-emerald-300/70 font-bold text-lg shadow-sm shrink-0">
               ⏮
             </div>
