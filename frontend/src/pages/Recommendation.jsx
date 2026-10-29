@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { evaluateRotation } from '../services/api';
 import RotationCard from '../components/RotationCard';
 import WarningCard from '../components/WarningCard';
-import { t } from '../utils/i18n';
+import {
+  t,
+  translateCrop,
+  translateCropFamily,
+  translateFieldName,
+  translateDrainage,
+  translateRotationLabel
+} from '../utils/i18n';
 
 /**
  * Recommendation Page (Spec Section 46, 50, 54, 55, 56)
@@ -287,7 +294,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
                 {lang === 'bn' ? 'নাসা ক্লাইমেট মডেল' : 'NASA Earth Intelligence'}
               </span>
               <span className="text-xs sm:text-sm text-emerald-400 font-semibold truncate max-w-[200px] sm:max-w-none">
-                Field #{selectedField?.id}: {selectedField?.name}
+                Field #{selectedField?.id}: {lang === 'bn' ? translateFieldName(selectedField?.name, lang) : selectedField?.name}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-3xl font-black text-white tracking-tight font-heading">
@@ -318,7 +325,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
               {lang === 'bn' ? 'মাঠের অবস্থান' : 'Agro-Ecological Zone'}
             </span>
             <span className="text-white font-extrabold truncate block text-xs sm:text-sm font-heading" title={selectedField?.name}>
-              {selectedField?.name?.split('(')[0]}
+              {lang === 'bn' ? translateFieldName(selectedField?.name, lang).split('(')[0] : selectedField?.name?.split('(')[0]}
             </span>
           </div>
           <div className="bg-[#051d12]/80 p-3.5 sm:p-4 rounded-xl border border-emerald-800/50">
@@ -326,7 +333,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
               {lang === 'bn' ? 'বর্তমান ফসল' : 'Standing Crop'}
             </span>
             <span className="text-emerald-300 font-bold text-xs sm:text-sm truncate block font-heading">
-              {selectedField?.current_crop}
+              {lang === 'bn' ? translateCrop(selectedField?.current_crop, lang) : selectedField?.current_crop}
             </span>
           </div>
           <div className="bg-[#051d12]/80 p-3.5 sm:p-4 rounded-xl border border-emerald-800/50">
@@ -334,7 +341,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
               {lang === 'bn' ? 'সেচ প্রাপ্যতা' : 'Irrigation Access'}
             </span>
             <span className={`font-bold text-xs sm:text-sm font-heading ${selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}`}>
-              {selectedField?.irrigation_available ? 'Irrigated (STW)' : 'Rainfed'}
+              {selectedField?.irrigation_available ? (lang === 'bn' ? 'সেচযুক্ত (STW)' : 'Irrigated (STW)') : (lang === 'bn' ? 'বৃষ্টি-নির্ভর' : 'Rainfed')}
             </span>
           </div>
           <div className="bg-[#051d12]/80 p-3.5 sm:p-4 rounded-xl border border-emerald-800/50">
@@ -342,7 +349,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
               {lang === 'bn' ? 'মাটির পিএইচ' : 'Soil pH & Drainage'}
             </span>
             <span className="text-white font-extrabold text-xs sm:text-sm font-heading">
-              pH {selectedField?.soil_ph?.toFixed(1)} • {selectedField?.drainage}
+              pH {selectedField?.soil_ph?.toFixed(1)} • {lang === 'bn' ? translateDrainage(selectedField?.drainage, lang) : selectedField?.drainage}
             </span>
           </div>
         </div>
@@ -352,7 +359,9 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 text-slate-400">
           <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mb-3"></div>
-          <p className="text-sm font-medium">Calculating highest-scoring sequence from NASA observations...</p>
+          <p className="text-sm font-medium">
+            {lang === 'bn' ? 'নাসা পর্যবেক্ষণ থেকে সর্বোচ্চ স্কোরপ্রাপ্ত শস্যবিন্যাস গণনা করা হচ্ছে...' : 'Calculating highest-scoring sequence from NASA observations...'}
+          </p>
         </div>
       ) : topRotation ? (
         <div className="space-y-4">
@@ -361,7 +370,7 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
               <span>🌾</span> {lang === 'bn' ? 'নির্বাচিত ফসল ঘূর্ণন প্রোফাইল' : 'Top Candidate Rotation Profile'}
             </h3>
             <span className="text-[11px] sm:text-xs text-emerald-400 font-mono">
-              {lang === 'bn' ? 'মূল্যায়ন মানদণ্ড: ' : 'Evaluation Standard: '}<strong>{lang === 'bn' ? 'সর্বোচ্চ স্কোরপ্রাপ্ত ঘূর্ণন' : 'Highest-scoring sequence'}</strong>
+              {lang === 'bn' ? 'মূল্যায়ন মানদণ্ড: ' : 'Evaluation Standard: '}<strong>{lang === 'bn' ? 'সর্বোচ্চ স্কোরপ্রাপ্ত শস্যবিন্যাস' : 'Highest-scoring sequence'}</strong>
             </span>
           </div>
 
@@ -369,11 +378,12 @@ export default function Recommendation({ selectedField, lang = 'en' }) {
             rotation={topRotation}
             rank={1}
             isTopCandidate={true}
+            lang={lang}
           />
         </div>
       ) : (
         <div className="text-center py-12 text-xs text-emerald-300/70 bg-[#092619] rounded-2xl border border-emerald-800/40 p-6">
-          Unable to compute recommendation for this field.
+          {lang === 'bn' ? 'এই মাঠের জন্য কোনো সুপারিশ গণনা করা সম্ভব হয়নি।' : 'Unable to compute recommendation for this field.'}
         </div>
       )}
 

@@ -139,14 +139,24 @@ const OFFLINE_CLIMATOLOGY = {
   }
 };
 
-export default function PlantingWindowAdvisory() {
+export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
   const [selectedDistrict, setSelectedDistrict] = useState('Rajshahi');
   const [selectedCrop, setSelectedCrop] = useState('Aman Rice');
   const [smsCopied, setSmsCopied] = useState(false);
-  const [activeLang, setActiveLang] = useState('bn'); // 'bn' | 'en'
+  const [activeLang, setActiveLang] = useState(lang); // 'bn' | 'en'
   const [showSensitivity, setShowSensitivity] = useState(false);
   const [showCodeDef, setShowCodeDef] = useState(false);
 
+  useEffect(() => {
+    setActiveLang(lang);
+  }, [lang]);
+
+  const handleLangToggle = (newLang) => {
+    setActiveLang(newLang);
+    if (onSelectLang) onSelectLang(newLang);
+  };
+
+  const isBn = activeLang === 'bn';
   const data = OFFLINE_CLIMATOLOGY[selectedDistrict] || OFFLINE_CLIMATOLOGY['Rajshahi'];
 
   const handleCopySms = () => {
@@ -164,14 +174,14 @@ export default function PlantingWindowAdvisory() {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-                Playbook Spec 07 • NASA 25-Year Planting-Window Advisory
+                {isBn ? 'প্লেবুক স্পেক ০৭ • নাসা ২৫-বছরের রোপণ সময়সীমা নির্দেশিকা' : 'Playbook Spec 07 • NASA 25-Year Planting-Window Advisory'}
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-700/60 shadow-sm">
-                ⚡ Offline Mode: Active (Zero-Wifi Guaranteed)
+                {isBn ? '⚡ অফলাইন মোড: সক্রিয় (সম্পূর্ণ ইন্টারনেটহীন সক্ষমতা)' : '⚡ Offline Mode: Active (Zero-Wifi Guaranteed)'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white font-heading mt-0.5">
-              Monsoon Onset Climatology & Transplanting Shift
+              {isBn ? 'মৌসুমি বর্ষা সূচনার জলবায়ু তথ্য ও রোপণ সময় পরিবর্তন' : 'Monsoon Onset Climatology & Transplanting Shift'}
             </h2>
           </div>
         </div>
@@ -180,7 +190,7 @@ export default function PlantingWindowAdvisory() {
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           <div className="flex rounded-lg bg-[#04140d] p-0.5 border border-emerald-800/60 text-xs">
             <button
-              onClick={() => setActiveLang('bn')}
+              onClick={() => handleLangToggle('bn')}
               className={`px-2.5 py-1 rounded-md font-bold transition-all ${
                 activeLang === 'bn' ? 'bg-emerald-500 text-white shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
@@ -188,7 +198,7 @@ export default function PlantingWindowAdvisory() {
               বাংলা
             </button>
             <button
-              onClick={() => setActiveLang('en')}
+              onClick={() => handleLangToggle('en')}
               className={`px-2.5 py-1 rounded-md font-bold transition-all ${
                 activeLang === 'en' ? 'bg-emerald-500 text-white shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
@@ -244,51 +254,51 @@ export default function PlantingWindowAdvisory() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5">
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-            Select District (AEZ Zone)
+            {isBn ? 'জেলা (AEZ অঞ্চল) নির্বাচন করুন' : 'Select District (AEZ Zone)'}
           </label>
           <select
             value={selectedDistrict}
             onChange={(e) => setSelectedDistrict(e.target.value)}
-            className="w-full bg-[#03130c] border border-emerald-700/60 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            className="w-full bg-[#03140c] border border-emerald-700/60 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
           >
-            <option value="Rajshahi">Rajshahi (High Barind)</option>
-            <option value="Dinajpur">Dinajpur (Piedmont Plain)</option>
-            <option value="Mymensingh">Mymensingh (Lowland Basin)</option>
-            <option value="Jessore">Jessore (High Ganges)</option>
-            <option value="Satkhira">Satkhira (Coastal Saline)</option>
+            <option value="Rajshahi">Rajshahi ({isBn ? 'উঁচু বরেন্দ্র' : 'High Barind'})</option>
+            <option value="Dinajpur">Dinajpur ({isBn ? 'পাদদেশীয় সমভূমি' : 'Piedmont Plain'})</option>
+            <option value="Mymensingh">Mymensingh ({isBn ? 'নিচু অববাহিকা' : 'Lowland Basin'})</option>
+            <option value="Jessore">Jessore ({isBn ? 'উঁচু গঙ্গা অববাহিকা' : 'High Ganges'})</option>
+            <option value="Satkhira">Satkhira ({isBn ? 'উপকূলীয় লবণাক্ত' : 'Coastal Saline'})</option>
           </select>
         </div>
 
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-            Target Crop Calendar
+            {isBn ? 'লক্ষ্য শস্য ক্যালেন্ডার' : 'Target Crop Calendar'}
           </label>
           <select
             value={selectedCrop}
             onChange={(e) => setSelectedCrop(e.target.value)}
-            className="w-full bg-[#03130c] border border-emerald-700/60 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            className="w-full bg-[#03140c] border border-emerald-700/60 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
           >
-            <option value="Aman Rice">T. Aman Rice (Monsoon)</option>
-            <option value="Aus Rice">Aus Rice (Pre-Monsoon)</option>
-            <option value="Boro Rice">Boro Rice (Rabi Irrigated)</option>
-            <option value="Wheat">Wheat (Rabi Cereal)</option>
-            <option value="Chickpea">Chickpea (Barind Pulse)</option>
+            <option value="Aman Rice">{isBn ? 'রোপা আমন ধান (বর্ষাকাল)' : 'T. Aman Rice (Monsoon)'}</option>
+            <option value="Aus Rice">{isBn ? 'আউশ ধান (প্রাক-বর্ষা)' : 'Aus Rice (Pre-Monsoon)'}</option>
+            <option value="Boro Rice">{isBn ? 'বোরো ধান (রবি সেচযুক্ত)' : 'Boro Rice (Rabi Irrigated)'}</option>
+            <option value="Wheat">{isBn ? 'গম (রবি দানাদার)' : 'Wheat (Rabi Cereal)'}</option>
+            <option value="Chickpea">{isBn ? 'ছোলা (বরেন্দ্র ডাল)' : 'Chickpea (Barind Pulse)'}</option>
           </select>
         </div>
 
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-            Recommended Shift in Whole Days
+            {isBn ? 'প্রস্তাবিত পরিবর্তন (পূর্ণ দিনে)' : 'Recommended Shift in Whole Days'}
           </span>
           <div className="font-mono text-sm font-black text-amber-300 bg-[#03130c] px-3 py-1.5 rounded-lg border border-amber-800/60 flex items-center justify-between">
-            <span>+{data.shift_in_days} Days Later</span>
+            <span>+{data.shift_in_days} {isBn ? 'দিন বিলম্বে' : 'Days Later'}</span>
             <span className="text-[10px] text-emerald-400 font-normal">p = {data.p_value}</span>
           </div>
         </div>
 
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-            Revised Planting Window
+            {isBn ? 'সংশোধিত রোপণ সময়সীমা' : 'Revised Planting Window'}
           </span>
           <div className="text-xs font-bold text-white bg-[#03130c] px-3 py-1.5 rounded-lg border border-emerald-700/60 truncate" title={data.optimal_window_revised}>
             {data.optimal_window_revised.split('(')[0]}
@@ -301,10 +311,10 @@ export default function PlantingWindowAdvisory() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-emerald-800/40">
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-              Deterministic 25-Year Empirical Distribution Proof
+              {isBn ? 'নির্দিষ্ট ২৫-বছরের বৃষ্টিপাত ডিস্ট্রিবিউশন প্রমাণ' : 'Deterministic 25-Year Empirical Distribution Proof'}
             </span>
             <h3 className="text-base sm:text-lg font-black text-white font-heading">
-              Two-Period Climatology Shift: 2001–2012 vs. 2013–2025
+              {isBn ? 'দুই সময়কালের বৃষ্টিপাতের পরিবর্তন: ২০০১–২০১২ বনাম ২০১৩–২০২৫' : 'Two-Period Climatology Shift: 2001–2012 vs. 2013–2025'}
             </h3>
           </div>
           <span className="text-xs font-mono font-bold text-cyan-300 bg-cyan-950 px-2.5 py-1 rounded-full border border-cyan-800">
@@ -318,18 +328,20 @@ export default function PlantingWindowAdvisory() {
           <div className="bg-[#03140c] border border-cyan-800/60 rounded-xl p-4 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                Period 1: Baseline (2001–2012)
+                {isBn ? 'সময়কাল ১: ঐতিহাসিক ভিত্তি (২০০১–২০১২)' : 'Period 1: Baseline (2001–2012)'}
               </span>
               <span className="text-xs font-mono font-black text-white px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800">
-                Mean: DOY {data.p1_mean} (June 3)
+                {isBn ? 'গড়:' : 'Mean:'} DOY {data.p1_mean} ({isBn ? '৩ জুন' : 'June 3'})
               </span>
             </div>
             <p className="text-xs text-cyan-200/80">
-              Standard Deviation: ±{data.p1_std} days • 12 crop seasons
+              {isBn ? `পরিমিত ব্যবধান: ±${data.p1_std} দিন • ১২টি শস্য মৌসুম` : `Standard Deviation: ±${data.p1_std} days • 12 crop seasons`}
             </p>
             {/* Visual Dot Plot of DOY */}
             <div className="space-y-1 pt-1">
-              <span className="text-[10px] text-cyan-400/80 block">Day of Year Onsets (150–160 DOY):</span>
+              <span className="text-[10px] text-cyan-400/80 block">
+                {isBn ? 'বছরের কোন দিনে বর্ষা শুরু (১৫০–১৬০ DOY):' : 'Day of Year Onsets (150–160 DOY):'}
+              </span>
               <div className="flex flex-wrap gap-1.5">
                 {data.p1_doy.map((doy, idx) => (
                   <span
@@ -347,18 +359,20 @@ export default function PlantingWindowAdvisory() {
           <div className="bg-[#03140c] border border-amber-800/60 rounded-xl p-4 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                Period 2: Recent Reality (2013–2025)
+                {isBn ? 'সময়কাল ২: সাম্প্রতিক বাস্তবতা (২০১৩–২০২৫)' : 'Period 2: Recent Reality (2013–2025)'}
               </span>
               <span className="text-xs font-mono font-black text-white px-2 py-0.5 rounded bg-amber-950 border border-amber-800">
-                Mean: DOY {data.p2_mean} (June 14)
+                {isBn ? 'গড়:' : 'Mean:'} DOY {data.p2_mean} ({isBn ? '১৪ জুন' : 'June 14'})
               </span>
             </div>
             <p className="text-xs text-amber-200/80">
-              Standard Deviation: ±{data.p2_std} days • 13 crop seasons
+              {isBn ? `পরিমিত ব্যবধান: ±${data.p2_std} দিন • ১৩টি শস্য মৌসুম` : `Standard Deviation: ±${data.p2_std} days • 13 crop seasons`}
             </p>
             {/* Visual Dot Plot of DOY */}
             <div className="space-y-1 pt-1">
-              <span className="text-[10px] text-amber-400/80 block">Day of Year Onsets (160–171 DOY):</span>
+              <span className="text-[10px] text-amber-400/80 block">
+                {isBn ? 'বছরের কোন দিনে বর্ষা শুরু (১৬০–১৭১ DOY):' : 'Day of Year Onsets (160–171 DOY):'}
+              </span>
               <div className="flex flex-wrap gap-1.5">
                 {data.p2_doy.map((doy, idx) => (
                   <span
@@ -376,13 +390,17 @@ export default function PlantingWindowAdvisory() {
         {/* Shift Delta Bar */}
         <div className="bg-[#03130c] p-3 rounded-xl border border-emerald-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-emerald-400 font-black">STATISTICAL CONCLUSION:</span>
+            <span className="text-emerald-400 font-black">
+              {isBn ? 'পরিসংখ্যানগত সিদ্ধান্ত:' : 'STATISTICAL CONCLUSION:'}
+            </span>
             <span className="text-white">
-              The monsoon onset distribution has structurally migrated +{data.shift_in_days} days later. Seedlings transplanted on traditional calendar dates face severe early-season drought desiccation.
+              {isBn
+                ? `মৌসুমি বর্ষা সূচনার ডিস্ট্রিবিউশন স্থায়ীভাবে +${data.shift_in_days} দিন পিছিয়ে গেছে। সনাতন পঞ্জিকা অনুযায়ী আগে চারা রোপণ করলে তীব্র খরায় চারা শুকিয়ে মারা যাওয়ার ঝুঁকি থাকে।`
+                : `The monsoon onset distribution has structurally migrated +${data.shift_in_days} days later. Seedlings transplanted on traditional calendar dates face severe early-season drought desiccation.`}
             </span>
           </div>
           <span className="text-emerald-400 font-bold shrink-0">
-            Mann-Whitney p = {data.p_value} &lt; 0.05 (Significant)
+            Mann-Whitney p = {data.p_value} &lt; 0.05 ({isBn ? 'তাৎপর্যপূর্ণ' : 'Significant'})
           </span>
         </div>
       </div>
@@ -393,14 +411,16 @@ export default function PlantingWindowAdvisory() {
         <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-4 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">
-              Sensitivity Check (±5mm Threshold Perturbation)
+              {isBn ? 'সংবেদনশীলতা যাচাই (±৫ মিমি থ্রেশহোল্ড পরিবর্তন)' : 'Sensitivity Check (±5mm Threshold Perturbation)'}
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-              Stability: Verified
+              {isBn ? 'স্থিতিশীলতা: প্রমাণিত' : 'Stability: Verified'}
             </span>
           </div>
           <p className="text-[11px] text-emerald-200/80 leading-relaxed">
-            "Say the definition out loud: Naming yours and showing the result is stable if you shift the threshold a little is the difference between 7/10 and 10/10 on validity."
+            {isBn
+              ? '"সংজ্ঞাটি স্পষ্টভাবে বলুন: আপনার সংজ্ঞা সুনির্দিষ্টভাবে উল্লেখ করা এবং থ্রেশহোল্ড কিছুটা পরিবর্তন করলেও ফলাফল অপরিবর্তিত থাকে তা প্রদর্শন করাই মূল্যায়নে ৭/১০ এবং ১০/১০ পাওয়ার মধ্যে পার্থক্য।"'
+              : '"Say the definition out loud: Naming yours and showing the result is stable if you shift the threshold a little is the difference between 7/10 and 10/10 on validity."'}
           </p>
 
           <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
@@ -426,20 +446,22 @@ export default function PlantingWindowAdvisory() {
         <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-4 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold text-cyan-400 uppercase tracking-wider">
-              Exact Verifiable Code Definition (Playbook Slide 2)
+              {isBn ? 'যাচাইযোগ্য কোড সংজ্ঞা (প্লেবুক স্লাইড ২)' : 'Exact Verifiable Code Definition (Playbook Slide 2)'}
             </span>
             <button
               onClick={() => setShowCodeDef(!showCodeDef)}
               className="text-[11px] text-emerald-400 underline cursor-pointer"
             >
-              {showCodeDef ? 'Hide Code' : 'View Code'}
+              {showCodeDef ? (isBn ? 'কোড লুকান' : 'Hide Code') : (isBn ? 'কোড দেখুন' : 'View Code')}
             </button>
           </div>
           <p className="text-[11px] text-emerald-200/90 font-mono bg-[#03130c] p-2 rounded-lg border border-emerald-800/50">
             <code>def rain_onset(daily_mm, window=7, threshold_mm=20, dry_spell_max=7):</code>
           </p>
           <p className="text-[11px] text-emerald-300/80 leading-relaxed">
-            "First day in a 7-day window with 20mm or more that is not followed by a dry spell longer than 7 days."
+            {isBn
+              ? '"৭ দিনের সময়সীমায় ২০ মিমি বা তার বেশি বৃষ্টিপাতের প্রথম দিন যার পরবর্তী ২১ দিনে ৭ দিনের বেশি কোনো খরা নেই।"'
+              : '"First day in a 7-day window with 20mm or more that is not followed by a dry spell longer than 7 days."'}
           </p>
           {showCodeDef && (
             <pre className="text-[10px] font-mono bg-[#020b06] p-2.5 rounded-lg border border-emerald-900/60 overflow-x-auto text-emerald-300">
@@ -456,7 +478,7 @@ export default function PlantingWindowAdvisory() {
       <div className="bg-[#04160d] border border-emerald-800/60 rounded-xl p-4 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-            NASA Earth Observation Provenance Stack (Disqualification Rule Compliance)
+            {isBn ? 'নাসা আর্থ অবজারভেশন প্রমাণ স্তূপ (ডিসকোয়ালিফিকেশন নিয়ম প্রতিপালন)' : 'NASA Earth Observation Provenance Stack (Disqualification Rule Compliance)'}
           </span>
           <span className="text-[10px] text-emerald-300/70 font-mono">
             License: Apache-2.0
@@ -470,7 +492,9 @@ export default function PlantingWindowAdvisory() {
             className="p-2.5 rounded-lg bg-[#020d07] border border-emerald-900/80 hover:border-emerald-500/50 transition-all block"
           >
             <span className="font-bold text-white block">1. NASA POWER</span>
-            <span className="text-[10px] text-emerald-300/70 block">Daily Rainfall & T2M Series</span>
+            <span className="text-[10px] text-emerald-300/70 block">
+              {isBn ? 'দৈনিক বৃষ্টিপাত ও T2M সিরিজ' : 'Daily Rainfall & T2M Series'}
+            </span>
             <span className="text-[10px] text-emerald-400 underline mt-1 block">power.larc.nasa.gov ↗</span>
           </a>
 
@@ -481,7 +505,9 @@ export default function PlantingWindowAdvisory() {
             className="p-2.5 rounded-lg bg-[#020d07] border border-emerald-900/80 hover:border-emerald-500/50 transition-all block"
           >
             <span className="font-bold text-white block">2. GPM IMERG</span>
-            <span className="text-[10px] text-emerald-300/70 block">0.1° Gridded Precipitation</span>
+            <span className="text-[10px] text-emerald-300/70 block">
+              {isBn ? '০.১° গ্রিডেড বৃষ্টিপাত' : '0.1° Gridded Precipitation'}
+            </span>
             <span className="text-[10px] text-emerald-400 underline mt-1 block">gpm.nasa.gov ↗</span>
           </a>
 
@@ -492,7 +518,9 @@ export default function PlantingWindowAdvisory() {
             className="p-2.5 rounded-lg bg-[#020d07] border border-emerald-900/80 hover:border-emerald-500/50 transition-all block"
           >
             <span className="font-bold text-white block">3. NASA SMAP</span>
-            <span className="text-[10px] text-emerald-300/70 block">9 km Root-Zone Soil Moisture</span>
+            <span className="text-[10px] text-emerald-300/70 block">
+              {isBn ? '৯ কিমি রুট-জোন মাটির আর্দ্রতা' : '9 km Root-Zone Soil Moisture'}
+            </span>
             <span className="text-[10px] text-emerald-400 underline mt-1 block">smap.jpl.nasa.gov ↗</span>
           </a>
 
@@ -503,7 +531,9 @@ export default function PlantingWindowAdvisory() {
             className="p-2.5 rounded-lg bg-[#020d07] border border-emerald-900/80 hover:border-emerald-500/50 transition-all block"
           >
             <span className="font-bold text-white block">4. MODIS / VIIRS</span>
-            <span className="text-[10px] text-emerald-300/70 block">NDVI Vegetation Vigor & LST</span>
+            <span className="text-[10px] text-emerald-300/70 block">
+              {isBn ? 'NDVI উদ্ভিজ্জ সজীবতা ও LST' : 'NDVI Vegetation Vigor & LST'}
+            </span>
             <span className="text-[10px] text-emerald-400 underline mt-1 block">modis.gsfc.nasa.gov ↗</span>
           </a>
         </div>

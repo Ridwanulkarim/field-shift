@@ -7,7 +7,7 @@ import RotationPlanner from './pages/RotationPlanner';
 import RotationComparison from './pages/RotationComparison';
 import Recommendation from './pages/Recommendation';
 import PlantingWindowAdvisory from './components/PlantingWindowAdvisory';
-import { t } from './utils/i18n';
+import { t, translateFieldName } from './utils/i18n';
 import farmBg from './assets/farm-bg.jpg';
 import {
   DashboardIcon,
@@ -28,10 +28,16 @@ export default function App() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [health, setHealth] = useState({ status: 'ok', version: 'v6.2' });
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'planner' | 'comparison' | 'recommendation' | 'fields'
-  const [lang, setLang] = useState('en'); // 'en' | 'bn'
+  const [lang, setLang] = useState(() => {
+    return localStorage.getItem('fieldshift_lang') || 'bn';
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem('fieldshift_lang', lang);
+  }, [lang]);
 
   // Background Blur Mood State (Default ON as requested)
   const [isBlurMode, setIsBlurMode] = useState(() => {
@@ -190,7 +196,7 @@ export default function App() {
                   >
                     {fields.map(f => (
                       <option key={f.id} value={f.id} className="bg-[#0b1726] text-slate-100">
-                        Field #{f.id}: {f.name.split('(')[0].trim()}
+                        {lang === 'bn' ? `মাঠ #${f.id}: ${translateFieldName(f.name, lang).split('(')[0].trim()}` : `Field #${f.id}: ${f.name.split('(')[0].trim()}`}
                       </option>
                     ))}
                   </select>
@@ -306,7 +312,7 @@ export default function App() {
                   >
                     {fields.map(f => (
                       <option key={f.id} value={f.id} className="bg-[#0b1726] text-slate-100">
-                        Field #{f.id}: {f.name.split('(')[0].trim()}
+                        {lang === 'bn' ? `মাঠ #${f.id}: ${translateFieldName(f.name, lang).split('(')[0].trim()}` : `Field #${f.id}: ${f.name.split('(')[0].trim()}`}
                       </option>
                     ))}
                   </select>
@@ -419,16 +425,18 @@ export default function App() {
                   setActiveTab('dashboard');
                 }}
                 onSelectTab={setActiveTab}
+                lang={lang}
               />
             )}
 
             {activeTab === 'advisory' && (
-              <PlantingWindowAdvisory />
+              <PlantingWindowAdvisory lang={lang} onSelectLang={setLang} />
             )}
 
             {activeTab === 'planner' && (
               <RotationPlanner
                 selectedField={selectedField}
+                lang={lang}
               />
             )}
 
@@ -437,6 +445,7 @@ export default function App() {
                 fields={fields}
                 selectedFieldId={selectedFieldId}
                 onSelectField={(id) => setSelectedFieldId(id)}
+                lang={lang}
               />
             )}
 
@@ -455,6 +464,7 @@ export default function App() {
                   setSelectedFieldId(id);
                   setActiveTab('dashboard');
                 }}
+                lang={lang}
               />
             )}
           </>

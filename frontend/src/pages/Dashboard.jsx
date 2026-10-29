@@ -15,8 +15,11 @@ export default function Dashboard({
   cropHistory = [],
   isLoadingHistory = false,
   onSelectField,
-  onSelectTab
+  onSelectTab,
+  lang = 'en'
 }) {
+  const isBn = lang === 'bn';
+
   return (
     <div className="space-y-4 sm:space-y-5 md:space-y-6">
       {/* Playbook 07 Killer Demo Callout Banner */}
@@ -26,14 +29,18 @@ export default function Dashboard({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
-                NASA Space Apps 25-Year Climatology Killer Demo
+                {isBn ? 'নাসা স্পেস অ্যাপস ২৫-বছরের ক্লাইমেটলজি কিলার ডেমো' : 'NASA Space Apps 25-Year Climatology Killer Demo'}
               </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800">
-                Offline Mode: Active
+                {isBn ? 'অফলাইন মোড: সক্রিয়' : 'Offline Mode: Active'}
               </span>
             </div>
             <p className="text-xs sm:text-sm font-extrabold text-white mt-0.5">
-              Rajshahi Aman Monsoon Onset Shifted <span className="text-amber-300 underline">+11 Days Later</span> since 2001 (DOY 154 → 165, p=0.021).
+              {isBn ? (
+                <>রাজশাহী আমন মৌসুমি বৃষ্টিপাত ২০০১ সালের তুলনায় <span className="text-amber-300 underline">+১১ দিন বিলম্বে</span> শুরু হচ্ছে (১৫৪ → ১৬৫তম দিন, p=০.০২১)।</>
+              ) : (
+                <>Rajshahi Aman Monsoon Onset Shifted <span className="text-amber-300 underline">+11 Days Later</span> since 2001 (DOY 154 → 165, p=0.021).</>
+              )}
             </p>
           </div>
         </div>
@@ -42,7 +49,7 @@ export default function Dashboard({
             onClick={() => onSelectTab('advisory')}
             className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shrink-0 cursor-pointer shadow-md transition-all active:scale-95 flex items-center gap-1.5 self-start sm:self-auto"
           >
-            <span>View Planting Advisory</span>
+            <span>{isBn ? 'রোপণ পরামর্শ দেখুন' : 'View Planting Advisory'}</span>
             <span>↗</span>
           </button>
         )}
@@ -56,12 +63,14 @@ export default function Dashboard({
             conditionScore={selectedField?.condition_score}
             isDemo={selectedField?.is_demo}
             dataLabel={selectedField?.data_label}
+            lang={lang}
           />
           {/* Detailed Field Profile & Crop History */}
           <FieldCard
             field={selectedField}
             cropHistory={cropHistory}
             isLoadingHistory={isLoadingHistory}
+            lang={lang}
           />
         </div>
 
@@ -71,15 +80,16 @@ export default function Dashboard({
             fields={fields}
             selectedFieldId={selectedField?.id}
             onSelectField={onSelectField}
+            lang={lang}
           />
         </div>
       </div>
 
       {/* Environmental Stress Trends */}
-      <Charts fieldId={selectedField?.id} nasaMetadata={selectedField?.nasa_metadata} />
+      <Charts fieldId={selectedField?.id} nasaMetadata={selectedField?.nasa_metadata} lang={lang} />
 
       {/* NASA Data Quality & Provenance Audit */}
-      <DataQuality conditionScore={selectedField?.condition_score} nasaMetadata={selectedField?.nasa_metadata} />
+      <DataQuality conditionScore={selectedField?.condition_score} nasaMetadata={selectedField?.nasa_metadata} lang={lang} />
     </div>
   );
 }

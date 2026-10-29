@@ -3,12 +3,21 @@ import { fetchCrops, evaluateRotation } from '../services/api';
 import { INITIAL_CROPS } from '../data/initialData';
 import PrioritySlider from '../components/PrioritySlider';
 import RotationCard from '../components/RotationCard';
+import {
+  translateCrop,
+  translateCropFamily,
+  translateSeason,
+  translateSoilType,
+  translateFieldName,
+  translateDrainage
+} from '../utils/i18n';
 
 /**
  * RotationPlanner Page (Spec Section 46, 54, 55)
  * Interactive seasonal crop sequence builder and NASA-aware evaluation hub.
  */
-export default function RotationPlanner({ selectedField }) {
+export default function RotationPlanner({ selectedField, lang = 'en' }) {
+  const isBn = lang === 'bn';
   const [crops, setCrops] = useState(INITIAL_CROPS);
   const [isLoadingCrops, setIsLoadingCrops] = useState(false);
 
@@ -200,34 +209,36 @@ export default function RotationPlanner({ selectedField }) {
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="text-xs sm:text-sm font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#04140d] border border-emerald-800 text-emerald-300">
-                Field #{selectedField?.id}
+                {isBn ? 'মাঠ #' : 'Field #'}{selectedField?.id}
               </span>
               <span className="text-xs sm:text-sm text-emerald-400 font-semibold">
-                Rotation Planning Workbench
+                {isBn ? 'শস্যবিন্যাস পরিকল্পনা কেন্দ্র' : 'Rotation Planning Workbench'}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-3xl font-black text-white tracking-tight font-heading">
-              {selectedField?.name || 'Godagari Barind Terrace'}
+              {isBn ? translateFieldName(selectedField?.name, lang) : (selectedField?.name || 'Godagari Barind Terrace')}
             </h2>
             <p className="text-xs sm:text-sm text-emerald-200/80 mt-1 leading-relaxed">
-              Soil: <strong className="text-white">{selectedField?.soil_type}</strong> (pH {selectedField?.soil_ph?.toFixed(1)}, {selectedField?.drainage} drainage) • Irrigation: <strong className={selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}>{selectedField?.irrigation_available ? 'Irrigated' : 'Rainfed'}</strong>
+              {isBn ? 'মাটি:' : 'Soil:'} <strong className="text-white">{isBn ? translateSoilType(selectedField?.soil_type, lang) : selectedField?.soil_type}</strong> (pH {selectedField?.soil_ph?.toFixed(1)}, {isBn ? translateDrainage(selectedField?.drainage, lang) : `${selectedField?.drainage} drainage`}) • {isBn ? 'সেচ:' : 'Irrigation:'} <strong className={selectedField?.irrigation_available ? 'text-cyan-300' : 'text-amber-300'}>{selectedField?.irrigation_available ? (isBn ? 'সেচযুক্ত' : 'Irrigated') : (isBn ? 'বৃষ্টি-নির্ভর' : 'Rainfed')}</strong>
             </p>
           </div>
 
           {/* Quick Presets */}
           <div className="flex items-center gap-2 flex-wrap sm:justify-end w-full sm:w-auto">
-            <span className="text-xs sm:text-sm text-emerald-400 font-semibold w-full sm:w-auto">Quick Presets:</span>
+            <span className="text-xs sm:text-sm text-emerald-400 font-semibold w-full sm:w-auto">
+              {isBn ? 'দ্রুত প্রিসেট:' : 'Quick Presets:'}
+            </span>
             <button
               onClick={() => loadPreset('barind_pulse')}
               className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-cyan-800/60 text-xs sm:text-sm font-bold text-cyan-200 transition-colors shadow-sm cursor-pointer text-center"
             >
-              🌱 Barind 2-Crop
+              🌱 {isBn ? 'বরেন্দ্র ২-ফসল' : 'Barind 2-Crop'}
             </button>
             <button
               onClick={() => loadPreset('triple_crop')}
               className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl bg-[#051d12] hover:bg-[#072417] border border-emerald-800/60 text-xs sm:text-sm font-bold text-emerald-200 transition-colors shadow-sm cursor-pointer text-center"
             >
-              🌾 Alluvial 3-Crop
+              🌾 {isBn ? 'পলিমাটি ৩-ফসল' : 'Alluvial 3-Crop'}
             </button>
           </div>
         </div>
@@ -237,18 +248,22 @@ export default function RotationPlanner({ selectedField }) {
           <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-3 sm:p-4 flex items-center gap-3.5">
             <span className="text-2xl sm:text-3xl">🌾</span>
             <div>
-              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Current Standing Crop</span>
+              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">
+                {isBn ? 'জমিতে বিদ্যমান চলতি ফসল' : 'Current Standing Crop'}
+              </span>
               <span className="text-base sm:text-lg font-black text-white font-heading">
-                {selectedField?.current_crop} <span className="text-emerald-400 text-xs sm:text-sm font-medium">({selectedField?.current_crop_family})</span>
+                {isBn ? translateCrop(selectedField?.current_crop, lang) : selectedField?.current_crop} <span className="text-emerald-400 text-xs sm:text-sm font-medium">({isBn ? translateCropFamily(selectedField?.current_crop_family, lang) : selectedField?.current_crop_family})</span>
               </span>
             </div>
           </div>
           <div className="bg-[#051d12]/80 border border-emerald-800/50 rounded-xl p-3 sm:p-4 flex items-center gap-3.5">
             <span className="text-2xl sm:text-3xl">⏮</span>
             <div>
-              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">Previous Season Crop</span>
+              <span className="text-xs text-emerald-400/90 font-semibold uppercase tracking-wider block">
+                {isBn ? 'পূর্ববর্তী মৌসুমের ফসল' : 'Previous Season Crop'}
+              </span>
               <span className="text-base sm:text-lg font-black text-emerald-100 font-heading">
-                {selectedField?.previous_crop} <span className="text-emerald-400 text-xs sm:text-sm font-medium">({selectedField?.previous_crop_family})</span>
+                {isBn ? translateCrop(selectedField?.previous_crop, lang) : selectedField?.previous_crop} <span className="text-emerald-400 text-xs sm:text-sm font-medium">({isBn ? translateCropFamily(selectedField?.previous_crop_family, lang) : selectedField?.previous_crop_family})</span>
               </span>
             </div>
           </div>
@@ -260,10 +275,10 @@ export default function RotationPlanner({ selectedField }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-emerald-800/40">
           <div>
             <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
-              Seasonal Succession Architecture
+              {isBn ? 'মৌসুমি শস্য পর্যায়ক্রম কাঠামো' : 'Seasonal Succession Architecture'}
             </span>
             <h3 className="text-2xl sm:text-3xl md:text-3xl font-black text-white tracking-tight font-heading">
-              Build Candidate Crop Rotation
+              {isBn ? 'প্রস্তাবিত শস্যবিন্যাস তৈরি করুন' : 'Build Candidate Crop Rotation'}
             </h3>
           </div>
 
@@ -276,9 +291,9 @@ export default function RotationPlanner({ selectedField }) {
                   ? 'bg-emerald-500 text-[#04140d] shadow-md shadow-emerald-500/20'
                   : 'text-emerald-300/80 hover:text-white'
               }`}
-              title="Plan next crops to follow active standing crop in field"
+              title={isBn ? 'মাঠে বিদ্যমান চলতি ফসলের পরবর্তী ফসল পরিকল্পনা করুন' : 'Plan next crops to follow active standing crop in field'}
             >
-              <span>🌾</span> Follow Standing Crop
+              <span>🌾</span> {isBn ? 'চলতি ফসলের অনুবর্তন' : 'Follow Standing Crop'}
             </button>
             <button
               onClick={() => handleSwitchCycleMode('start_new_cycle')}
@@ -287,9 +302,9 @@ export default function RotationPlanner({ selectedField }) {
                   ? 'bg-cyan-400 text-[#04140d] shadow-md shadow-cyan-400/20'
                   : 'text-emerald-300/80 hover:text-white'
               }`}
-              title="Plan fresh 3-season annual crop rotation starting from Rabi"
+              title={isBn ? 'রবি মৌসুম থেকে শুরু করে নতুন ৩-মৌসুমি বার্ষিক শস্যবিন্যাস তৈরি করুন' : 'Plan fresh 3-season annual crop rotation starting from Rabi'}
             >
-              <span>🔄</span> Start New Cycle
+              <span>🔄</span> {isBn ? 'নতুন বার্ষিক চক্র' : 'Start New Cycle'}
             </button>
           </div>
         </div>
@@ -301,18 +316,22 @@ export default function RotationPlanner({ selectedField }) {
               <span className="text-3xl mt-0.5">🌾</span>
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="text-base font-black text-white">Interface: Follow Current Standing Crop</span>
+                  <span className="text-base font-black text-white">
+                    {isBn ? 'ইন্টারফেস: চলতি ফসলের পরবর্তী ফসল পরিকল্পনা' : 'Interface: Follow Current Standing Crop'}
+                  </span>
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
-                    Active in Field: {selectedField?.current_crop} ({selectedField?.current_crop_family})
+                    {isBn ? 'মাঠে বিদ্যমান:' : 'Active in Field:'} {isBn ? translateCrop(selectedField?.current_crop, lang) : selectedField?.current_crop} ({isBn ? translateCropFamily(selectedField?.current_crop_family, lang) : selectedField?.current_crop_family})
                   </span>
                 </div>
                 <p className="text-sm text-emerald-200/90 mt-1.5 leading-relaxed">
-                  The field currently has standing <strong>{selectedField?.current_crop}</strong>. You are planning the next crops to plant sequentially after harvest ({selectedSeasons.join(' ➔ ')}).
+                  {isBn
+                    ? `জমিতে বর্তমানে ${translateCrop(selectedField?.current_crop, lang)} চাষাবস্থায় রয়েছে। আপনি ফসল কাটার পর ধারাবাহিকভাবে রোপণ করার পরবর্তী ফসল পরিকল্পনা করছেন (${selectedSeasons.map(s => translateSeason(s, lang)).join(' ➔ ')})।`
+                    : `The field currently has standing ${selectedField?.current_crop}. You are planning the next crops to plant sequentially after harvest (${selectedSeasons.join(' ➔ ')}).`}
                 </p>
               </div>
             </div>
             <div className="text-sm font-mono text-emerald-300 bg-[#021009] px-3.5 py-2 rounded-lg border border-emerald-800/60 shrink-0">
-              Repeat Context: <strong className="text-white">{selectedField?.current_crop}</strong>
+              {isBn ? 'পুনরাবৃত্তি প্রসঙ্গ:' : 'Repeat Context:'} <strong className="text-white">{isBn ? translateCrop(selectedField?.current_crop, lang) : selectedField?.current_crop}</strong>
             </div>
           </div>
         ) : (
@@ -321,18 +340,22 @@ export default function RotationPlanner({ selectedField }) {
               <span className="text-3xl mt-0.5">🔄</span>
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="text-base font-black text-white">Interface: Start New Annual Cycle</span>
+                  <span className="text-base font-black text-white">
+                    {isBn ? 'ইন্টারফেস: নতুন বার্ষিক শস্যচক্র শুরু' : 'Interface: Start New Annual Cycle'}
+                  </span>
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan-400/25 text-cyan-200 border border-cyan-400/40">
-                    Fresh 3-Season Sequence
+                    {isBn ? 'নতুন ৩-মৌসুমি পর্যায়ক্রম' : 'Fresh 3-Season Sequence'}
                   </span>
                 </div>
                 <p className="text-sm text-cyan-200/90 mt-1.5 leading-relaxed">
-                  Planning a complete new annual crop rotation sequence starting fresh from <strong>Rabi</strong>. Evaluated against prior cycle crop ({selectedField?.previous_crop}).
+                  {isBn
+                    ? `রবি মৌসুম থেকে সম্পূর্ণ নতুন বার্ষিক শস্যবিন্যাস পরিকল্পনা। পূর্ববর্তী চক্রের ফসলের (${translateCrop(selectedField?.previous_crop, lang) || 'রোপা আমন ধান'}) ওপর ভিত্তি করে মূল্যায়ন করা হবে।`
+                    : `Planning a complete new annual crop rotation sequence starting fresh from Rabi. Evaluated against prior cycle crop (${selectedField?.previous_crop}).`}
                 </p>
               </div>
             </div>
             <div className="text-sm font-mono text-cyan-200 bg-[#020e12] px-3.5 py-2 rounded-lg border border-cyan-800/60 shrink-0">
-              Prior Cycle Context: <strong className="text-white">{selectedField?.previous_crop || 'T. Aman Rice'}</strong>
+              {isBn ? 'পূর্ববর্তী চক্রের ফসল:' : 'Prior Cycle Context:'} <strong className="text-white">{isBn ? translateCrop(selectedField?.previous_crop, lang) : (selectedField?.previous_crop || 'T. Aman Rice')}</strong>
             </div>
           </div>
         )}
@@ -343,40 +366,40 @@ export default function RotationPlanner({ selectedField }) {
           {cycleMode === 'continue_after_current' && (
             <div className="bg-[#03150d] border-2 border-emerald-500/50 rounded-xl p-4 sm:p-5 shadow-sm flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 bg-emerald-500 text-[#021109] text-[11px] font-black uppercase px-3 py-0.5 rounded-bl-lg tracking-wider shadow">
-                STANDING NOW
+                {isBn ? 'চলতি ফসল' : 'STANDING NOW'}
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-2.5">
                   <span className="font-extrabold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Step 0: In Field
+                    {isBn ? 'ধাপ ০: মাঠে বিদ্যমান' : 'Step 0: In Field'}
                   </span>
                   <span className="text-xs font-mono text-emerald-400/90 mr-16">
-                    Current Crop
+                    {isBn ? 'বর্তমান ফসল' : 'Current Crop'}
                   </span>
                 </div>
 
                 <div className="bg-[#020d07] border border-emerald-700/60 rounded-xl p-3.5 mb-3.5">
                   <div className="text-xl font-black text-white flex items-center gap-2">
-                    <span>🌾</span> {selectedField?.current_crop || 'Current Crop'}
+                    <span>🌾</span> {isBn ? translateCrop(selectedField?.current_crop, lang) : (selectedField?.current_crop || 'Current Crop')}
                   </div>
                   <div className="text-sm text-emerald-400 font-semibold mt-1">
-                    Family: {selectedField?.current_crop_family || 'Standing'}
+                    {isBn ? 'গোত্র:' : 'Family:'} {isBn ? translateCropFamily(selectedField?.current_crop_family, lang) : (selectedField?.current_crop_family || 'Standing')}
                   </div>
                 </div>
               </div>
 
               <div className="bg-[#020d07]/90 p-3.5 rounded-lg border border-emerald-900/60 space-y-1.5 text-xs text-emerald-200/80">
                 <div className="flex justify-between">
-                  <span>Active Season:</span>
-                  <strong className="text-emerald-300">Rabi (Growth Phase)</strong>
+                  <span>{isBn ? 'সক্রিয় মৌসুম:' : 'Active Season:'}</span>
+                  <strong className="text-emerald-300">{isBn ? 'রবি (বৃদ্ধিকাল)' : 'Rabi (Growth Phase)'}</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span>Rotation Role:</span>
-                  <strong className="text-white">Succession Baseline</strong>
+                  <span>{isBn ? 'শস্যবিন্যাস ভূমিকা:' : 'Rotation Role:'}</span>
+                  <strong className="text-white">{isBn ? 'পর্যায়ক্রমের ভিত্তি' : 'Succession Baseline'}</strong>
                 </div>
                 <div className="text-xs text-emerald-400/90 mt-2 pt-2 border-t border-emerald-900/40 italic leading-relaxed">
-                  Next crops (Steps 1 & 2) follow after this crop is harvested.
+                  {isBn ? 'এই ফসল কাটার পর পরবর্তী ফসলসমূহ (ধাপ ১ ও ২) চাষ করা হবে।' : 'Next crops (Steps 1 & 2) follow after this crop is harvested.'}
                 </div>
               </div>
             </div>
@@ -394,16 +417,17 @@ export default function RotationPlanner({ selectedField }) {
               : true;
             
             const stepNumber = idx + 1;
+            const seasonBnName = isBn ? translateSeason(season, lang) : season;
 
             return (
               <div key={season} className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2.5">
                     <span className="font-extrabold text-emerald-300 uppercase tracking-wider">
-                      Step {stepNumber}: {season}
+                      {isBn ? `ধাপ ${stepNumber}: ${seasonBnName}` : `Step ${stepNumber}: ${season}`}
                     </span>
                     <span className="text-xs font-mono font-bold text-emerald-400/90">
-                      Window: {seasonMaxDays}d
+                      {isBn ? `সময়সীমা: ${seasonMaxDays} দিন` : `Window: ${seasonMaxDays}d`}
                     </span>
                   </div>
 
@@ -414,7 +438,7 @@ export default function RotationPlanner({ selectedField }) {
                   >
                     {crops.map((c) => (
                       <option key={c.id} value={c.id} className="bg-[#062115] text-white py-1">
-                        {c.name} ({c.crop_family}) - {c.growing_days}d
+                        {isBn ? translateCrop(c.name, lang) : c.name} ({isBn ? translateCropFamily(c.crop_family, lang) : c.crop_family}) - {c.growing_days}{isBn ? ' দিন' : 'd'}
                       </option>
                     ))}
                   </select>
@@ -424,27 +448,27 @@ export default function RotationPlanner({ selectedField }) {
                 {currentCrop && (
                   <div className="bg-[#03130b] p-3.5 rounded-lg border border-emerald-900/60 space-y-1.5 text-xs text-emerald-200/80">
                     <div className="flex justify-between">
-                      <span>Family:</span>
-                      <strong className="text-white font-bold">{currentCrop.crop_family}</strong>
+                      <span>{isBn ? 'গোত্র:' : 'Family:'}</span>
+                      <strong className="text-white font-bold">{isBn ? translateCropFamily(currentCrop.crop_family, lang) : currentCrop.crop_family}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span>Duration:</span>
+                      <span>{isBn ? 'সময়কাল:' : 'Duration:'}</span>
                       <strong className={isDurationFeasible ? 'text-emerald-300 font-bold' : 'text-rose-400 font-bold'}>
-                        {currentCrop.growing_days} days {isDurationFeasible ? '✓' : '⚠ exceeds window'}
+                        {currentCrop.growing_days} {isBn ? 'দিন' : 'days'} {isDurationFeasible ? '✓' : (isBn ? '⚠ সময়সীমা অতিক্রম করেছে' : '⚠ exceeds window')}
                       </strong>
                     </div>
                     <div className="flex justify-between">
-                      <span>Season Fit:</span>
+                      <span>{isBn ? 'মৌসুমি উপযোগিতা:' : 'Season Fit:'}</span>
                       <strong className={isSeasonSuitable ? 'text-emerald-300 font-bold' : 'text-amber-400 font-bold'}>
-                        {isSeasonSuitable ? `✓ Suitable for ${season}` : `⚠ Unsuitable (${Array.isArray(currentCrop.suitable_seasons) ? currentCrop.suitable_seasons.join(', ') : currentCrop.suitable_seasons})`}
+                        {isSeasonSuitable ? (isBn ? `✓ ${seasonBnName} মৌসুমের উপযোগী` : `✓ Suitable for ${season}`) : (isBn ? '⚠ অনুপযোগী' : `⚠ Unsuitable (${Array.isArray(currentCrop.suitable_seasons) ? currentCrop.suitable_seasons.join(', ') : currentCrop.suitable_seasons})`)}
                       </strong>
                     </div>
                     <div className="flex justify-between">
-                      <span>Water Demand:</span>
+                      <span>{isBn ? 'পানির চাহিদা:' : 'Water Demand:'}</span>
                       <strong className="text-cyan-300 font-bold">{currentCrop.water_demand} / 100</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span>Heat Tolerance:</span>
+                      <span>{isBn ? 'তাপ সহনশীলতা:' : 'Heat Tolerance:'}</span>
                       <strong className="text-amber-300 font-bold">{currentCrop.heat_tolerance} / 100</strong>
                     </div>
                   </div>
@@ -462,14 +486,14 @@ export default function RotationPlanner({ selectedField }) {
                 onClick={handleAddSeason}
                 className="text-xs sm:text-sm font-bold text-emerald-300 hover:text-emerald-100 flex items-center gap-1.5 transition-colors cursor-pointer py-1"
               >
-                <span>+</span> Add Third Season (Kharif-2 T. Aman Rice)
+                <span>+</span> {isBn ? 'তৃতীয় মৌসুম যোগ করুন (খরিপ-২ রোপা আমন)' : 'Add Third Season (Kharif-2 T. Aman Rice)'}
               </button>
             ) : (
               <button
                 onClick={handleRemoveSeason}
                 className="text-xs sm:text-sm font-bold text-rose-300/80 hover:text-rose-200 flex items-center gap-1.5 transition-colors cursor-pointer py-1"
               >
-                <span>✕</span> Revert to 2-Season Rotation (Rabi → Kharif-1)
+                <span>✕</span> {isBn ? '২-মৌসুমি শস্যবিন্যাসে ফিরে যান (রবি → খরিপ-১)' : 'Revert to 2-Season Rotation (Rabi → Kharif-1)'}
               </button>
             )}
           </div>
@@ -477,7 +501,7 @@ export default function RotationPlanner({ selectedField }) {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             {evaluationResult && (
               <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-[#04140d] border border-emerald-700/60 text-xs sm:text-sm">
-                <span className="text-emerald-400 font-bold">Evaluated:</span>
+                <span className="text-emerald-400 font-bold">{isBn ? 'মূল্যায়িত স্কোর:' : 'Evaluated:'}</span>
                 <span className="font-mono text-sm sm:text-base font-black text-white">
                   {Math.round(evaluationResult.overall_score * 10) / 10} / 100
                 </span>
@@ -486,7 +510,9 @@ export default function RotationPlanner({ selectedField }) {
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-600/50'
                     : 'bg-rose-500/20 text-rose-300 border border-rose-600/50'
                 }`}>
-                  {evaluationResult.feasibility_status === 'Seasonally feasible' ? '✓ Feasible' : '⚠ Feasibility Notice'}
+                  {evaluationResult.feasibility_status === 'Seasonally feasible'
+                    ? (isBn ? '✓ মৌসুমি উপযোগী' : '✓ Feasible')
+                    : (isBn ? '⚠ মৌসুমি অনুপযোগী' : '⚠ Feasibility Notice')}
                 </span>
               </div>
             )}
@@ -499,11 +525,11 @@ export default function RotationPlanner({ selectedField }) {
               {isEvaluating ? (
                 <>
                   <span className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-[#04140d] border-t-transparent rounded-full animate-spin"></span>
-                  Evaluating NASA Multipliers...
+                  {isBn ? 'নাসা গুণক সহ মূল্যায়ন হচ্ছে...' : 'Evaluating NASA Multipliers...'}
                 </>
               ) : (
                 <>
-                  <span>⚡</span> Evaluate Candidate Rotation
+                  <span>⚡</span> {isBn ? 'প্রস্তাবিত শস্যবিন্যাস মূল্যায়ন করুন' : 'Evaluate Candidate Rotation'}
                 </>
               )}
             </button>
@@ -513,13 +539,13 @@ export default function RotationPlanner({ selectedField }) {
         {evalError && (
           <div className="mt-4 bg-rose-950/70 border border-rose-800 p-4 rounded-xl text-sm text-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <strong>Evaluation Notice:</strong> {evalError}
+              <strong>{isBn ? 'মূল্যায়ন বার্তা:' : 'Evaluation Notice:'}</strong> {evalError}
             </div>
             <button
               onClick={() => handleEvaluate(true)}
               className="px-4 py-1.5 rounded-lg bg-rose-800/80 hover:bg-rose-700 text-white font-bold text-xs transition-all w-fit cursor-pointer"
             >
-              🔄 Retry Evaluation
+              🔄 {isBn ? 'পুনরায় মূল্যায়ন করুন' : 'Retry Evaluation'}
             </button>
           </div>
         )}
@@ -530,10 +556,10 @@ export default function RotationPlanner({ selectedField }) {
         <div id="candidate-results" className="space-y-3 scroll-mt-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2 font-heading">
-              <span>📊</span> Candidate Evaluation Results
+              <span>📊</span> {isBn ? 'প্রস্তাবিত শস্যবিন্যাসের মূল্যায়ন ফলাফল' : 'Candidate Evaluation Results'}
             </h3>
             <span className="text-xs sm:text-sm text-emerald-400 font-mono">
-              Evaluated with live NASA climate weights
+              {isBn ? 'সরাসরি নাসা জলবায়ু গুণক দ্বারা মূল্যায়িত' : 'Evaluated with live NASA climate weights'}
             </span>
           </div>
 
@@ -541,6 +567,7 @@ export default function RotationPlanner({ selectedField }) {
             rotation={evaluationResult}
             rank={1}
             isTopCandidate={true}
+            lang={lang}
           />
         </div>
       )}
@@ -553,6 +580,7 @@ export default function RotationPlanner({ selectedField }) {
         heatStress={rawHeatStress}
         fieldName={selectedField?.name}
         irrigationAvailable={selectedField?.irrigation_available}
+        lang={lang}
       />
     </div>
   );

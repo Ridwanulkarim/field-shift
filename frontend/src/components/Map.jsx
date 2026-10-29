@@ -2,13 +2,20 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getConditionBadge } from '../utils/formatting';
+import {
+  translateCrop,
+  translateCropFamily,
+  translateFieldName,
+  translateCondition
+} from '../utils/i18n';
 
 /**
  * Leaflet & GeoJSON Agro-Ecological Map Component (Spec Section 46, 51)
  * Renders real Leaflet instance with satellite imagery, street map,
  * field marker pins, and boundary_geojson polygon highlighting.
  */
-export default function Map({ fields = [], selectedFieldId, onSelectField }) {
+export default function Map({ fields = [], selectedFieldId, onSelectField, lang = 'en' }) {
+  const isBn = lang === 'bn';
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const geojsonLayerRef = useRef(null);
@@ -106,12 +113,18 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         });
 
         const district = f.name.includes('(') ? f.name.split('(')[1].replace(')', '') : f.name;
+        const fieldLabel = isBn ? `মাঠ #${f.id}: ${translateFieldName(f.name, lang)}` : `Field #${f.id}: ${district}`;
+        const cropLabel = isBn ? `ফসল: ${translateCrop(f.current_crop, lang)} (${translateCropFamily(f.current_crop_family, lang)})` : `Crop: ${f.current_crop} (${f.current_crop_family})`;
+        const condLabel = isBn
+          ? `অবস্থা: ${f.condition_score?.score || 'N/A'}/100 • ${translateCondition(f.condition_score?.label, lang)}`
+          : `Condition: ${f.condition_score?.score || 'N/A'}/100 • ${f.condition_score?.label || ''}`;
+
         marker.bindTooltip(`
           <div style="font-family: sans-serif; font-size: 11px; padding: 4px; min-width: 140px;">
-            <div style="font-weight: 800; color: #0f172a; margin-bottom: 2px;">Field #${f.id}: ${district}</div>
+            <div style="font-weight: 800; color: #0f172a; margin-bottom: 2px;">${fieldLabel}</div>
             <div style="font-size: 10px; color: #475569; font-family: monospace;">${f.latitude.toFixed(4)}°N, ${f.longitude.toFixed(4)}°E</div>
-            <div style="font-size: 10px; font-weight: 700; color: #0284c7; margin-top: 2px;">Crop: ${f.current_crop} (${f.current_crop_family})</div>
-            <div style="font-size: 10px; font-weight: 700; color: #166534; margin-top: 1px;">Condition: ${f.condition_score?.score || 'N/A'}/100 • ${f.condition_score?.label || ''}</div>
+            <div style="font-size: 10px; font-weight: 700; color: #0284c7; margin-top: 2px;">${cropLabel}</div>
+            <div style="font-size: 10px; font-weight: 700; color: #166534; margin-top: 1px;">${condLabel}</div>
           </div>
         `, { direction: 'top', offset: [0, -10] });
 
@@ -187,12 +200,12 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
         <div>
           <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white flex items-center gap-2 tracking-tight font-heading">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
-            Bangladesh Geographic & Agro-Ecological Map
+            {isBn ? 'বাংলাদেশের ভৌগোলিক ও কৃষি-পরিবেশ মানচিত্র' : 'Bangladesh Geographic & Agro-Ecological Map'}
           </h3>
           <p className="text-xs sm:text-sm text-emerald-300/80 mt-1">
             {mapMode === 'leaflet'
-              ? 'Real-Time Leaflet Map (Satellite & OpenStreetMap) with Field GeoJSON'
-              : 'Bangladesh Agro-Ecological Zones (AEZ) Vector Map'}
+              ? (isBn ? 'রিয়েল-টাইম লিফলেট উপগ্রহ ও ওপেন-স্ট্রিট মানচিত্র (মাঠ GeoJSON সহ)' : 'Real-Time Leaflet Map (Satellite & OpenStreetMap) with Field GeoJSON')
+              : (isBn ? 'বাংলাদেশ কৃষি-পরিবেশ অঞ্চল (AEZ) ভেক্টর মানচিত্র' : 'Bangladesh Agro-Ecological Zones (AEZ) Vector Map')}
           </p>
         </div>
 
@@ -202,9 +215,9 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
             <button
               onClick={handleFitAll}
               className="px-3 py-1.5 rounded-xl bg-[#04140d] border border-emerald-700/60 text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-500 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-              title="Fit all 5 demo fields across Bangladesh"
+              title={isBn ? 'বাংলাদেশের ৫টি প্রদর্শনী মাঠ একসাথে দেখুন' : 'Fit all 5 demo fields across Bangladesh'}
             >
-              <span>🔍</span> Fit All
+              <span>🔍</span> {isBn ? 'সবগুলো দেখুন' : 'Fit All'}
             </button>
           )}
 
@@ -215,7 +228,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
                 mapMode === 'leaflet' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
-              Leaflet Map
+              {isBn ? 'লিফলেট ম্যাপ' : 'Leaflet Map'}
             </button>
             <button
               onClick={() => setMapMode('vector')}
@@ -223,7 +236,7 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
                 mapMode === 'vector' ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 shadow-sm' : 'text-emerald-300/70 hover:text-white'
               }`}
             >
-              AEZ Vector
+              {isBn ? 'AEZ ভেক্টর' : 'AEZ Vector'}
             </button>
           </div>
         </div>
@@ -275,7 +288,9 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
                   <circle cx={x} cy={y} r={isSelected ? "11" : "8"} fill={badge.color} stroke="#04140d" strokeWidth="2" filter={isSelected ? "url(#glow)" : undefined} />
                   <circle cx={x} cy={y} r={isSelected ? "4" : "3"} fill="#ffffff" />
                   <text x={x + 14} y={y + 4} fill={isSelected ? '#34d399' : '#e2e8f0'} fontSize={isSelected ? "13" : "12"} fontWeight={isSelected ? "800" : "600"}>
-                    {f.name.split('(')[1]?.replace(')', '') || f.name.split(' ')[0]}
+                    {isBn
+                      ? (translateFieldName(f.name, lang).split('(')[1]?.replace(')', '') || translateFieldName(f.name, lang).split(' ')[0])
+                      : (f.name.split('(')[1]?.replace(')', '') || f.name.split(' ')[0])}
                   </text>
                 </g>
               );
@@ -285,11 +300,13 @@ export default function Map({ fields = [], selectedFieldId, onSelectField }) {
 
         {/* Floating Controls & Legend */}
         <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-[#051d12]/92 backdrop-blur-md p-2 sm:p-2.5 rounded-xl border border-emerald-800/60 flex items-center justify-between gap-1 text-xs font-bold text-emerald-200 z-10 pointer-events-auto shadow-lg overflow-x-auto">
-          <span className="font-bold text-white hidden sm:inline">Condition:</span>
-          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Healthy</span>
-          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Watch</span>
-          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-orange-400"></span> Moderate</span>
-          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span> High</span>
+          <span className="font-bold text-white hidden sm:inline">
+            {isBn ? 'মাঠের অবস্থা:' : 'Condition:'}
+          </span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> {isBn ? 'অনুকূল' : 'Healthy'}</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span> {isBn ? 'নজরদারি' : 'Watch'}</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-orange-400"></span> {isBn ? 'মাঝারি' : 'Moderate'}</span>
+          <span className="flex items-center gap-1.5 shrink-0"><span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span> {isBn ? 'উচ্চ চাপ' : 'High'}</span>
         </div>
       </div>
     </div>

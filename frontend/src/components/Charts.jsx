@@ -4,7 +4,8 @@ import React, { useState } from 'react';
  * Charts Component (Spec Section 46, 52, 54)
  * Visualizes 61-day NASA observation anomalies and stress metrics with prominent Spec Section 52 Source Attributions.
  */
-export default function Charts({ fieldId, nasaMetadata }) {
+export default function Charts({ fieldId, nasaMetadata, lang = 'en' }) {
+  const isBn = lang === 'bn';
   const [activeTab, setActiveTab] = useState('water'); // 'water' | 'heat' | 'vegetation'
 
   return (
@@ -12,10 +13,10 @@ export default function Charts({ fieldId, nasaMetadata }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 pb-3 border-b border-emerald-800/40">
         <div>
           <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-            Time-Series Dynamics (Dec 30, 2023 – Feb 28, 2024)
+            {isBn ? 'সময়কাল গতিপ্রকৃতি (৩০ ডিসেম্বর ২০২৩ - ২৮ ফেব্রুয়ারি ২০২৪)' : 'Time-Series Dynamics (Dec 30, 2023 – Feb 28, 2024)'}
           </span>
           <h3 className="text-xl sm:text-2xl md:text-2xl font-black text-white tracking-tight font-heading">
-            61-Day Environmental Stress Trends
+            {isBn ? '৬১-দিনের পরিবেশগত চাপের ধারাবাহিক চিত্র' : '61-Day Environmental Stress Trends'}
           </h3>
         </div>
 
@@ -29,7 +30,7 @@ export default function Charts({ fieldId, nasaMetadata }) {
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            💧 Water<span className="hidden sm:inline"> Stress</span>
+            💧 {isBn ? 'পানির চাপ' : 'Water Stress'}
           </button>
           <button
             onClick={() => setActiveTab('heat')}
@@ -39,7 +40,7 @@ export default function Charts({ fieldId, nasaMetadata }) {
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            🔥 Heat<span className="hidden sm:inline"> & LST</span>
+            🔥 {isBn ? 'তাপীয় চাপ' : 'Heat & LST'}
           </button>
           <button
             onClick={() => setActiveTab('vegetation')}
@@ -49,7 +50,7 @@ export default function Charts({ fieldId, nasaMetadata }) {
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            🌱 Veg<span className="hidden sm:inline">etation EVI</span>
+            🌱 {isBn ? 'উদ্ভিজ্জ EVI' : 'Vegetation EVI'}
           </button>
         </div>
       </div>
@@ -61,17 +62,21 @@ export default function Charts({ fieldId, nasaMetadata }) {
         {activeTab === 'water' && (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs mb-3">
-              <span className="font-bold text-cyan-300">SMAP Volumetric Soil Moisture & IMERG 30d Rolling Rainfall</span>
+              <span className="font-bold text-cyan-300">
+                {isBn ? 'SMAP মাটির আর্দ্রতা এবং IMERG ৩০-দিনের ক্রমপুঞ্জিত বৃষ্টিপাত' : 'SMAP Volumetric Soil Moisture & IMERG 30d Rolling Rainfall'}
+              </span>
               {/* Mandatory Spec Section 52 NASA Source Attribution */}
               <span className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-full bg-cyan-950/80 border border-cyan-800 text-cyan-200 break-words self-start sm:self-auto leading-tight">
-                Source: {nasaMetadata?.smap_product || 'SPL3SMP_E'}.{nasaMetadata?.smap_version || '006'} (9km) & {nasaMetadata?.gpm_product || 'GPM_3IMERGDF'}.{nasaMetadata?.gpm_version || '07'} {nasaMetadata?.gpm_latency_class || 'Final'} (~10km)
+                {isBn ? 'উৎস: ' : 'Source: '}{nasaMetadata?.smap_product || 'SPL3SMP_E'}.{nasaMetadata?.smap_version || '006'} (9km) & {nasaMetadata?.gpm_product || 'GPM_3IMERGDF'}.{nasaMetadata?.gpm_version || '07'} {nasaMetadata?.gpm_latency_class || 'Final'} (~10km)
               </span>
             </div>
 
             <svg viewBox="0 0 600 160" className="w-full h-full">
               {/* Baseline Reference Line */}
               <line x1="40" y1="80" x2="580" y2="80" stroke="#0f3d27" strokeDasharray="4 4" strokeWidth="1.5" />
-              <text x="45" y="74" fill="#6ee7b7" fontSize="10" opacity="0.8">Historical Baseline Mean (z = 0)</text>
+              <text x="45" y="74" fill="#6ee7b7" fontSize="10" opacity="0.8">
+                {isBn ? 'ঐতিহাসিক বেসলাইন গড় (z = ০)' : 'Historical Baseline Mean (z = 0)'}
+              </text>
 
               {/* Stress Fill Area */}
               <path
@@ -100,10 +105,12 @@ export default function Charts({ fieldId, nasaMetadata }) {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-200/70 pt-2 border-t border-emerald-900/60 gap-1.5 sm:gap-2">
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
-                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-cyan-400"></span> GPM 30d Rainfall Sum</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-cyan-600 border-b border-dashed"></span> SMAP 0-5cm Moisture</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-cyan-400"></span> {isBn ? 'GPM ৩০ দিনের বৃষ্টিপাত যোগফল' : 'GPM 30d Rainfall Sum'}</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-cyan-600 border-b border-dashed"></span> {isBn ? 'SMAP ০-৫ সেমি মাটির আর্দ্রতা' : 'SMAP 0-5cm Moisture'}</span>
               </div>
-              <span className="text-emerald-100 font-medium italic">61 Daily Observations (Dec 30, 2023 – Feb 28, 2024)</span>
+              <span className="text-emerald-100 font-medium italic">
+                {isBn ? '৬১টি দৈনিক পর্যবেক্ষণ (৩০ ডিসে ২০২৩ – ২৮ ফেব্রু ২০২৪)' : '61 Daily Observations (Dec 30, 2023 – Feb 28, 2024)'}
+              </span>
             </div>
           </>
         )}
@@ -112,21 +119,27 @@ export default function Charts({ fieldId, nasaMetadata }) {
         {activeTab === 'heat' && (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs mb-3">
-              <span className="font-bold text-amber-300">MODIS Daytime & Nighttime LST (°C) + Hot-Day Frequency</span>
+              <span className="font-bold text-amber-300">
+                {isBn ? 'MODIS দিন ও রাতের ভূপৃষ্ঠ তাপমাত্রা (°C) + উষ্ণ দিনের পুনরাবৃত্তি' : 'MODIS Daytime & Nighttime LST (°C) + Hot-Day Frequency'}
+              </span>
               {/* Mandatory Spec Section 52 NASA Source Attribution */}
               <span className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-full bg-amber-950/80 border border-amber-800 text-amber-200 break-words self-start sm:self-auto leading-tight">
-                Source: MODIS Terra MOD11A1 & Aqua MYD11A1 v{nasaMetadata?.modis_version || '061'} (1km Thermal)
+                {isBn ? 'উৎস: ' : 'Source: '}MODIS Terra MOD11A1 & Aqua MYD11A1 v{nasaMetadata?.modis_version || '061'} (1km Thermal)
               </span>
             </div>
 
             <svg viewBox="0 0 600 160" className="w-full h-full">
               {/* Hot-day threshold line at z >= 1.0 */}
               <line x1="40" y1="45" x2="580" y2="45" stroke="#f43f5e" strokeDasharray="3 3" strokeWidth="1.5" />
-              <text x="45" y="40" fill="#f43f5e" fontSize="10" fontWeight="bold">Hot Day Threshold (z ≥ 1.0 σ)</text>
+              <text x="45" y="40" fill="#f43f5e" fontSize="10" fontWeight="bold">
+                {isBn ? 'উষ্ণ দিনের ঝুঁকি সীমা (z ≥ ১.০ σ)' : 'Hot Day Threshold (z ≥ 1.0 σ)'}
+              </text>
 
               {/* Baseline Reference Line */}
               <line x1="40" y1="95" x2="580" y2="95" stroke="#0f3d27" strokeDasharray="4 4" strokeWidth="1.5" />
-              <text x="45" y="90" fill="#6ee7b7" fontSize="10" opacity="0.8">Baseline Mean</text>
+              <text x="45" y="90" fill="#6ee7b7" fontSize="10" opacity="0.8">
+                {isBn ? 'বেসলাইন গড়' : 'Baseline Mean'}
+              </text>
 
               {/* Daytime LST Temperature curve */}
               <path
@@ -149,11 +162,13 @@ export default function Charts({ fieldId, nasaMetadata }) {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-200/70 pt-2 border-t border-emerald-900/60 gap-1.5 sm:gap-2">
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
-                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-400"></span> Daytime LST (Terra)</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-300 border-b border-dashed"></span> Nighttime LST (Aqua)</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-rose-500"></span> Threshold z ≥ 1.0</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-400"></span> {isBn ? 'দিনের LST তাপমাত্রা (Terra)' : 'Daytime LST (Terra)'}</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-300 border-b border-dashed"></span> {isBn ? 'রাতের LST তাপমাত্রা (Aqua)' : 'Nighttime LST (Aqua)'}</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-rose-500"></span> {isBn ? 'সীমা z ≥ ১.০' : 'Threshold z ≥ 1.0'}</span>
               </div>
-              <span className="text-emerald-100 font-medium italic">Hot-day counts feed heat multiplier</span>
+              <span className="text-emerald-100 font-medium italic">
+                {isBn ? 'উষ্ণ দিনের সংখ্যা তাপ গুণকে প্রভাব ফেলে' : 'Hot-day counts feed heat multiplier'}
+              </span>
             </div>
           </>
         )}
@@ -162,17 +177,21 @@ export default function Charts({ fieldId, nasaMetadata }) {
         {activeTab === 'vegetation' && (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs mb-3">
-              <span className="font-bold text-emerald-300">Harmonized Landsat-Sentinel (HLS) 30m EVI Canopy Anomaly</span>
+              <span className="font-bold text-emerald-300">
+                {isBn ? 'হারমোনাইজড ল্যান্ডস্যাট-সেন্টিনেল (HLS) ৩০ মি. EVI ক্যানোপি বিচ্যুতি' : 'Harmonized Landsat-Sentinel (HLS) 30m EVI Canopy Anomaly'}
+              </span>
               {/* Mandatory Spec Section 52 NASA Source Attribution */}
               <span className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-full bg-emerald-950/80 border border-emerald-800 text-emerald-200 break-words self-start sm:self-auto leading-tight">
-                Source: HLS HLSL30_VI & HLSS30_VI v{nasaMetadata?.hls_version || '2.0'} (30m Optical/NIR/SWIR)
+                {isBn ? 'উৎস: ' : 'Source: '}HLS HLSL30_VI & HLSS30_VI v{nasaMetadata?.hls_version || '2.0'} (30m Optical/NIR/SWIR)
               </span>
             </div>
 
             <svg viewBox="0 0 600 160" className="w-full h-full">
               {/* Baseline Reference Line */}
               <line x1="40" y1="75" x2="580" y2="75" stroke="#0f3d27" strokeDasharray="4 4" strokeWidth="1.5" />
-              <text x="45" y="70" fill="#6ee7b7" fontSize="10" opacity="0.8">Historical Crop-Matched Mean (EVI Baseline)</text>
+              <text x="45" y="70" fill="#6ee7b7" fontSize="10" opacity="0.8">
+                {isBn ? 'ফসল-সামঞ্জস্যপূর্ণ ঐতিহাসিক গড় (EVI বেসলাইন)' : 'Historical Crop-Matched Mean (EVI Baseline)'}
+              </text>
 
               {/* EVI Observation Points & Line */}
               <path
@@ -195,9 +214,11 @@ export default function Charts({ fieldId, nasaMetadata }) {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-200/70 pt-2 border-t border-emerald-900/60 gap-1.5 sm:gap-2">
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Valid HLS Optical Observations</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> {isBn ? 'কার্যকর HLS অপটিক্যাল উপগ্রহ পর্যবেক্ষণ' : 'Valid HLS Optical Observations'}</span>
               </div>
-              <span className="text-emerald-100 font-medium italic">10–12 Cloud-free scenes across 30d window</span>
+              <span className="text-emerald-100 font-medium italic">
+                {isBn ? '৩০ দিনের জানালায় ১০-১২টি মেঘমুক্ত দৃশ্য' : '10–12 Cloud-free scenes across 30d window'}
+              </span>
             </div>
           </>
         )}

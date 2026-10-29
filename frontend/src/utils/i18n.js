@@ -206,3 +206,146 @@ export const MANDATORY_DISCLOSURES = [
 export function t(key, lang = 'en') {
   return translations[lang]?.[key] || translations['en']?.[key] || key;
 }
+
+export function translateCrop(name, lang = 'en') {
+  if (!name || lang !== 'bn') return name;
+  const n = String(name).toLowerCase();
+  if (n.includes('chickpea') || n.includes('chola')) return 'ছোলা (Chickpea)';
+  if (n.includes('mung')) return 'মুগ ডাল (Mung Bean)';
+  if (n.includes('lentil') || n.includes('masur')) return 'মসুর ডাল (Lentil)';
+  if (n.includes('wheat') || n.includes('gom')) return 'গম (Wheat)';
+  if (n.includes('boro')) return 'বোরো ধান (Boro Rice)';
+  if (n.includes('aman')) return 'রোপা আমন ধান (T. Aman Rice)';
+  if (n.includes('aus')) return 'আউশ ধান (Aus Rice)';
+  if (n.includes('potato') || n.includes('alu')) return 'গোল আলু (Potato)';
+  if (n.includes('mustard') || n.includes('sarisha')) return 'সরিষা (Mustard)';
+  if (n.includes('maize') || n.includes('bhutta')) return 'ভুট্টা (Maize)';
+  if (n.includes('jute') || n.includes('pat')) return 'পাট (Jute)';
+  if (n.includes('fallow') || n.includes('bare')) return 'পতিত জমি (Fallow)';
+  return name;
+}
+
+export function translateSeason(season, lang = 'en') {
+  if (!season || lang !== 'bn') return season;
+  const s = String(season).toLowerCase();
+  if (s.includes('rabi')) return 'রবি (Rabi)';
+  if (s.includes('kharif-1') || s.includes('kharif 1')) return 'খরিপ-১ (Kharif-1)';
+  if (s.includes('kharif-2') || s.includes('kharif 2')) return 'খরিপ-২ (Kharif-2)';
+  return season;
+}
+
+export function translateCropFamily(family, lang = 'en') {
+  if (!family || lang !== 'bn') return family;
+  const f = String(family).toLowerCase();
+  if (f.includes('legume')) return 'ডাল জাতীয় (Legume)';
+  if (f.includes('cereal')) return 'দানাদার (Cereal)';
+  if (f.includes('oilseed')) return 'তৈলবীজ (Oilseed)';
+  if (f.includes('tuber')) return 'কন্দাল (Tuber)';
+  if (f.includes('fiber')) return 'আঁশ জাতীয় (Fiber)';
+  if (f.includes('bare') || f.includes('fallow')) return 'পতিত জমি (Bare)';
+  return family;
+}
+
+export function translateSoilType(soilType, lang = 'en') {
+  if (!soilType || lang !== 'bn') return soilType;
+  const st = String(soilType).toLowerCase();
+  if (st.includes('barind') || (st.includes('silty clay loam') && st.includes('red'))) {
+    return 'পলি এঁটেল দোআঁশ (বরেন্দ্র লাল মাটি)';
+  }
+  if (st.includes('piedmont') || st.includes('sandy loam')) {
+    return 'বেলে দোআঁশ (হিমালয় পাদদেশীয় পলি)';
+  }
+  if (st.includes('peat') || (st.includes('clay') && st.includes('gopalganj'))) {
+    return 'এঁটেল মাটি (গোপালগঞ্জ পিট অববাহিকা)';
+  }
+  if (st.includes('ganges') || st.includes('silt loam')) {
+    return 'পলি দোআঁশ (উঁচু গঙ্গা প্লাবনভূমি)';
+  }
+  if (st.includes('coastal') || st.includes('saline') || st.includes('silty clay')) {
+    return 'পলি এঁটেল (উপকূলীয় লবণাক্ত অঞ্চল)';
+  }
+  return soilType;
+}
+
+export function translateFieldName(name, lang = 'en') {
+  if (!name || lang !== 'bn') return name;
+  const nm = String(name).toLowerCase();
+  if (nm.includes('godagari') || nm.includes('barind') || nm.includes('rajshahi')) {
+    return 'গোদাগাড়ী বরেন্দ্র অঞ্চল (রাজশাহী)';
+  }
+  if (nm.includes('birol') || nm.includes('dinajpur') || nm.includes('piedmont')) {
+    return 'বিরল পাদদেশীয় পলি সমভূমি (দিনাজপুর)';
+  }
+  if (nm.includes('kotalipara') || nm.includes('gopalganj') || nm.includes('lowland')) {
+    return 'কোটালীপাড়া নিম্ন অববাহিকা (গোপালগঞ্জ)';
+  }
+  if (nm.includes('ishwardi') || nm.includes('pabna') || nm.includes('floodplain')) {
+    return 'ঈশ্বরদী উচ্চ প্লাবনভূমি (পাবনা)';
+  }
+  if (nm.includes('kalapara') || nm.includes('patuakhali') || nm.includes('saline')) {
+    return 'কলাপাড়া উপকূলীয় লবণাক্ত অঞ্চল (পটুয়াখালী)';
+  }
+  return name;
+}
+
+export function translateDrainage(drainage, lang = 'en') {
+  if (!drainage || lang !== 'bn') return drainage;
+  const d = String(drainage).toLowerCase();
+  if (d.includes('good') || d.includes('well')) return 'উত্তম নিষ্কাশন (Good)';
+  if (d.includes('moderate')) return 'মাঝারি নিষ্কাশন (Moderate)';
+  if (d.includes('poor')) return 'দুর্বল নিষ্কাশন (Poor)';
+  return drainage;
+}
+
+export function translateCondition(label, lang = 'en') {
+  if (!label || lang !== 'bn') return label;
+  const l = String(label).toLowerCase();
+  if (l.includes('healthy') || l.includes('optimal')) return 'অনুকূল ও তুলনামূলক স্বাস্থ্যকর অবস্থা';
+  if (l.includes('watch')) return 'সতর্ক পর্যবেক্ষণ প্রয়োজন';
+  if (l.includes('moderate')) return 'মাঝারি পরিবেশগত চাপ';
+  if (l.includes('high') || l.includes('severe')) return 'উচ্চ পরিবেশগত চাপ';
+  return label;
+}
+
+export function translateDateRange(start, end, lang = 'en') {
+  if (lang !== 'bn') return `${start} to ${end}`;
+  // convert English digits to Bengali digits
+  const toBnDigits = (str) => String(str).replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+  return `${toBnDigits(start)} থেকে ${toBnDigits(end)}`;
+}
+
+export function translateRotationLabel(label, lang = 'en') {
+  if (!label || lang !== 'bn') return label;
+  const l = String(label).toLowerCase();
+  if (l.includes('barind pulse') || (l.includes('chickpea') && l.includes('mung'))) {
+    if (l.includes('strategy 2') || l.includes('কৌশল ২')) {
+      return 'কৌশল ২: পানি-সহনশীল শস্যবিন্যাস (বরেন্দ্র ডাল: ছোলা → মুগ ডাল)';
+    }
+    return 'বরেন্দ্র ডাল শস্যবিন্যাস (ছোলা → মুগ ডাল)';
+  }
+  if (l.includes('alluvial triple') || (l.includes('wheat') && l.includes('mung') && l.includes('aman'))) {
+    return 'পলিমাটি ৩-ফসল শস্যবিন্যাস (গম → মুগ ডাল → রোপা আমন ধান)';
+  }
+  if (l.includes('diversified') || (l.includes('wheat') && l.includes('mung'))) {
+    if (l.includes('strategy 3') || l.includes('কৌশল ৩')) {
+      return 'কৌশল ৩: বহুমুখী শস্য-ডাল বিন্যাস (গম → মুগ ডাল)';
+    }
+    return 'বহুমুখী শস্য-ডাল বিন্যাস (গম → মুগ ডাল)';
+  }
+  if (l.includes('lowland basin') || (l.includes('boro') && l.includes('aman'))) {
+    return 'নিচু অববাহিকা ধান বিন্যাস (বোরো ধান → রোপা আমন ধান)';
+  }
+  if (l.includes('oilseed') || (l.includes('mustard') && l.includes('mung'))) {
+    return 'উচ্চ প্লাবনভূমি তৈলবীজ-ডাল বিন্যাস (সরিষা → মুগ ডাল)';
+  }
+  if (l.includes('saline') || (l.includes('lentil') && l.includes('mung'))) {
+    return 'উপকূলীয় লবণ-সহনশীল ডাল বিন্যাস (মসুর ডাল → মুগ ডাল)';
+  }
+  if (l.includes('intensive boro') || l.includes('boro rice → fallow') || l.includes('boro rice → aus')) {
+    return 'কৌশল ১: প্রচলিত বেঞ্চমার্ক (নিবিড় বোরো ধান → পতিত/আউশ)';
+  }
+  if (l.includes('candidate rotation')) {
+    return label.replace(/Candidate Rotation/gi, 'বিকল্প শস্যবিন্যাস');
+  }
+  return label;
+}
