@@ -176,4 +176,4 @@ class HistoricalDataService {
   }
 }
 
-module.exports = new HistoricalDataService();
+export default new HistoricalDataService();

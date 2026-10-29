@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Soil Engine Test Suite (Phase 8)
  * Strictly verifies Spec Sections 32–35:
@@ -7,15 +8,15 @@
  * - Final Soil Score clamping and penalty subtraction
  * - Candidate rotation evaluation across demo fields
  */
-const assert = require('assert');
-const soilEngine = require('./soilEngine');
-const CropsModel = require('../../models/cropsModel');
-const FieldsModel = require('../../models/fieldsModel');
-const { runMigration } = require('../../db/migrate');
-const { seedReferenceData } = require('../../db/seed_reference');
-const { seedCropsData } = require('../../db/seed_crops');
-const { seedDemoFieldsData } = require('../../db/seed_demo_fields');
-const db = require('../../db');
+import assert from 'assert';
+import soilEngine from './soilEngine.js';
+import CropsModel from '../../models/cropsModel.js';
+import FieldsModel from '../../models/fieldsModel.js';
+import { runMigration } from '../../db/migrate.js';
+import { seedReferenceData } from '../../db/seed_reference.js';
+import { seedCropsData } from '../../db/seed_crops.js';
+import { seedDemoFieldsData } from '../../db/seed_demo_fields.js';
+import db from '../../db/index.js';
 
 async function runSoilTests() {
   console.log('================================================================');
@@ -162,7 +163,7 @@ async function runSoilTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runSoilTests()
     .then(() => process.exit(0))
     .catch(err => {

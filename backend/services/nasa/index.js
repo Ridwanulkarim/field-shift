@@ -3,11 +3,11 @@
  * Coordinates server-side Earthdata authentication and structured subset queries
  * for HLS-VI, SMAP, MODIS LST, and GPM IMERG.
  */
-const config = require('../../config');
-const auth = require('./earthdataAuth');
-const cmr = require('./cmrClient');
-const appeears = require('./appeearsClient');
-const gpm = require('./gpmClient');
+import config from '../../config/index.js';
+import auth from './earthdataAuth.js';
+import cmr from './cmrClient.js';
+import appeears from './appeearsClient.js';
+import gpm from './gpmClient.js';
 
 class NasaAccessService {
   constructor() {
@@ -193,4 +193,4 @@ class NasaAccessService {
   }
 }
 
-module.exports = new NasaAccessService();
+export default new NasaAccessService();

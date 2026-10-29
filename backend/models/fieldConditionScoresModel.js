@@ -2,7 +2,7 @@
  * Field Shift - Field Condition Scores Model (Spec Section 43 & Section 23)
  * Stores unadjusted raw environmental condition scores.
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const FieldConditionScoresModel = {
   async create(data) {
@@ -60,4 +60,4 @@ const FieldConditionScoresModel = {
   }
 };
 
-module.exports = FieldConditionScoresModel;
+export default FieldConditionScoresModel;

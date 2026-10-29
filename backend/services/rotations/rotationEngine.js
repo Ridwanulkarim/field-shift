@@ -217,4 +217,4 @@ class RotationEngine {
   }
 }
 
-module.exports = new RotationEngine();
+export default new RotationEngine();

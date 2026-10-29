@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Baselines Verification Test Suite (Phase 6)
  * Validates:
@@ -8,19 +9,19 @@
  * - Sample quality dimensions (usable vs limited)
  * - Full database persistence and retrieval across all 5 demo fields
  */
-const assert = require('assert');
-const baselineEngine = require('./baselineEngine');
-const historicalDataService = require('./historicalDataService');
-const BaselinesModel = require('../../models/baselinesModel');
-const FieldsModel = require('../../models/fieldsModel');
-const FieldCropHistoryModel = require('../../models/fieldCropHistoryModel');
-const { seedBaselines } = require('../../db/seed_baselines');
-const { runMigration } = require('../../db/migrate');
-const { seedReferenceData } = require('../../db/seed_reference');
-const { seedCropsData } = require('../../db/seed_crops');
-const { seedDemoFieldsData } = require('../../db/seed_demo_fields');
-const { seedObservations } = require('../../db/seed_observations');
-const db = require('../../db');
+import assert from 'assert';
+import baselineEngine from './baselineEngine.js';
+import historicalDataService from './historicalDataService.js';
+import BaselinesModel from '../../models/baselinesModel.js';
+import FieldsModel from '../../models/fieldsModel.js';
+import FieldCropHistoryModel from '../../models/fieldCropHistoryModel.js';
+import { seedBaselines } from '../../db/seed_baselines.js';
+import { runMigration } from '../../db/migrate.js';
+import { seedReferenceData } from '../../db/seed_reference.js';
+import { seedCropsData } from '../../db/seed_crops.js';
+import { seedDemoFieldsData } from '../../db/seed_demo_fields.js';
+import { seedObservations } from '../../db/seed_observations.js';
+import db from '../../db/index.js';
 
 async function runBaselinesTests() {
   console.log('================================================================');
@@ -130,7 +131,7 @@ async function runBaselinesTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runBaselinesTests()
     .then(() => process.exit(0))
     .catch(err => {
@@ -139,4 +140,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { runBaselinesTests };
+export { runBaselinesTests };

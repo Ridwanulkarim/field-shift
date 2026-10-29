@@ -1,14 +1,20 @@
+import { runMigration } from './migrate.js';
+import { seedReferenceData } from './seed_reference.js';
+import { seedCropsData } from './seed_crops.js';
+import { seedDemoFieldsData } from './seed_demo_fields.js';
+import { seedObservations } from './seed_observations.js';
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Baselines Seed Script (Phase 6)
  * Computes and persists historical baselines across all 5 demo fields and variables.
  * Spec Section 10, 12, 13, 14, 43.
  */
-const db = require('./index');
-const FieldsModel = require('../models/fieldsModel');
-const FieldCropHistoryModel = require('../models/fieldCropHistoryModel');
-const BaselinesModel = require('../models/baselinesModel');
-const baselineEngine = require('../services/nasa/baselineEngine');
-const config = require('../config');
+import db from './index.js';
+import FieldsModel from '../models/fieldsModel.js';
+import FieldCropHistoryModel from '../models/fieldCropHistoryModel.js';
+import BaselinesModel from '../models/baselinesModel.js';
+import baselineEngine from '../services/nasa/baselineEngine.js';
+import config from '../config/index.js';
 
 async function seedBaselines() {
   console.log('[Seed Baselines] Computing and Seeding Historical Baselines for Demo Fields...');
@@ -35,12 +41,7 @@ async function seedBaselines() {
   return allBaselines;
 }
 
-if (require.main === module) {
-  const { runMigration } = require('./migrate');
-  const { seedReferenceData } = require('./seed_reference');
-  const { seedCropsData } = require('./seed_crops');
-  const { seedDemoFieldsData } = require('./seed_demo_fields');
-  const { seedObservations } = require('./seed_observations');
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   (async () => {
     await db.resetDb();
@@ -75,4 +76,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { seedBaselines };
+export { seedBaselines };

@@ -74,3 +74,20 @@ npm test
 - **Mohammad Ridwanul Karim** ([@Ridwanulkarim](https://github.com/Ridwanulkarim)) - Full Stack Developer & Researcher
 - **Mohammed Arman Alam** ([@Mohammed-Arman-Alam](https://github.com/Mohammed-Arman-Alam)) - Team Leader & Frontend Developer
 - **Md. Shahraj Mashrafe Mashfe** ([@SMash003](https://github.com/SMash003)) - UI/UX Designer
+
+## PostgreSQL + Prisma setup
+
+The backend now uses Prisma Client to manage PostgreSQL connections. A real PostgreSQL database is required; the former `pg-mem` fallback has been removed.
+
+1. Create a PostgreSQL database named `field_shift` (or choose another name).
+2. Copy `.env.example` to `.env` and set `DATABASE_URL`, for example:
+   `postgresql://postgres:your_password@localhost:5432/field_shift?schema=public`
+3. Install dependencies and generate Prisma Client:
+   ```bash
+   npm install
+   npm run db:generate
+   npm run db:validate
+   ```
+4. Start the backend as usual. The app's existing SQL schema initializer creates the PostgreSQL tables and loads demo data.
+
+`prisma/schema.prisma` documents the PostgreSQL data model. Existing domain modules still use a small compatibility wrapper around Prisma raw queries, so this migration preserves existing SQL behavior while making Prisma the connection/client layer. The next incremental step can migrate individual model modules to Prisma's typed CRUD API.

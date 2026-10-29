@@ -1,8 +1,10 @@
+import { runMigration } from './migrate.js';
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Seed Reference Tables (Seasons & Drainage Matrix)
  * Spec Section 28 (Bangladesh Seasons) and Section 33 (Drainage Penalties)
  */
-const db = require('./index');
+import db from './index.js';
 
 async function seedReferenceData() {
   console.log('[Seed] Seeding reference data...');
@@ -103,8 +105,7 @@ async function getSeededDrainagePenalties() {
   return res.rows;
 }
 
-if (require.main === module) {
-  const { runMigration } = require('./migrate');
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runMigration()
     .then(() => seedReferenceData())
     .then(async () => {
@@ -120,4 +121,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { seedReferenceData, getSeededDrainagePenalties };
+export { seedReferenceData, getSeededDrainagePenalties };

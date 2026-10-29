@@ -1,25 +1,26 @@
 /**
  * Field Shift - Express Application (Spec Section 45)
  */
-const express = require('express');
-const cors = require('cors');
-const db = require('./db');
+import express from 'express';
+import cors from 'cors';
+import db from './db/index.js';
+import fixtures from './db/fixtures.js';
 
 // Models & Seeders for auto-initialization
-const { runMigration } = require('./db/migrate');
-const { seedReferenceData } = require('./db/seed_reference');
-const { seedCropsData } = require('./db/seed_crops');
-const { seedDemoFieldsData } = require('./db/seed_demo_fields');
-const { seedObservations } = require('./db/seed_observations');
-const { seedBaselines } = require('./db/seed_baselines');
-const { seedFieldConditionScores } = require('./db/seed_field_condition');
+import { runMigration } from './db/migrate.js';
+import { seedReferenceData } from './db/seed_reference.js';
+import { seedCropsData } from './db/seed_crops.js';
+import { seedDemoFieldsData } from './db/seed_demo_fields.js';
+import { seedObservations } from './db/seed_observations.js';
+import { seedBaselines } from './db/seed_baselines.js';
+import { seedFieldConditionScores } from './db/seed_field_condition.js';
 
 // Routes
-const healthRoutes = require('./routes/health');
-const cropsRoutes = require('./routes/crops');
-const fieldsRoutes = require('./routes/fields');
-const rotationsRoutes = require('./routes/rotations');
-const advisoryRoutes = require('./routes/advisory');
+import healthRoutes from './routes/health.js';
+import cropsRoutes from './routes/crops.js';
+import fieldsRoutes from './routes/fields.js';
+import rotationsRoutes from './routes/rotations.js';
+import advisoryRoutes from './routes/advisory.js';
 
 const app = express();
 
@@ -74,13 +75,6 @@ async function initializeDatabase() {
     await runMigration();
 
     // Fast-path: load precomputed fixtures if available
-    let fixtures = null;
-    try {
-      fixtures = require('./db/fixtures');
-    } catch (e) {
-      fixtures = null;
-    }
-
     if (fixtures && fixtures.fields && fixtures.fields.length >= 5) {
       console.log('[App] Loading authoritative demo dataset from pre-compiled fixtures...');
       await loadFromFixtures(fixtures);
@@ -164,4 +158,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = { app, initializeDatabase };
+export { app, initializeDatabase };

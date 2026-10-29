@@ -2,7 +2,7 @@
  * Field Shift - Rotations Model
  * Manages database persistence and queries for the 'rotations' table (Spec Section 43).
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 class RotationsModel {
   static async create(data) {
@@ -94,4 +94,4 @@ class RotationsModel {
   }
 }
 
-module.exports = RotationsModel;
+export default RotationsModel;

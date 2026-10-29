@@ -2,13 +2,15 @@
  * Field Shift - Pre-computed Authoritative Demo Fixtures Loader
  * Ensures zero-cold-start overhead on Vercel Serverless Functions.
  */
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 let fixtures = null;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 try {
-  fixtures = require('./fixtures.json');
+  fixtures = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures.json'), 'utf8'));
 } catch (e) {
   const candidatePaths = [
     path.join(__dirname, 'fixtures.json'),
@@ -26,4 +28,4 @@ try {
   }
 }
 
-module.exports = fixtures;
+export default fixtures;

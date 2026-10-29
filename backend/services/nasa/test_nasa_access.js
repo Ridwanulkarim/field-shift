@@ -1,12 +1,13 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - NASA Access Verification Suite (Phase 4)
  * Validates server-side Earthdata authentication, subset query formatting,
  * and Spec Section 8 observation windows across all 5 Bangladesh demo fields.
  */
-const assert = require('assert');
-const nasaService = require('./index');
-const { DEMO_FIELDS } = require('../../db/seed_demo_fields');
-const config = require('../../config');
+import assert from 'assert';
+import nasaService from './index.js';
+import { DEMO_FIELDS } from '../../db/seed_demo_fields.js';
+import config from '../../config/index.js';
 
 async function runNasaAccessTests() {
   console.log('================================================================');
@@ -97,7 +98,7 @@ async function runNasaAccessTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runNasaAccessTests()
     .then(() => process.exit(0))
     .catch((err) => {
@@ -106,4 +107,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { runNasaAccessTests };
+export { runNasaAccessTests };

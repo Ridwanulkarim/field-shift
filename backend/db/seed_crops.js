@@ -1,3 +1,7 @@
+import db from './index.js';
+import { runMigration } from './migrate.js';
+import { seedReferenceData } from './seed_reference.js';
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Crop Database Seed Script (Phase 2 - Revised with Agronomic Precision)
  * Spec Section 26 (Crop Database), Section 27 (Crop Trait Mapping), Section 33 (Drainage Penalty)
@@ -17,9 +21,7 @@
  *    soil_health_benefit (75) verified via 3.5-4.0 t/ha leaf litter; waterlogging_tolerance set to Low (Tossa jute sensitivity).
  * 5. Added exact page, table, and chapter citations for every crop.
  */
-
-const db = require('./index');
-const CropsModel = require('../models/cropsModel');
+import CropsModel from '../models/cropsModel.js';
 
 const BANGLADESH_CROPS = [
   {
@@ -351,9 +353,7 @@ async function getSeededCrops() {
   return await CropsModel.findAll();
 }
 
-if (require.main === module) {
-  const { runMigration } = require('./migrate');
-  const { seedReferenceData } = require('./seed_reference');
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   runMigration()
     .then(() => seedReferenceData())
@@ -394,4 +394,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { BANGLADESH_CROPS, seedCropsData, getSeededCrops };
+export { BANGLADESH_CROPS, seedCropsData, getSeededCrops };

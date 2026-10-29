@@ -3,7 +3,7 @@
  * Server-side authentication management for NASA Earthdata & AppEEARS API.
  * Never expose credentials to frontend. Never log secrets.
  */
-const config = require('../../config');
+import config from '../../config/index.js';
 
 class EarthdataAuth {
   constructor() {
@@ -74,4 +74,4 @@ class EarthdataAuth {
   }
 }
 
-module.exports = new EarthdataAuth();
+export default new EarthdataAuth();

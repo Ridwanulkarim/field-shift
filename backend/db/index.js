@@ -1,83 +1,69 @@
 /**
- * Field Shift - Database Connection & Dual-Mode Adapter
- * Connects to live PostgreSQL when DATABASE_URL is set, or initializes
- * an in-memory PostgreSQL engine (pg-mem) for standalone offline testing.
+ * Field Shift database adapter.
+ * Prisma 7 + PostgreSQL.
+ * Keeps existing SQL-based services working during migration.
  */
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
-const config = require('../config');
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+import config from '../config/index.js';
 
-let pool = null;
-let memDb = null;
-let memAdapter = null;
-
-function initDb() {
-  if (config.DATABASE_URL) {
-    // Production / Staging / Local Live PostgreSQL
-    console.log('[DB] Connecting to live PostgreSQL database...');
-    pool = new Pool({
-      connectionString: config.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    });
-    return {
-      query: (text, params) => pool.query(text, params),
-      getClient: () => pool.connect(),
-      mode: 'postgres',
-      pool
-    };
-  } else {
-    // Standalone In-Memory PostgreSQL instance for local development / testing
-    if (!memAdapter) {
-      console.log('[DB] DATABASE_URL not set. Initializing in-memory PostgreSQL engine (pg-mem)...');
-      const { newDb } = require('pg-mem');
-      memDb = newDb({
-        autoCreateForeignKeyIndices: true
-      });
-
-      // Register custom functions if necessary
-      memDb.public.registerFunction({
-        name: 'current_timestamp',
-        returns: memDb.public.getType('timestamp with time zone'),
-        implementation: () => new Date()
-      });
-
-      memAdapter = memDb.adapters.createPg();
-      pool = new memAdapter.Pool();
-    }
-
-    return {
-      query: (text, params) => pool.query(text, params),
-      getClient: () => pool.connect(),
-      mode: 'pg-mem',
-      memDb,
-      pool
-    };
-  }
+if (!config.DATABASE_URL) {
+  throw new Error(
+    'DATABASE_URL is required. Configure PostgreSQL in backend/.env.'
+  );
 }
 
-let currentDb = initDb();
+const adapter = new PrismaPg({
+  connectionString: config.DATABASE_URL
+});
+
+const prisma = new PrismaClient({
+  adapter,
+  log:
+    process.env.NODE_ENV === 'development'
+      ? ['error', 'warn']
+      : ['error']
+});
+
+async function query(text, params = []) {
+  const statement = String(text).trim();
+
+  if (
+    /^(SELECT|INSERT|UPDATE|DELETE|WITH)\b/i.test(statement) &&
+    (/\bRETURNING\b/i.test(statement) ||
+      /^(SELECT|WITH)\b/i.test(statement))
+  ) {
+    const rows = await prisma.$queryRawUnsafe(statement, ...params);
+    return { rows, rowCount: rows.length };
+  }
+
+  const rowCount = await prisma.$executeRawUnsafe(statement, ...params);
+  return { rows: [], rowCount };
+}
 
 async function resetDb() {
-  if (currentDb.mode === 'pg-mem') {
-    if (pool) {
-      try { pool.end(); } catch (e) {}
-    }
-    memAdapter = null;
-    memDb = null;
-    pool = null;
-    currentDb = initDb();
-  } else {
-    // Live PostgreSQL: drop all tables in public schema
-    await currentDb.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error(
+      'resetDb is destructive and is only allowed when NODE_ENV=test.'
+    );
   }
+
+  await query('DROP SCHEMA public CASCADE');
+  await query('CREATE SCHEMA public');
 }
 
-module.exports = {
-  query: (text, params) => currentDb.query(text, params),
-  getClient: () => currentDb.getClient(),
-  getMode: () => currentDb.mode,
-  getPool: () => currentDb.pool,
-  getMemDb: () => currentDb.memDb,
-  resetDb
+const db = {
+  prisma,
+  query,
+  getMode: () => 'postgres-prisma',
+  getPool: () => null,
+  getMemDb: () => null,
+  getClient: async () => ({
+    query,
+    release: () => {}
+  }),
+  resetDb,
+  disconnect: () => prisma.$disconnect()
 };
+
+export default db;

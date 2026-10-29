@@ -1,3 +1,10 @@
+import { runMigration } from './migrate.js';
+import { seedReferenceData } from './seed_reference.js';
+import { seedCropsData } from './seed_crops.js';
+import { seedDemoFieldsData } from './seed_demo_fields.js';
+import { seedObservations } from './seed_observations.js';
+import { seedBaselines } from './seed_baselines.js';
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Field Condition Scores & Stress Seeding Script (Phase 7)
  * Evaluates standardized stresses across the 61-day analysis window for all 5 demo fields.
@@ -5,13 +12,13 @@
  * Persists Field Condition Score summary records into 'field_condition_scores'.
  * Spec Section 15-25, 43.
  */
-const db = require('./index');
-const FieldsModel = require('../models/fieldsModel');
-const BaselinesModel = require('../models/baselinesModel');
-const EarthObservationsModel = require('../models/earthObservationsModel');
-const FieldConditionScoresModel = require('../models/fieldConditionScoresModel');
-const stressEngine = require('../services/stress/stressEngine');
-const config = require('../config');
+import db from './index.js';
+import FieldsModel from '../models/fieldsModel.js';
+import BaselinesModel from '../models/baselinesModel.js';
+import EarthObservationsModel from '../models/earthObservationsModel.js';
+import FieldConditionScoresModel from '../models/fieldConditionScoresModel.js';
+import stressEngine from '../services/stress/stressEngine.js';
+import config from '../config/index.js';
 
 async function seedFieldConditionScores() {
   console.log('[Seed Field Condition] Computing Stress & Field Condition Scores for Demo Fields...');
@@ -87,13 +94,7 @@ async function seedFieldConditionScores() {
   return results;
 }
 
-if (require.main === module) {
-  const { runMigration } = require('./migrate');
-  const { seedReferenceData } = require('./seed_reference');
-  const { seedCropsData } = require('./seed_crops');
-  const { seedDemoFieldsData } = require('./seed_demo_fields');
-  const { seedObservations } = require('./seed_observations');
-  const { seedBaselines } = require('./seed_baselines');
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   (async () => {
     await db.resetDb();
@@ -130,4 +131,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { seedFieldConditionScores };
+export { seedFieldConditionScores };

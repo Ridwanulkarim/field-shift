@@ -1,13 +1,14 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Earth Observations Seed Script (Phase 5)
  * Spec Section 8 (Observation Windows), Section 9 (Min Valid Counts),
  * Section 18/19 (GPM Rolling Rainfall & Dry Days), Section 25 & 51 (Demo Fields Provenance),
  * and Section 43 (earth_observations table).
  */
-const db = require('./index');
-const EarthObservationsModel = require('../models/earthObservationsModel');
-const preprocessingService = require('../services/nasa/preprocessingService');
-const config = require('../config');
+import db from './index.js';
+import EarthObservationsModel from '../models/earthObservationsModel.js';
+import preprocessingService from '../services/nasa/preprocessingService.js';
+import config from '../config/index.js';
 
 // Helper to generate ISO date strings between two dates inclusive
 function getDateRange(startDateStr, endDateStr) {
@@ -253,7 +254,7 @@ async function seedObservations() {
   return totalInserted;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   seedObservations()
     .then(() => process.exit(0))
     .catch((err) => {
@@ -262,10 +263,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = {
-  seedObservations,
-  generateFieldTimeSeries,
-  ANALYSIS_START,
-  ANALYSIS_END,
-  LEAD_IN_START
-};
+export { seedObservations, generateFieldTimeSeries, ANALYSIS_START, ANALYSIS_END, LEAD_IN_START };

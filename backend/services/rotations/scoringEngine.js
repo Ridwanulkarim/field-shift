@@ -2,9 +2,9 @@
  * Field Shift - Rotation Scoring & Explanation Engine (Phase 10 & 11)
  * Strictly verifies Spec Sections 36–41, 43, 48–50.
  */
-const rotationEngine = require('./rotationEngine');
-const soilEngine = require('../soil/soilEngine');
-const RotationsModel = require('../../models/rotationsModel');
+import rotationEngine from './rotationEngine.js';
+import soilEngine from '../soil/soilEngine.js';
+import RotationsModel from '../../models/rotationsModel.js';
 
 class ScoringEngine {
   /**
@@ -455,4 +455,4 @@ class ScoringEngine {
   }
 }
 
-module.exports = ScoringEngine;
+export default ScoringEngine;

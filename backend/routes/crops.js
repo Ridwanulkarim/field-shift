@@ -1,9 +1,9 @@
 /**
  * Field Shift - Crops Route (Spec Section 45, 26, 27)
  */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const CropsModel = require('../models/cropsModel');
+import CropsModel from '../models/cropsModel.js';
 
 router.get('/', async (req, res) => {
   try {
@@ -29,4 +29,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -3,7 +3,7 @@
  * Handles GPM IMERG Daily (GPM_3IMERGDF.07) temporal fetch windows & OPeNDAP/CMR query syntax.
  * Spec Rule: "60-day analysis, 30-day lead-in, 90-day fetch."
  */
-const cmr = require('./cmrClient');
+import cmr from './cmrClient.js';
 
 class GpmClient {
   /**
@@ -63,4 +63,4 @@ class GpmClient {
   }
 }
 
-module.exports = new GpmClient();
+export default new GpmClient();

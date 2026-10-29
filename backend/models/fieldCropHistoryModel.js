@@ -2,7 +2,7 @@
  * Field Shift - Field Crop History Model (Spec Section 43 & Section 11)
  * Enforces year + season matching and Rabi start-year rule.
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const FieldCropHistoryModel = {
   async create(data) {
@@ -46,4 +46,4 @@ const FieldCropHistoryModel = {
   }
 };
 
-module.exports = FieldCropHistoryModel;
+export default FieldCropHistoryModel;

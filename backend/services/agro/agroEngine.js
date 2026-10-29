@@ -302,7 +302,7 @@ function getPlantingAdvisory(districtName = 'Rajshahi', cropName = 'Aman Rice', 
   };
 }
 
-module.exports = {
+export {
   rainOnset,
   growingDegreeDays,
   mannWhitneyUTest,

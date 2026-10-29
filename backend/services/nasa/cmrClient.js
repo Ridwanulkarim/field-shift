@@ -2,7 +2,7 @@
  * Field Shift - NASA CMR (Common Metadata Repository) Client (Spec Section 5, 6, 8)
  * Queries NASA CMR API for granule discovery and temporal/spatial availability checks.
  */
-const auth = require('./earthdataAuth');
+import auth from './earthdataAuth.js';
 
 const CMR_ENDPOINT = 'https://cmr.earthdata.nasa.gov/search/granules.json';
 
@@ -90,4 +90,4 @@ class CmrClient {
   }
 }
 
-module.exports = new CmrClient();
+export default new CmrClient();

@@ -1,17 +1,18 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - NASA Preprocessing Verification Test Suite (Phase 5)
  * Validates QA filtering, HLS 30d -> 60d fallback, GPM 90d rolling rainfall,
  * MODIS LST conversion (0.02 scale), SMAP 9km transparency, and database ingestion.
  */
-const assert = require('assert');
-const preprocessingService = require('./preprocessingService');
-const { seedObservations, ANALYSIS_START, ANALYSIS_END, LEAD_IN_START } = require('../../db/seed_observations');
-const db = require('../../db');
-const { runMigration } = require('../../db/migrate');
-const { seedReferenceData } = require('../../db/seed_reference');
-const { seedCropsData } = require('../../db/seed_crops');
-const { seedDemoFieldsData } = require('../../db/seed_demo_fields');
-const EarthObservationsModel = require('../../models/earthObservationsModel');
+import assert from 'assert';
+import preprocessingService from './preprocessingService.js';
+import { seedObservations, ANALYSIS_START, ANALYSIS_END, LEAD_IN_START } from '../../db/seed_observations.js';
+import db from '../../db/index.js';
+import { runMigration } from '../../db/migrate.js';
+import { seedReferenceData } from '../../db/seed_reference.js';
+import { seedCropsData } from '../../db/seed_crops.js';
+import { seedDemoFieldsData } from '../../db/seed_demo_fields.js';
+import EarthObservationsModel from '../../models/earthObservationsModel.js';
 
 async function runPreprocessingTests() {
   console.log('================================================================');
@@ -188,7 +189,7 @@ async function runPreprocessingTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runPreprocessingTests()
     .then(() => process.exit(0))
     .catch((err) => {
@@ -197,4 +198,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { runPreprocessingTests };
+export { runPreprocessingTests };

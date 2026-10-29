@@ -7,8 +7,8 @@
  * - Spec Section 14: Dual Quality Dimensions (sample_quality & crop_matched)
  * - Spec Section 16 & 43: Full Analysis Window Baselines for Storage & Reproducibility
  */
-const config = require('../../config');
-const historicalDataService = require('./historicalDataService');
+import config from '../../config/index.js';
+import historicalDataService from './historicalDataService.js';
 
 class BaselineEngine {
   /**
@@ -129,4 +129,4 @@ class BaselineEngine {
   }
 }
 
-module.exports = new BaselineEngine();
+export default new BaselineEngine();

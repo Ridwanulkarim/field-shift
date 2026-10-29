@@ -2,9 +2,9 @@
  * Field Shift - Core Configuration Constants (v6.2)
  * All values verified and decided in Phase 0.
  */
-require('dotenv').config();
+import 'dotenv/config';
 
-module.exports = {
+const config = {
   PORT: process.env.PORT || 5001,
   NODE_ENV: process.env.NODE_ENV || 'development',
   DATABASE_URL: process.env.DATABASE_URL || null,
@@ -41,3 +41,5 @@ module.exports = {
     modisTile: 'h26v06'
   }
 };
+
+export default config;

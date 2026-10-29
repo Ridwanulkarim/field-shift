@@ -2,20 +2,27 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "node db/test_crud.js && node services/nasa/test_nasa_access.js && node services/nasa/test_preprocessing.js && node services/nasa/test_baselines.js && node services/stress/test_stress_engine.js && node services/soil/test_soil_engine.js && node services/rotations/test_rotations.js && node services/rotations/test_scoring.js && node services/agro/test_agro.js && node test_api.js && node test_section57_fixtures.js"
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "test": "cross-env NODE_ENV=test node db/test_crud.js && cross-env NODE_ENV=test node services/nasa/test_nasa_access.js && cross-env NODE_ENV=test node services/nasa/test_preprocessing.js && cross-env NODE_ENV=test node services/nasa/test_baselines.js && cross-env NODE_ENV=test node services/stress/test_stress_engine.js && cross-env NODE_ENV=test node services/soil/test_soil_engine.js && cross-env NODE_ENV=test node services/rotations/test_rotations.js && cross-env NODE_ENV=test node services/rotations/test_scoring.js && cross-env NODE_ENV=test node services/agro/test_agro.js && cross-env NODE_ENV=test node test_api.js && cross-env NODE_ENV=test node test_section57_fixtures.js",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate": "node db/migrate.js",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "cors": "^2.8.6",
-    "dotenv": "^18.0.3",
+    "dotenv": "^18.0.9",
     "express": "^5.2.1",
-    "pg": "^8.23.0",
-    "pg-mem": "^3.0.14"
+    "pg": "^8.23.1"
   },
   "contributors": [
     {
@@ -38,5 +45,10 @@
       "name": "Tofayel Ahmmed",
       "url": "https://github.com/Tofayel5152"
     }
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "cross-env": "^10.1.0",
+    "prisma": "^7.10.1"
+  }
 }

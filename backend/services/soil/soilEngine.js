@@ -191,4 +191,4 @@ class SoilEngine {
   }
 }
 
-module.exports = new SoilEngine();
+export default new SoilEngine();

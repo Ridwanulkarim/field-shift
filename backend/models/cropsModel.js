@@ -2,7 +2,7 @@
  * Field Shift - Crops Model (Spec Section 43, 26, 27)
  * Implements per-trait source status and agronomic compatibility parameters.
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const CropsModel = {
   async create(data) {
@@ -100,4 +100,4 @@ const CropsModel = {
   }
 };
 
-module.exports = CropsModel;
+export default CropsModel;

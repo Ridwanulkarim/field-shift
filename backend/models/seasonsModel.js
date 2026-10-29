@@ -2,7 +2,7 @@
  * Field Shift - Seasons Model (Spec Section 28 & Section 43)
  * Provides access to configurable Bangladesh seasonal planning calendars.
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const SeasonsModel = {
   async findAll() {
@@ -41,4 +41,4 @@ const SeasonsModel = {
   }
 };
 
-module.exports = SeasonsModel;
+export default SeasonsModel;

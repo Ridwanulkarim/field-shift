@@ -1,9 +1,9 @@
 /**
  * Field Shift - Health Route (Spec Section 45)
  */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const db = require('../db');
+import db from '../db/index.js';
 
 router.get('/', async (req, res) => {
   try {
@@ -25,4 +25,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

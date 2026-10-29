@@ -1,18 +1,20 @@
+import stressEngine from '../stress/stressEngine.js';
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Rotation Scoring & Explanation Test Suite (Phase 10 & 11)
  * Strictly verifies Spec Sections 36–41, 43, 48–50, and Fixtures 1, 2, 3, 16.
  */
-const assert = require('assert');
-const ScoringEngine = require('./scoringEngine');
-const RotationsModel = require('../../models/rotationsModel');
-const db = require('../../db');
-const { runMigration } = require('../../db/migrate');
-const { seedReferenceData } = require('../../db/seed_reference');
-const { seedCropsData } = require('../../db/seed_crops');
-const { seedDemoFieldsData } = require('../../db/seed_demo_fields');
-const { seedObservations } = require('../../db/seed_observations');
-const { seedBaselines } = require('../../db/seed_baselines');
-const { seedFieldConditionScores } = require('../../db/seed_field_condition');
+import assert from 'assert';
+import ScoringEngine from './scoringEngine.js';
+import RotationsModel from '../../models/rotationsModel.js';
+import db from '../../db/index.js';
+import { runMigration } from '../../db/migrate.js';
+import { seedReferenceData } from '../../db/seed_reference.js';
+import { seedCropsData } from '../../db/seed_crops.js';
+import { seedDemoFieldsData } from '../../db/seed_demo_fields.js';
+import { seedObservations } from '../../db/seed_observations.js';
+import { seedBaselines } from '../../db/seed_baselines.js';
+import { seedFieldConditionScores } from '../../db/seed_field_condition.js';
 
 async function runScoringTests() {
   console.log('================================================================');
@@ -21,7 +23,6 @@ async function runScoringTests() {
 
   // Test 1: Fixture 1 (z-score Table & Clamping, Spec Section 49)
   console.log('[Test 1] Testing Fixture 1: z-score and Clamping Math...');
-  const stressEngine = require('../stress/stressEngine');
   // Baseline mean 100, std 10, lower-is-worse
   const fx1_100 = stressEngine.calculateStandardizedStress(100, 100, 10, true);
   assert.strictEqual(fx1_100.z, 0);
@@ -214,11 +215,11 @@ async function runScoringTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runScoringTests().catch(err => {
     console.error('Test failed with error:', err);
     process.exit(1);
   });
 }
 
-module.exports = { runScoringTests };
+export { runScoringTests };

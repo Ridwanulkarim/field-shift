@@ -1,7 +1,7 @@
 /**
  * Field Shift - Fields Model (Spec Section 43)
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const FieldsModel = {
   async create(data) {
@@ -89,4 +89,4 @@ const FieldsModel = {
   }
 };
 
-module.exports = FieldsModel;
+export default FieldsModel;

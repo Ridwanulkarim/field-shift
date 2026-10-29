@@ -1,13 +1,46 @@
 /**
  * Field Shift - Rotations Route (Spec Section 45, 36–41, 48–50)
  */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const db = require('../db');
-const FieldsModel = require('../models/fieldsModel');
-const CropsModel = require('../models/cropsModel');
-const RotationsModel = require('../models/rotationsModel');
-const ScoringEngine = require('../services/rotations/scoringEngine');
+import db from '../db/index.js';
+import FieldsModel from '../models/fieldsModel.js';
+import CropsModel from '../models/cropsModel.js';
+import RotationsModel from '../models/rotationsModel.js';
+import ScoringEngine from '../services/rotations/scoringEngine.js';
+
+const ROTATION_NUMERIC_FIELDS = [
+  'water_score',
+  'soil_score',
+  'heat_score',
+  'diversity_score',
+  'profitability_score',
+  'base_soil_health_score',
+  'drainage_penalty',
+  'ph_penalty',
+  'organic_matter_adjustment',
+  'soil_score_final',
+  'water_stress_index',
+  'adjusted_water_stress',
+  'heat_stress_index',
+  'water_multiplier',
+  'heat_multiplier',
+  'effective_water_weight',
+  'effective_heat_weight',
+  'overall_score'
+];
+
+function serializeRotationNumbers(rotation) {
+  const serializedRotation = { ...rotation };
+  for (const field of ROTATION_NUMERIC_FIELDS) {
+    if (field in serializedRotation) {
+      serializedRotation[field] = serializedRotation[field] == null
+        ? serializedRotation[field]
+        : Number(serializedRotation[field]);
+    }
+  }
+  return serializedRotation;
+}
 
 /**
  * POST /api/rotations/evaluate
@@ -61,9 +94,10 @@ router.post('/evaluate', async (req, res) => {
       priorities: priorities
     });
 
+    const serializedRotation = serializeRotationNumbers(evaluatedRotation);
     res.status(201).json({
-      ...evaluatedRotation,
-      rotation: evaluatedRotation
+      ...serializedRotation,
+      rotation: serializedRotation
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -191,4 +225,4 @@ router.get('/field/:fieldId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

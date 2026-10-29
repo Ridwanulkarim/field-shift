@@ -1,10 +1,14 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Database Migration Runner
  * Executes the authoritative PostgreSQL DDL schema.
  */
-const fs = require('fs');
-const path = require('path');
-const db = require('./index');
+import fs from 'node:fs';
+import path from 'node:path';
+import db from './index.js';
+import schemaSql from './schemaSql.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function cleanSql(sql) {
   // Remove multi-line comments
@@ -32,11 +36,7 @@ function getSchemaSql() {
   }
 
   // Fallback to pre-bundled schema string
-  try {
-    return require('./schemaSql');
-  } catch (err) {
-    throw new Error('Unable to locate schema.sql in: ' + candidatePaths.join(', '));
-  }
+  return schemaSql;
 }
 
 async function runMigration() {
@@ -62,7 +62,7 @@ async function runMigration() {
   console.log(`[Migration] Schema successfully migrated! (${statements.length} DDL statements executed)`);
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runMigration()
     .then(() => {
       console.log('[Migration] Done.');
@@ -74,4 +74,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { runMigration, cleanSql };
+export { runMigration, cleanSql };

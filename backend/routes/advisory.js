@@ -5,9 +5,9 @@
  * Returns recommended window shift in days, two distributions (2001-2012 vs 2013-2025),
  * Mann-Whitney U test statistic, sensitivity check, assumptions, and provenance stack.
  */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const agroEngine = require('../services/agro/agroEngine');
+import * as agroEngine from '../services/agro/agroEngine.js';
 
 router.get('/', (req, res) => {
   try {
@@ -22,4 +22,4 @@ router.get('/', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

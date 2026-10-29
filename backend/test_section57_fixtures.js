@@ -2,21 +2,21 @@
  * Field Shift - Section 57 Test Fixtures Verification Suite (Phase 15)
  * Comprehensive verification of all 18 fixtures defined in Spec Section 57.
  */
-const assert = require('assert');
-const stressEngine = require('./services/stress/stressEngine');
-const ScoringEngine = require('./services/rotations/scoringEngine');
-const rotationEngine = require('./services/rotations/rotationEngine');
-const soilEngine = require('./services/soil/soilEngine');
-const baselineEngine = require('./services/nasa/baselineEngine');
-const preprocessingService = require('./services/nasa/preprocessingService');
-const db = require('./db');
-const { runMigration } = require('./db/migrate');
-const { seedReferenceData } = require('./db/seed_reference');
-const { seedCropsData } = require('./db/seed_crops');
-const { seedDemoFieldsData } = require('./db/seed_demo_fields');
-const { seedObservations } = require('./db/seed_observations');
-const { seedBaselines } = require('./db/seed_baselines');
-const { seedFieldConditionScores } = require('./db/seed_field_condition');
+import assert from 'assert';
+import stressEngine from './services/stress/stressEngine.js';
+import ScoringEngine from './services/rotations/scoringEngine.js';
+import rotationEngine from './services/rotations/rotationEngine.js';
+import soilEngine from './services/soil/soilEngine.js';
+import baselineEngine from './services/nasa/baselineEngine.js';
+import preprocessingService from './services/nasa/preprocessingService.js';
+import db from './db/index.js';
+import { runMigration } from './db/migrate.js';
+import { seedReferenceData } from './db/seed_reference.js';
+import { seedCropsData } from './db/seed_crops.js';
+import { seedDemoFieldsData } from './db/seed_demo_fields.js';
+import { seedObservations } from './db/seed_observations.js';
+import { seedBaselines } from './db/seed_baselines.js';
+import { seedFieldConditionScores } from './db/seed_field_condition.js';
 
 async function runSection57Tests() {
   console.log('================================================================');

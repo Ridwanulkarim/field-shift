@@ -1,21 +1,22 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Stress Engine & Field Condition Test Suite (Phase 7)
  * Strictly verifies Spec Sections 15–25, 43, 48.
  */
-const assert = require('assert');
-const stressEngine = require('./stressEngine');
-const FieldsModel = require('../../models/fieldsModel');
-const BaselinesModel = require('../../models/baselinesModel');
-const EarthObservationsModel = require('../../models/earthObservationsModel');
-const FieldConditionScoresModel = require('../../models/fieldConditionScoresModel');
-const { runMigration } = require('../../db/migrate');
-const { seedReferenceData } = require('../../db/seed_reference');
-const { seedCropsData } = require('../../db/seed_crops');
-const { seedDemoFieldsData } = require('../../db/seed_demo_fields');
-const { seedObservations } = require('../../db/seed_observations');
-const { seedBaselines } = require('../../db/seed_baselines');
-const { seedFieldConditionScores } = require('../../db/seed_field_condition');
-const db = require('../../db');
+import assert from 'assert';
+import stressEngine from './stressEngine.js';
+import FieldsModel from '../../models/fieldsModel.js';
+import BaselinesModel from '../../models/baselinesModel.js';
+import EarthObservationsModel from '../../models/earthObservationsModel.js';
+import FieldConditionScoresModel from '../../models/fieldConditionScoresModel.js';
+import { runMigration } from '../../db/migrate.js';
+import { seedReferenceData } from '../../db/seed_reference.js';
+import { seedCropsData } from '../../db/seed_crops.js';
+import { seedDemoFieldsData } from '../../db/seed_demo_fields.js';
+import { seedObservations } from '../../db/seed_observations.js';
+import { seedBaselines } from '../../db/seed_baselines.js';
+import { seedFieldConditionScores } from '../../db/seed_field_condition.js';
+import db from '../../db/index.js';
 
 async function runStressTests() {
   console.log('================================================================');
@@ -224,7 +225,7 @@ async function runStressTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runStressTests()
     .then(() => process.exit(0))
     .catch(err => {

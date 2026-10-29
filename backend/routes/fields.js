@@ -1,12 +1,12 @@
 /**
  * Field Shift - Fields Route (Spec Section 45, 23-25, 51)
  */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const FieldsModel = require('../models/fieldsModel');
-const FieldCropHistoryModel = require('../models/fieldCropHistoryModel');
-const FieldConditionScoresModel = require('../models/fieldConditionScoresModel');
-const EarthObservationsModel = require('../models/earthObservationsModel');
+import FieldsModel from '../models/fieldsModel.js';
+import FieldCropHistoryModel from '../models/fieldCropHistoryModel.js';
+import FieldConditionScoresModel from '../models/fieldConditionScoresModel.js';
+import EarthObservationsModel from '../models/earthObservationsModel.js';
 
 function getConditionLabel(score) {
   if (score === null || score === undefined || isNaN(score)) return 'Insufficient observations';
@@ -153,4 +153,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

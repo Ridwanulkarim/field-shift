@@ -1,8 +1,9 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Server Entrypoint (Spec Section 45)
  */
-require('dotenv').config();
-const { app, initializeDatabase } = require('./app');
+import 'dotenv/config';
+import { app, initializeDatabase } from './app.js';
 
 const PORT = process.env.PORT || 5001;
 
@@ -24,11 +25,11 @@ async function startServer() {
   return server;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   startServer().catch(err => {
     console.error('Failed to start server:', err);
     process.exit(1);
   });
 }
 
-module.exports = { startServer };
+export { startServer };

@@ -2,15 +2,8 @@
  * Unit Test Suite for Agronomic Compute Engine & Advisory API
  * Verifies exact Playbook algorithms (rain_onset, GDD, Mann-Whitney U, sensitivity check)
  */
-const assert = require('assert');
-const {
-  rainOnset,
-  growingDegreeDays,
-  mannWhitneyUTest,
-  getPlantingAdvisory,
-  CROP_GDD_BASES,
-  HISTORICAL_DISTRICT_ONSETS
-} = require('./agroEngine');
+import assert from 'assert';
+import { rainOnset, growingDegreeDays, mannWhitneyUTest, getPlantingAdvisory, CROP_GDD_BASES, HISTORICAL_DISTRICT_ONSETS } from './agroEngine.js';
 
 console.log('================================================================');
 console.log('STARTING AGRONOMIC COMPUTE & ADVISORY ENGINE UNIT TESTS');

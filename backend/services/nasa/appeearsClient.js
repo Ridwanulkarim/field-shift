@@ -2,7 +2,7 @@
  * Field Shift - NASA AppEEARS Client (Spec Section 5, 6, 8)
  * Point extraction and spatial/temporal subsetting via NASA LP DAAC AppEEARS API.
  */
-const auth = require('./earthdataAuth');
+import auth from './earthdataAuth.js';
 
 const APPEEARS_API_BASE = 'https://appeears.earthdatacloud.nasa.gov/api/v1';
 
@@ -115,4 +115,4 @@ class AppEEARSClient {
   }
 }
 
-module.exports = new AppEEARSClient();
+export default new AppEEARSClient();

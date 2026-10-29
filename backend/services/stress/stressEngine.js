@@ -486,4 +486,4 @@ class StressEngine {
   }
 }
 
-module.exports = new StressEngine();
+export default new StressEngine();

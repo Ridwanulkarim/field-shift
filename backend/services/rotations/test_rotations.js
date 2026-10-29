@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Rotation Feasibility & Diversity Test Suite (Phase 9)
  * Strictly verifies Spec Sections 28–31:
@@ -7,16 +8,16 @@
  * - Spec Section 31: Diversity Score with exact spec reference worked example (36.7)
  * - All 5 Demo Fields actual current_crop verification
  */
-const assert = require('assert');
-const rotationEngine = require('./rotationEngine');
-const CropsModel = require('../../models/cropsModel');
-const FieldsModel = require('../../models/fieldsModel');
-const SeasonsModel = require('../../models/seasonsModel');
-const { runMigration } = require('../../db/migrate');
-const { seedReferenceData } = require('../../db/seed_reference');
-const { seedCropsData } = require('../../db/seed_crops');
-const { seedDemoFieldsData } = require('../../db/seed_demo_fields');
-const db = require('../../db');
+import assert from 'assert';
+import rotationEngine from './rotationEngine.js';
+import CropsModel from '../../models/cropsModel.js';
+import FieldsModel from '../../models/fieldsModel.js';
+import SeasonsModel from '../../models/seasonsModel.js';
+import { runMigration } from '../../db/migrate.js';
+import { seedReferenceData } from '../../db/seed_reference.js';
+import { seedCropsData } from '../../db/seed_crops.js';
+import { seedDemoFieldsData } from '../../db/seed_demo_fields.js';
+import db from '../../db/index.js';
 
 async function runRotationTests() {
   console.log('================================================================');
@@ -180,7 +181,7 @@ async function runRotationTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runRotationTests()
     .then(() => process.exit(0))
     .catch(err => {

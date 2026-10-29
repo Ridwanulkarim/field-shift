@@ -7,7 +7,7 @@
  * - SMAP (SPL3SMP_E.006) 9 km surface soil moisture extraction with transparent product recording
  * - Full observation record assembly with provenance and metadata
  */
-const config = require('../../config');
+import config from '../../config/index.js';
 
 class PreprocessingService {
   /**
@@ -262,4 +262,4 @@ class PreprocessingService {
   }
 }
 
-module.exports = new PreprocessingService();
+export default new PreprocessingService();

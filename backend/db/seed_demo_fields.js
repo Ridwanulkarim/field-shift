@@ -1,3 +1,8 @@
+import db from './index.js';
+import { runMigration } from './migrate.js';
+import { seedReferenceData } from './seed_reference.js';
+import { seedCropsData } from './seed_crops.js';
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Demo Fields & Crop History Seed Script (Phase 3 - Corrected)
  * Spec Section 51 (Demo Data), Section 43 (Fields & Field Crop History), Section 11 (Rabi Year Rule)
@@ -12,10 +17,8 @@
  * - data_label = 'Pre-processed NASA observations' (Fields 1-4) or 'Simulated demonstration data' (Field 5).
  * - All history labeled source = 'hand-entered demo data'.
  */
-
-const db = require('./index');
-const FieldsModel = require('../models/fieldsModel');
-const FieldCropHistoryModel = require('../models/fieldCropHistoryModel');
+import FieldsModel from '../models/fieldsModel.js';
+import FieldCropHistoryModel from '../models/fieldCropHistoryModel.js';
 
 const DEMO_FIELDS = [
   {
@@ -312,10 +315,7 @@ async function getSeededDemoFields() {
   return await FieldsModel.findAll({ isDemo: true });
 }
 
-if (require.main === module) {
-  const { runMigration } = require('./migrate');
-  const { seedReferenceData } = require('./seed_reference');
-  const { seedCropsData } = require('./seed_crops');
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   runMigration()
     .then(() => seedReferenceData())
@@ -356,4 +356,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { DEMO_FIELDS, seedDemoFieldsData, getSeededDemoFields };
+export { DEMO_FIELDS, seedDemoFieldsData, getSeededDemoFields };

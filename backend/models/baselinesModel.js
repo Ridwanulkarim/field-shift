@@ -3,7 +3,7 @@
  * Enforces dual quality dimensions: sample_quality ('usable', 'limited')
  * and crop_matched (true, false, NULL strictly for non-vegetation).
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const BaselinesModel = {
   async create(data) {
@@ -65,4 +65,4 @@ const BaselinesModel = {
   }
 };
 
-module.exports = BaselinesModel;
+export default BaselinesModel;

@@ -1,11 +1,12 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Express REST API Integration Test Suite (Phase 12)
  * Strictly verifies Spec Section 45 HTTP endpoints, payloads, error handling, and Section 50 terminology.
  */
-const assert = require('assert');
-const { Readable } = require('stream');
-const { EventEmitter } = require('events');
-const { app, initializeDatabase } = require('./app');
+import assert from 'assert';
+import { Readable } from 'stream';
+import { EventEmitter } from 'events';
+import { app, initializeDatabase } from './app.js';
 
 /**
  * In-process HTTP request simulator for sandboxed testing.
@@ -229,11 +230,11 @@ async function runApiTests() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runApiTests().catch(err => {
     console.error('API Test failed with error:', err);
     process.exit(1);
   });
 }
 
-module.exports = { runApiTests };
+export { runApiTests };

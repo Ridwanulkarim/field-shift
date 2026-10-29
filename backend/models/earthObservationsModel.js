@@ -2,7 +2,7 @@
  * Field Shift - Earth Observations Model (Spec Section 43)
  * Unique per (field_id, observation_date) with upsert support.
  */
-const db = require('../db');
+import db from '../db/index.js';
 
 const EarthObservationsModel = {
   async upsert(data) {
@@ -146,4 +146,4 @@ const EarthObservationsModel = {
   }
 };
 
-module.exports = EarthObservationsModel;
+export default EarthObservationsModel;

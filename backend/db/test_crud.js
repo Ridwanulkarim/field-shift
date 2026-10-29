@@ -1,21 +1,22 @@
+import { fileURLToPath } from 'node:url';
 /**
  * Field Shift - Phase 1 Automated CRUD & Schema Verification Test Suite
  * Validates all 8 core tables, constraints, nullability rules, and cascade deletes.
  */
-const assert = require('assert');
-const db = require('./index');
-const { runMigration } = require('./migrate');
-const { seedReferenceData, getSeededDrainagePenalties } = require('./seed_reference');
-const { seedCropsData, getSeededCrops } = require('./seed_crops');
-const { seedDemoFieldsData, getSeededDemoFields } = require('./seed_demo_fields');
-const FieldsModel = require('../models/fieldsModel');
-const FieldCropHistoryModel = require('../models/fieldCropHistoryModel');
-const EarthObservationsModel = require('../models/earthObservationsModel');
-const BaselinesModel = require('../models/baselinesModel');
-const FieldConditionScoresModel = require('../models/fieldConditionScoresModel');
-const CropsModel = require('../models/cropsModel');
-const RotationsModel = require('../models/rotationsModel');
-const SeasonsModel = require('../models/seasonsModel');
+import assert from 'assert';
+import db from './index.js';
+import { runMigration } from './migrate.js';
+import { seedReferenceData, getSeededDrainagePenalties } from './seed_reference.js';
+import { seedCropsData, getSeededCrops } from './seed_crops.js';
+import { seedDemoFieldsData, getSeededDemoFields } from './seed_demo_fields.js';
+import FieldsModel from '../models/fieldsModel.js';
+import FieldCropHistoryModel from '../models/fieldCropHistoryModel.js';
+import EarthObservationsModel from '../models/earthObservationsModel.js';
+import BaselinesModel from '../models/baselinesModel.js';
+import FieldConditionScoresModel from '../models/fieldConditionScoresModel.js';
+import CropsModel from '../models/cropsModel.js';
+import RotationsModel from '../models/rotationsModel.js';
+import SeasonsModel from '../models/seasonsModel.js';
 
 async function runTestSuite() {
   console.log('================================================================');
@@ -410,7 +411,7 @@ async function runTestSuite() {
   console.log('================================================================');
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runTestSuite()
     .then(() => process.exit(0))
     .catch((err) => {
@@ -419,4 +420,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { runTestSuite };
+export { runTestSuite };
