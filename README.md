@@ -17,7 +17,7 @@
 
 ## 🛰️ NASA Earth Observation Datasets
 
-Field Shift ingests and processes daily observations across a rolling 61-day analysis window (Anchor: `2024-02-28`) benchmarked against a 4-year historical baseline (2019–2022):
+Field Shift ingests and processes daily observations across a rolling 61-day analysis window (Anchor: `2024-02-28`) benchmarked against a 5-year historical baseline (2019–2023):
 
 | Sensor / Mission | Product ID | Spatial Resolution | Variables Extracted | Agronomic Role |
 | :--- | :--- | :--- | :--- | :--- |

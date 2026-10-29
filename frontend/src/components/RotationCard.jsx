@@ -81,6 +81,10 @@ export default function RotationCard({
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               🏆 Highest-scoring rotation
             </span>
+          ) : rotation.is_baseline ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-amber-950/70 text-amber-300 border border-amber-600/60 shadow-sm">
+              📌 Existing Baseline (Benchmark)
+            </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-[#051d12] text-emerald-300 border border-emerald-800/60">
               Rank #{rank} Candidate
