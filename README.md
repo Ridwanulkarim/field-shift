@@ -11,7 +11,7 @@
 1. **NASA data is the evidence layer, not a decoration.**
    Field Shift is built *NASA-data-first*. Every recommendation, stress penalty, and planting-window shift is calculated directly from five NASA Earth Observation missions (**NASA POWER, GPM IMERG, SMAP, MODIS, HLS**). Every dataset is named on camera and cited with its official URL and product ID.
 2. **Deterministic code does the science; the model explains it.**
-   Statistical distributions, growing degree day accumulations, monsoon onset algorithms (`rain_onset`), Mann–Whitney rank-sum tests, and environmental stress multipliers live in deterministic, unit-tested code (`src/compute/agro.py` and `backend/services/agro/agroEngine.js`). The language model retrieves, orchestrates, explains, and narrates agronomic guidance for farmers.
+   Statistical distributions, growing degree day accumulations, monsoon onset algorithms (`rainOnset`), Mann–Whitney rank-sum tests, and environmental stress multipliers live in deterministic, unit-tested code (`backend/services/agro/agroEngine.js`). The language model retrieves, orchestrates, explains, and narrates agronomic guidance for farmers.
 3. **The demo must run with the wifi off.**
    Field Shift pre-caches 25-year daily series (2001–2025) and historical baselines for all 5 demo regions. The entire system—frontend, REST API, statistical tests, and interactive maps—runs completely offline without an active internet connection.
 
@@ -52,17 +52,26 @@ RAJSHAHI AMAN: Rain onset shifted 11d later since 2001 (DOY 154->165). Delay tra
 ```
 *(Length: 143 characters — ready for 2G SMS transmission to smallholder farmers and DAE extension agents).*
 
-### 3. Verifiable Code Definition (`src/compute/agro.py`)
-```python
-def rain_onset(daily_mm, window=7, threshold_mm=20, dry_spell_max=7):
-    """First day in a 7-day window with 20mm or more that is not followed by a
-    dry spell longer than 7 days. Stated directly on screen."""
-    for i in range(len(daily_mm) - window + 1):
-        if daily_mm[i] >= 1.0 and sum(daily_mm[i:i + window]) >= threshold_mm:
-            # Check subsequent 21 days for dry spells longer than dry_spell_max
-            if not has_dry_spell(daily_mm[i + window:i + window + 21], max_dry=dry_spell_max):
-                return i + 1  # 1-indexed Day of Year
-    return None
+### 3. Verifiable Code Definition (`backend/services/agro/agroEngine.js`)
+```javascript
+/**
+ * First day in a 7-day window with 20mm or more that is not followed by a
+ * dry spell longer than 7 days. Stated directly on screen.
+ */
+function rainOnset(daily_mm, window = 7, threshold_mm = 20.0, dry_spell_max = 7) {
+  for (let i = 0; i <= daily_mm.length - window; i++) {
+    if (daily_mm[i] >= 1.0) {
+      const windowSum = daily_mm.slice(i, i + window).reduce((a, b) => a + b, 0);
+      if (windowSum >= threshold_mm) {
+        // Check subsequent 21 days for dry spells longer than dry_spell_max
+        if (!hasDrySpell(daily_mm.slice(i + window, i + window + 21), dry_spell_max)) {
+          return i + 1; // 1-indexed Day of Year
+        }
+      }
+    }
+  }
+  return null;
+}
 ```
 
 ### 4. Two-Period Distribution Comparison & Mann-Whitney U Test
@@ -118,15 +127,11 @@ POWER + IMERG + SMAP + MODIS / NDVI
           v
   Pre-cached Parquet / JSON (Offline Guaranteed)
           |
-          +-------------------------------+
-          |                               |
-          v                               v
-src/compute/agro.py             backend/services/agro/agroEngine.js
-onset • degree days • shift     rainOnset • GDD • Mann-Whitney U
-          |                               |
-          +---------------+---------------+
-                          |
-                          v
+          v
+backend/services/agro/agroEngine.js (Pure JS Deterministic Engine)
+rainOnset • growingDegreeDays • Mann-Whitney U test • Sensitivity
+          |
+          v
                  GET /api/advisory
                           |
              +------------+------------+
