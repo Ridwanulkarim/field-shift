@@ -32,7 +32,7 @@ export default function ScoreCard({ conditionScore, isDemo = true, dataLabel, la
   } = conditionScore;
 
   const badge = getConditionBadge(label);
-  const dateRangeStr = formatDateRange(window_start, window_end);
+  const dateRangeStr = formatDateRange(window_start, window_end, lang);
 
   const getBnLabel = (lbl) => {
     switch (lbl) {
@@ -74,8 +74,8 @@ export default function ScoreCard({ conditionScore, isDemo = true, dataLabel, la
         <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t border-emerald-800/30 sm:border-t-0">
           <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-1.5">
             <div className="text-5xl sm:text-6xl md:text-7xl font-black text-white tracking-tight tabular-nums font-heading flex items-baseline gap-1">
-              {formatScore(score)}
-              <span className="text-lg sm:text-xl md:text-2xl font-black text-emerald-300/80 font-heading">/100</span>
+              {formatScore(score, lang)}
+              <span className="text-lg sm:text-xl md:text-2xl font-black text-emerald-300/80 font-heading">/ {isBn ? '১০০' : '100'}</span>
             </div>
             <div className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-black border shadow-sm ${badge.bg} ${badge.text} ${badge.border}`}>
               <span>{badge.icon}</span>
@@ -94,7 +94,7 @@ export default function ScoreCard({ conditionScore, isDemo = true, dataLabel, la
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
               {isBn ? 'উদ্ভিজ্জ সতেজতা (৩০%)' : 'Vegetation (30%)'}
             </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-300 tabular-nums font-heading">{formatScore(vegetation_score)}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-300 tabular-nums font-heading">{formatScore(vegetation_score, lang)}</span>
           </div>
           <div className="w-full bg-[#03130b] rounded-full h-2.5 overflow-hidden border border-emerald-900/60 mb-2">
             <div
@@ -114,7 +114,7 @@ export default function ScoreCard({ conditionScore, isDemo = true, dataLabel, la
               <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]"></span>
               {isBn ? 'পানি প্রাপ্যতা (৪০%)' : 'Water (40%)'}
             </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-cyan-300 tabular-nums font-heading">{formatScore(water_score)}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-cyan-300 tabular-nums font-heading">{formatScore(water_score, lang)}</span>
           </div>
           <div className="w-full bg-[#03130b] rounded-full h-2.5 overflow-hidden border border-emerald-900/60 mb-2">
             <div
@@ -134,7 +134,7 @@ export default function ScoreCard({ conditionScore, isDemo = true, dataLabel, la
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]"></span>
               {isBn ? 'তাপ সহনশীলতা (৩০%)' : 'Heat (30%)'}
             </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300 tabular-nums font-heading">{formatScore(heat_score)}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300 tabular-nums font-heading">{formatScore(heat_score, lang)}</span>
           </div>
           <div className="w-full bg-[#03130b] rounded-full h-2.5 overflow-hidden border border-emerald-900/60 mb-2">
             <div

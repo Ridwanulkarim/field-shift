@@ -1,4 +1,5 @@
 import React from 'react';
+import { toBnDigits } from '../utils/i18n';
 
 /**
  * PrioritySlider Component (Spec Section 37 & 39, 46, 54)
@@ -97,13 +98,13 @@ export default function PrioritySlider({
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:justify-end">
               <span className="text-xs sm:text-sm font-mono font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-cyan-950/90 text-cyan-200 border border-cyan-800/80">
-                {isBn ? `মাত্রা ${priorities.water}/৫` : `Level ${priorities.water}/5`}
+                {isBn ? `মাত্রা ${toBnDigits(priorities.water, lang)}/৫` : `Level ${priorities.water}/5`}
               </span>
               <span className="text-xs sm:text-sm font-mono font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                {waterMultiplier.toFixed(2)}× {isBn ? 'গুণক' : 'Multiplier'}
+                {toBnDigits(waterMultiplier.toFixed(2), lang)}× {isBn ? 'গুণক' : 'Multiplier'}
               </span>
               <span className="text-xs sm:text-sm font-mono font-extrabold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-cyan-400 text-[#04140d]">
-                {isBn ? 'কার্যকর গুরুত্ব:' : 'Eff. Weight:'} {effectiveWaterWeight}
+                {isBn ? 'কার্যকর গুরুত্ব:' : 'Eff. Weight:'} {toBnDigits(effectiveWaterWeight, lang)}
               </span>
             </div>
           </div>
@@ -117,15 +118,15 @@ export default function PrioritySlider({
               onChange={(e) => handlePriorityChange('water', e.target.value)}
               className="w-full accent-cyan-400 cursor-pointer h-2.5 bg-[#03140c] rounded-lg appearance-none"
             />
-            <span className="text-base font-black text-cyan-300 w-5 text-center">{priorities.water}</span>
+            <span className="text-base font-black text-cyan-300 w-5 text-center">{toBnDigits(priorities.water, lang)}</span>
           </div>
           <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] sm:text-xs text-emerald-300/70 font-mono gap-1">
             <div className="flex justify-between items-center sm:contents">
-              <span>1 ({isBn ? 'ন্যূনতম বিবেচনা' : 'Minimal concern'})</span>
+              <span>{isBn ? '১' : '1'} ({isBn ? 'ন্যূনতম বিবেচনা' : 'Minimal concern'})</span>
               <span className="text-center text-cyan-300 font-semibold my-0.5 sm:my-0">
-                {isBn ? 'নাসা চাপ:' : 'NASA Stress:'} {(safeWaterStress * 100).toFixed(1)}% {irrigationAvailable ? (isBn ? '(সেচযুক্ত ০.৭x)' : '(Irrigated 0.7x)') : (isBn ? '(বৃষ্টি-নির্ভর)' : '(Rainfed)')}
+                {isBn ? 'নাসা চাপ:' : 'NASA Stress:'} {toBnDigits((safeWaterStress * 100).toFixed(1), lang)}% {irrigationAvailable ? (isBn ? '(সেচযুক্ত ০.৭x)' : '(Irrigated 0.7x)') : (isBn ? '(বৃষ্টি-নির্ভর)' : '(Rainfed)')}
               </span>
-              <span>5 ({isBn ? 'সর্বোচ্চ পানি সাশ্রয়' : 'Critical saving'})</span>
+              <span>{isBn ? '৫' : '5'} ({isBn ? 'সর্বোচ্চ পানি সাশ্রয়' : 'Critical saving'})</span>
             </div>
           </div>
         </div>
@@ -148,13 +149,13 @@ export default function PrioritySlider({
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:justify-end">
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-950/90 text-amber-200 border border-amber-800/80">
-                {isBn ? `মাত্রা ${priorities.heat}/৫` : `Level ${priorities.heat}/5`}
+                {isBn ? `মাত্রা ${toBnDigits(priorities.heat, lang)}/৫` : `Level ${priorities.heat}/5`}
               </span>
               <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                {heatMultiplier.toFixed(2)}× {isBn ? 'গুণক' : 'Multiplier'}
+                {toBnDigits(heatMultiplier.toFixed(2), lang)}× {isBn ? 'গুণক' : 'Multiplier'}
               </span>
               <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-amber-400 text-[#04140d]">
-                {isBn ? 'কার্যকর গুরুত্ব:' : 'Eff. Weight:'} {effectiveHeatWeight}
+                {isBn ? 'কার্যকর গুরুত্ব:' : 'Eff. Weight:'} {toBnDigits(effectiveHeatWeight, lang)}
               </span>
             </div>
           </div>
@@ -168,15 +169,15 @@ export default function PrioritySlider({
               onChange={(e) => handlePriorityChange('heat', e.target.value)}
               className="w-full accent-amber-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
             />
-            <span className="text-sm font-black text-amber-300 w-4 text-center">{priorities.heat}</span>
+            <span className="text-sm font-black text-amber-300 w-4 text-center">{toBnDigits(priorities.heat, lang)}</span>
           </div>
           <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-300/60 font-mono gap-1">
             <div className="flex justify-between items-center sm:contents">
-              <span>1 ({isBn ? 'তাপমাত্রা উপেক্ষা' : 'Ignore heat'})</span>
+              <span>{isBn ? '১' : '1'} ({isBn ? 'তাপমাত্রা উপেক্ষা' : 'Ignore heat'})</span>
               <span className="text-center text-amber-300 font-semibold my-0.5 sm:my-0">
-                {isBn ? 'নাসা তাপীয় চাপ:' : 'NASA Heat Stress:'} {(safeHeatStress * 100).toFixed(1)}%
+                {isBn ? 'নাসা তাপীয় চাপ:' : 'NASA Heat Stress:'} {toBnDigits((safeHeatStress * 100).toFixed(1), lang)}%
               </span>
-              <span>5 ({isBn ? 'চরম তাপ সহনশীলতা' : 'Critical thermal tolerance'})</span>
+              <span>{isBn ? '৫' : '5'} ({isBn ? 'চরম তাপ সহনশীলতা' : 'Critical thermal tolerance'})</span>
             </div>
           </div>
         </div>
@@ -199,10 +200,10 @@ export default function PrioritySlider({
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:justify-end">
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-200 border border-emerald-800/80">
-                {isBn ? `মাত্রা ${priorities.soil}/৫` : `Level ${priorities.soil}/5`}
+                {isBn ? `মাত্রা ${toBnDigits(priorities.soil, lang)}/৫` : `Level ${priorities.soil}/5`}
               </span>
               <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#04140d]">
-                {isBn ? 'গুরুত্ব:' : 'Weight:'} {priorities.soil.toFixed(2)}
+                {isBn ? 'গুরুত্ব:' : 'Weight:'} {toBnDigits(priorities.soil.toFixed(2), lang)}
               </span>
             </div>
           </div>
@@ -216,15 +217,15 @@ export default function PrioritySlider({
               onChange={(e) => handlePriorityChange('soil', e.target.value)}
               className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
             />
-            <span className="text-sm font-black text-emerald-300 w-4 text-center">{priorities.soil}</span>
+            <span className="text-sm font-black text-emerald-300 w-4 text-center">{toBnDigits(priorities.soil, lang)}</span>
           </div>
           <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-300/60 font-mono gap-1">
             <div className="flex justify-between items-center sm:contents">
-              <span>1 ({isBn ? 'কম মাটি সুরক্ষা' : 'Low soil replenishment'})</span>
+              <span>{isBn ? '১' : '1'} ({isBn ? 'কম মাটি সুরক্ষা' : 'Low soil replenishment'})</span>
               <span className="text-center text-emerald-300/80">
                 {isBn ? 'স্থির গুরুত্ব (চাপ নিরপেক্ষ)' : 'Fixed Weight (Independent of stress)'}
               </span>
-              <span>5 ({isBn ? 'সর্বোচ্চ জৈব পুষ্টি বৃদ্ধি' : 'Max organic replenishment'})</span>
+              <span>{isBn ? '৫' : '5'} ({isBn ? 'সর্বোচ্চ জৈব পুষ্টি বৃদ্ধি' : 'Max organic replenishment'})</span>
             </div>
           </div>
         </div>
@@ -247,10 +248,10 @@ export default function PrioritySlider({
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:justify-end">
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-200 border border-emerald-800/80">
-                {isBn ? `মাত্রা ${priorities.diversity}/৫` : `Level ${priorities.diversity}/5`}
+                {isBn ? `মাত্রা ${toBnDigits(priorities.diversity, lang)}/৫` : `Level ${priorities.diversity}/5`}
               </span>
               <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#04140d]">
-                {isBn ? 'গুরুত্ব:' : 'Weight:'} {priorities.diversity.toFixed(2)}
+                {isBn ? 'গুরুত্ব:' : 'Weight:'} {toBnDigits(priorities.diversity.toFixed(2), lang)}
               </span>
             </div>
           </div>
@@ -264,15 +265,15 @@ export default function PrioritySlider({
               onChange={(e) => handlePriorityChange('diversity', e.target.value)}
               className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
             />
-            <span className="text-sm font-black text-emerald-300 w-4 text-center">{priorities.diversity}</span>
+            <span className="text-sm font-black text-emerald-300 w-4 text-center">{toBnDigits(priorities.diversity, lang)}</span>
           </div>
           <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-300/60 font-mono gap-1">
             <div className="flex justify-between items-center sm:contents">
-              <span>1 ({isBn ? 'একই গোত্র পুনরাবৃত্তি অনুমোদিত' : 'Allow consecutive families'})</span>
+              <span>{isBn ? '১' : '1'} ({isBn ? 'একই গোত্র পুনরাবৃত্তি অনুমোদিত' : 'Allow consecutive families'})</span>
               <span className="text-center text-emerald-300/80">
                 {isBn ? 'স্থির গুরুত্ব (বোটানিক্যাল বৈচিত্র্য)' : 'Fixed Weight (Botanical diversity)'}
               </span>
-              <span>5 ({isBn ? 'কঠোর গোত্র পরিবর্তন' : 'Strict family rotation'})</span>
+              <span>{isBn ? '৫' : '5'} ({isBn ? 'কঠোর গোত্র পরিবর্তন' : 'Strict family rotation'})</span>
             </div>
           </div>
         </div>
@@ -295,10 +296,10 @@ export default function PrioritySlider({
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:justify-end">
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-200 border border-emerald-800/80">
-                {isBn ? `মাত্রা ${priorities.profitability}/৫` : `Level ${priorities.profitability}/5`}
+                {isBn ? `মাত্রা ${toBnDigits(priorities.profitability, lang)}/৫` : `Level ${priorities.profitability}/5`}
               </span>
               <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-400 text-[#04140d]">
-                {isBn ? 'গুরুত্ব:' : 'Weight:'} {priorities.profitability.toFixed(2)}
+                {isBn ? 'গুরুত্ব:' : 'Weight:'} {toBnDigits(priorities.profitability.toFixed(2), lang)}
               </span>
             </div>
           </div>
@@ -312,15 +313,15 @@ export default function PrioritySlider({
               onChange={(e) => handlePriorityChange('profitability', e.target.value)}
               className="w-full accent-emerald-400 cursor-pointer h-2 bg-[#03140c] rounded-lg appearance-none"
             />
-            <span className="text-sm font-black text-emerald-300 w-4 text-center">{priorities.profitability}</span>
+            <span className="text-sm font-black text-emerald-300 w-4 text-center">{toBnDigits(priorities.profitability, lang)}</span>
           </div>
           <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between text-[10px] sm:text-[11px] text-emerald-300/60 font-mono gap-1">
             <div className="flex justify-between items-center sm:contents">
-              <span>1 ({isBn ? 'জীবনধারণভিত্তিক চাষ' : 'Subsistence focus'})</span>
+              <span>{isBn ? '১' : '1'} ({isBn ? 'জীবনধারণভিত্তিক চাষ' : 'Subsistence focus'})</span>
               <span className="text-center text-emerald-300/80">
                 {isBn ? 'বাজার নিট আয় সূচক' : 'Market Net Return Index'}
               </span>
-              <span>5 ({isBn ? 'সর্বোচ্চ অর্থকরী ফসল লক্ষ্য' : 'High cash-crop focus'})</span>
+              <span>{isBn ? '৫' : '5'} ({isBn ? 'সর্বোচ্চ অর্থকরী ফসল লক্ষ্য' : 'High cash-crop focus'})</span>
             </div>
           </div>
         </div>

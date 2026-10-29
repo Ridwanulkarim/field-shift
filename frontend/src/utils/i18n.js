@@ -307,11 +307,15 @@ export function translateCondition(label, lang = 'en') {
   return label;
 }
 
+export function toBnDigits(val, lang = 'bn') {
+  if (val === undefined || val === null) return '';
+  if (lang !== 'bn') return String(val);
+  return String(val).replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+}
+
 export function translateDateRange(start, end, lang = 'en') {
   if (lang !== 'bn') return `${start} to ${end}`;
-  // convert English digits to Bengali digits
-  const toBnDigits = (str) => String(str).replace(/[0-9]/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
-  return `${toBnDigits(start)} থেকে ${toBnDigits(end)}`;
+  return `${toBnDigits(start, 'bn')} থেকে ${toBnDigits(end, 'bn')}`;
 }
 
 export function translateRotationLabel(label, lang = 'en') {

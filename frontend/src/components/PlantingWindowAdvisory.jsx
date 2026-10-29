@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toBnDigits } from '../utils/i18n';
 
 /**
  * PlantingWindowAdvisory Component (Playbook 07: Adapting Farms with NASA Data)
@@ -291,8 +292,8 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
             {isBn ? 'প্রস্তাবিত পরিবর্তন (পূর্ণ দিনে)' : 'Recommended Shift in Whole Days'}
           </span>
           <div className="font-mono text-sm font-black text-amber-300 bg-[#03130c] px-3 py-1.5 rounded-lg border border-amber-800/60 flex items-center justify-between">
-            <span>+{data.shift_in_days} {isBn ? 'দিন বিলম্বে' : 'Days Later'}</span>
-            <span className="text-[10px] text-emerald-400 font-normal">p = {data.p_value}</span>
+            <span>+{toBnDigits(data.shift_in_days, lang)} {isBn ? 'দিন বিলম্বে' : 'Days Later'}</span>
+            <span className="text-[10px] text-emerald-400 font-normal">p = {toBnDigits(data.p_value, lang)}</span>
           </div>
         </div>
 
@@ -318,7 +319,7 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
             </h3>
           </div>
           <span className="text-xs font-mono font-bold text-cyan-300 bg-cyan-950 px-2.5 py-1 rounded-full border border-cyan-800">
-            Mann-Whitney U = {data.u_stat} (z = {data.z_score}, p &lt; 0.05)
+            Mann-Whitney U = {toBnDigits(data.u_stat, lang)} (z = {toBnDigits(data.z_score, lang)}, p &lt; {toBnDigits('0.05', lang)})
           </span>
         </div>
 
@@ -331,11 +332,11 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
                 {isBn ? 'সময়কাল ১: ঐতিহাসিক ভিত্তি (২০০১–২০১২)' : 'Period 1: Baseline (2001–2012)'}
               </span>
               <span className="text-xs font-mono font-black text-white px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800">
-                {isBn ? 'গড়:' : 'Mean:'} DOY {data.p1_mean} ({isBn ? '৩ জুন' : 'June 3'})
+                {isBn ? 'গড়:' : 'Mean:'} DOY {toBnDigits(data.p1_mean, lang)} ({isBn ? '৩ জুন' : 'June 3'})
               </span>
             </div>
             <p className="text-xs text-cyan-200/80">
-              {isBn ? `পরিমিত ব্যবধান: ±${data.p1_std} দিন • ১২টি শস্য মৌসুম` : `Standard Deviation: ±${data.p1_std} days • 12 crop seasons`}
+              {isBn ? `পরিমিত ব্যবধান: ±${toBnDigits(data.p1_std, lang)} দিন • ${toBnDigits(12, lang)}টি শস্য মৌসুম` : `Standard Deviation: ±${data.p1_std} days • 12 crop seasons`}
             </p>
             {/* Visual Dot Plot of DOY */}
             <div className="space-y-1 pt-1">
@@ -348,7 +349,7 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
                     key={idx}
                     className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-cyan-900/60 text-cyan-200 border border-cyan-700/60"
                   >
-                    {doy}
+                    {toBnDigits(doy, lang)}
                   </span>
                 ))}
               </div>
@@ -362,11 +363,11 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
                 {isBn ? 'সময়কাল ২: সাম্প্রতিক বাস্তবতা (২০১৩–২০২৫)' : 'Period 2: Recent Reality (2013–2025)'}
               </span>
               <span className="text-xs font-mono font-black text-white px-2 py-0.5 rounded bg-amber-950 border border-amber-800">
-                {isBn ? 'গড়:' : 'Mean:'} DOY {data.p2_mean} ({isBn ? '১৪ জুন' : 'June 14'})
+                {isBn ? 'গড়:' : 'Mean:'} DOY {toBnDigits(data.p2_mean, lang)} ({isBn ? '১৪ জুন' : 'June 14'})
               </span>
             </div>
             <p className="text-xs text-amber-200/80">
-              {isBn ? `পরিমিত ব্যবধান: ±${data.p2_std} দিন • ১৩টি শস্য মৌসুম` : `Standard Deviation: ±${data.p2_std} days • 13 crop seasons`}
+              {isBn ? `পরিমিত ব্যবধান: ±${toBnDigits(data.p2_std, lang)} দিন • ${toBnDigits(13, lang)}টি শস্য মৌসুম` : `Standard Deviation: ±${data.p2_std} days • 13 crop seasons`}
             </p>
             {/* Visual Dot Plot of DOY */}
             <div className="space-y-1 pt-1">
@@ -379,7 +380,7 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
                     key={idx}
                     className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-amber-900/60 text-amber-200 border border-amber-700/60"
                   >
-                    {doy}
+                    {toBnDigits(doy, lang)}
                   </span>
                 ))}
               </div>
@@ -395,12 +396,12 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
             </span>
             <span className="text-white">
               {isBn
-                ? `মৌসুমি বর্ষা সূচনার ডিস্ট্রিবিউশন স্থায়ীভাবে +${data.shift_in_days} দিন পিছিয়ে গেছে। সনাতন পঞ্জিকা অনুযায়ী আগে চারা রোপণ করলে তীব্র খরায় চারা শুকিয়ে মারা যাওয়ার ঝুঁকি থাকে।`
+                ? `মৌসুমি বর্ষা সূচনার ডিস্ট্রিবিউশন স্থায়ীভাবে +${toBnDigits(data.shift_in_days, lang)} দিন পিছিয়ে গেছে। সনাতন পঞ্জিকা অনুযায়ী আগে চারা রোপণ করলে তীব্র খরায় চারা শুকিয়ে মারা যাওয়ার ঝুঁকি থাকে।`
                 : `The monsoon onset distribution has structurally migrated +${data.shift_in_days} days later. Seedlings transplanted on traditional calendar dates face severe early-season drought desiccation.`}
             </span>
           </div>
           <span className="text-emerald-400 font-bold shrink-0">
-            Mann-Whitney p = {data.p_value} &lt; 0.05 ({isBn ? 'তাৎপর্যপূর্ণ' : 'Significant'})
+            Mann-Whitney p = {toBnDigits(data.p_value, lang)} &lt; {toBnDigits('0.05', lang)} ({isBn ? 'তাৎপর্যপূর্ণ' : 'Significant'})
           </span>
         </div>
       </div>
@@ -425,19 +426,19 @@ export default function PlantingWindowAdvisory({ lang = 'bn', onSelectLang }) {
 
           <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
             <div className="bg-[#03130c] p-2 rounded-lg border border-emerald-800/40">
-              <span className="text-[10px] text-emerald-400 block font-bold">15mm (-5mm)</span>
-              <span className="font-mono font-black text-white text-sm">+{data.sensitivity['15mm'].shift}d</span>
-              <span className="text-[9px] text-emerald-300/60 block">DOY 152→162</span>
+              <span className="text-[10px] text-emerald-400 block font-bold">{isBn ? '১৫ মিমি (-৫ মিমি)' : '15mm (-5mm)'}</span>
+              <span className="font-mono font-black text-white text-sm">+{toBnDigits(data.sensitivity['15mm'].shift, lang)}{isBn ? ' দিন' : 'd'}</span>
+              <span className="text-[9px] text-emerald-300/60 block">{isBn ? '১৫২→১৬২ তম দিন' : 'DOY 152→162'}</span>
             </div>
             <div className="bg-[#03130c] p-2 rounded-lg border border-emerald-500/60 ring-1 ring-emerald-500/40">
-              <span className="text-[10px] text-emerald-300 block font-bold">20mm (Base)</span>
-              <span className="font-mono font-black text-amber-300 text-sm">+{data.sensitivity['20mm'].shift}d</span>
-              <span className="text-[9px] text-emerald-300/60 block">DOY 154→165</span>
+              <span className="text-[10px] text-emerald-300 block font-bold">{isBn ? '২০ মিমি (ভিত্তি)' : '20mm (Base)'}</span>
+              <span className="font-mono font-black text-amber-300 text-sm">+{toBnDigits(data.sensitivity['20mm'].shift, lang)}{isBn ? ' দিন' : 'd'}</span>
+              <span className="text-[9px] text-emerald-300/60 block">{isBn ? '১৫৪→১৬৫ তম দিন' : 'DOY 154→165'}</span>
             </div>
             <div className="bg-[#03130c] p-2 rounded-lg border border-emerald-800/40">
-              <span className="text-[10px] text-emerald-400 block font-bold">25mm (+5mm)</span>
-              <span className="font-mono font-black text-white text-sm">+{data.sensitivity['25mm'].shift}d</span>
-              <span className="text-[9px] text-emerald-300/60 block">DOY 156→168</span>
+              <span className="text-[10px] text-emerald-400 block font-bold">{isBn ? '২৫ মিমি (+৫ মিমি)' : '25mm (+5mm)'}</span>
+              <span className="font-mono font-black text-white text-sm">+{toBnDigits(data.sensitivity['25mm'].shift, lang)}{isBn ? ' দিন' : 'd'}</span>
+              <span className="text-[9px] text-emerald-300/60 block">{isBn ? '১৫৬→১৬৮ তম দিন' : 'DOY 156→168'}</span>
             </div>
           </div>
         </div>

@@ -5,7 +5,8 @@ import {
   translateSeason,
   translateSoilType,
   translateFieldName,
-  translateDrainage
+  translateDrainage,
+  toBnDigits
 } from '../utils/i18n';
 
 /**
@@ -81,7 +82,7 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
             {isBn ? 'মাটির পিএইচ (pH)' : 'Soil pH'}
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base sm:text-lg md:text-xl font-black text-white font-heading">{field.soil_ph.toFixed(2)}</span>
+            <span className="text-base sm:text-lg md:text-xl font-black text-white font-heading">{toBnDigits(field.soil_ph.toFixed(2), lang)}</span>
             <span className="text-xs text-emerald-300/80 font-bold">
               {field.soil_ph < 6.0
                 ? (isBn ? '(অম্লীয়)' : '(Acidic)')
@@ -108,7 +109,7 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
             {isBn ? 'জৈব পদার্থ' : 'Organic Matter'}
           </span>
           <span className="text-base sm:text-lg md:text-xl font-black text-white font-heading">
-            {field.organic_matter_percent.toFixed(2)}%
+            {toBnDigits(field.organic_matter_percent.toFixed(2), lang)}%
           </span>
         </div>
       </div>
@@ -184,7 +185,7 @@ export default function FieldCard({ field, cropHistory = [], isLoadingHistory = 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
             {cropHistory.map((h) => (
               <div key={h.id || `${h.year}-${h.season}`} className="bg-[#051d12]/90 border border-emerald-800/50 rounded-xl p-2.5 sm:p-3 text-center shadow-sm hover:border-emerald-600/50 transition-colors">
-                <span className="text-xs font-mono text-emerald-400 font-bold block">{h.year} • {isBn ? translateSeason(h.season, lang) : h.season}</span>
+                <span className="text-xs font-mono text-emerald-400 font-bold block">{toBnDigits(h.year, lang)} • {isBn ? translateSeason(h.season, lang) : h.season}</span>
                 <span className="text-xs sm:text-sm font-black text-white block truncate mt-1 font-heading" title={isBn ? translateCrop(h.crop, lang) : h.crop}>
                   {isBn ? translateCrop(h.crop, lang) : h.crop}
                 </span>

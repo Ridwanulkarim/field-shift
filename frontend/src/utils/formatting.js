@@ -1,19 +1,34 @@
-/**
- * Field Shift - Formatting and Agricultural Utilities (Spec Section 25, 52-54)
- */
+import { toBnDigits } from './i18n';
 
-export function formatDateRange(startDateStr, endDateStr) {
-  if (!startDateStr || !endDateStr) return 'Dec 30, 2023 – Feb 28, 2024 (61 days)';
+const BN_MONTHS = {
+  Jan: 'জানু', Feb: 'ফেব', Mar: 'মার্চ', Apr: 'এপ্রিল', May: 'মে', Jun: 'জুন',
+  Jul: 'জুলাই', Aug: 'আগস্ট', Sep: 'সেপ্টে', Oct: 'অক্টো', Nov: 'নভে', Dec: 'ডিসে'
+};
+
+export function formatDateRange(startDateStr, endDateStr, lang = 'en') {
+  if (!startDateStr || !endDateStr) {
+    return lang === 'bn' ? '৩০ ডিসে, ২০২৩ – ২৮ ফেব, ২০২৪ (৬১ দিন)' : 'Dec 30, 2023 – Feb 28, 2024 (61 days)';
+  }
   const s = new Date(startDateStr);
   const e = new Date(endDateStr);
-  const sFormatted = s.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-  const eFormatted = e.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-  
-  // Compute day count
+  const sMonth = s.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+  const sDay = s.toLocaleDateString('en-US', { day: 'numeric', timeZone: 'UTC' });
+  const sYear = s.toLocaleDateString('en-US', { year: 'numeric', timeZone: 'UTC' });
+
+  const eMonth = e.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+  const eDay = e.toLocaleDateString('en-US', { day: 'numeric', timeZone: 'UTC' });
+  const eYear = e.toLocaleDateString('en-US', { year: 'numeric', timeZone: 'UTC' });
+
   const diffTime = Math.abs(e.getTime() - s.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-  return `${sFormatted} – ${eFormatted} (${diffDays} days)`;
+  if (lang === 'bn') {
+    const sBn = `${toBnDigits(sDay, 'bn')} ${BN_MONTHS[sMonth] || sMonth}, ${toBnDigits(sYear, 'bn')}`;
+    const eBn = `${toBnDigits(eDay, 'bn')} ${BN_MONTHS[eMonth] || eMonth}, ${toBnDigits(eYear, 'bn')}`;
+    return `${sBn} – ${eBn} (${toBnDigits(diffDays, 'bn')} দিন)`;
+  }
+
+  return `${sMonth} ${sDay}, ${sYear} – ${eMonth} ${eDay}, ${eYear} (${diffDays} days)`;
 }
 
 export function getConditionBadge(label) {
@@ -54,7 +69,8 @@ export function getConditionBadge(label) {
   }
 }
 
-export function formatScore(score) {
-  if (score === null || score === undefined || isNaN(score)) return 'N/A';
-  return Number(score).toFixed(1);
+export function formatScore(score, lang = 'en') {
+  if (score === null || score === undefined || isNaN(score)) return lang === 'bn' ? 'অপ্রাপ্য' : 'N/A';
+  const val = Number(score).toFixed(1);
+  return lang === 'bn' ? toBnDigits(val, 'bn') : val;
 }

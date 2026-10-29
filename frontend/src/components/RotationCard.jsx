@@ -3,7 +3,8 @@ import {
   translateCrop,
   translateCropFamily,
   translateSeason,
-  translateRotationLabel
+  translateRotationLabel,
+  toBnDigits
 } from '../utils/i18n';
 
 /**
@@ -104,7 +105,7 @@ export default function RotationCard({
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-[#051d12] text-emerald-300 border border-emerald-800/60">
-              {isBn ? `#${rank} বিকল্প শস্যবিন্যাস` : `Rank #${rank} Candidate`}
+              {isBn ? `#${toBnDigits(rank, lang)} বিকল্প শস্যবিন্যাস` : `Rank #${rank} Candidate`}
             </span>
           )}
 
@@ -135,7 +136,7 @@ export default function RotationCard({
         {/* Left: Seasonal Crop Flow */}
         <div className="md:col-span-8 space-y-3.5">
           <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block mb-2">
-            {isBn ? `মৌসুমি শস্য পরিক্রমা (${sequence.length}টি মৌসুম)` : `Seasonal Crop Progression (${sequence.length} Seasons)`}
+            {isBn ? `মৌসুমি শস্য পরিক্রমা (${toBnDigits(sequence.length, lang)}টি মৌসুম)` : `Seasonal Crop Progression (${sequence.length} Seasons)`}
           </span>
 
           <div className="flex flex-wrap items-center gap-3 sm:gap-3.5">
@@ -144,7 +145,7 @@ export default function RotationCard({
                 <div className="bg-[#051d12]/90 border border-emerald-800/60 rounded-xl p-3.5 sm:p-4 shadow-sm min-w-[130px] sm:min-w-[150px] flex-1">
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-emerald-400/90 mb-1.5">
                     <span>{isBn ? translateSeason(item.season, lang) : item.season}</span>
-                    {item.duration_days && <span>{item.duration_days}{isBn ? ' দিন' : 'd'}</span>}
+                    {item.duration_days && <span>{toBnDigits(item.duration_days, lang)}{isBn ? ' দিন' : 'd'}</span>}
                   </div>
                   <div className="text-base sm:text-lg font-black text-white truncate font-heading" title={isBn ? translateCrop(item.crop_name || item.name, lang) : (item.crop_name || item.name)}>
                     {isBn ? translateCrop(item.crop_name || item.name, lang) : (item.crop_name || item.name)}
@@ -197,10 +198,10 @@ export default function RotationCard({
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-none tabular-nums font-heading">
-                {score}
+                {toBnDigits(score, lang)}
               </span>
               <span className="text-xs text-emerald-300/80 font-bold mt-1 font-heading">
-                / 100
+                / {isBn ? '১০০' : '100'}
               </span>
             </div>
           </div>
@@ -230,7 +231,7 @@ export default function RotationCard({
                     <span className="truncate">{comp.name}</span>
                   </span>
                   <span className="font-mono text-xs sm:text-sm font-black text-white px-2 py-0.5 rounded bg-black/60 border border-emerald-700/60 shrink-0">
-                    {hasScore ? val : 'N/A'}
+                    {hasScore ? toBnDigits(val, lang) : (isBn ? 'অপ্রাপ্য' : 'N/A')}
                   </span>
                 </div>
                 {/* Progress bar */}
@@ -243,7 +244,7 @@ export default function RotationCard({
                 {comp.weight != null && (
                   <div className="text-xs text-emerald-300/80 font-mono flex items-center justify-between gap-1 whitespace-nowrap pt-2 border-t border-emerald-800/30 font-semibold">
                     <span className="text-emerald-400">{isBn ? 'কার্যকর গুরুত্ব:' : 'Eff. Wt:'}</span>
-                    <span className="text-emerald-100 font-bold">{Number(comp.weight).toFixed(2)}</span>
+                    <span className="text-emerald-100 font-bold">{toBnDigits(Number(comp.weight).toFixed(2), lang)}</span>
                   </div>
                 )}
               </div>
@@ -306,10 +307,10 @@ export default function RotationCard({
                 {isBn ? '৩. মাটির স্বাস্থ্য ও পেনাল্টি বিভাজন:' : '3. Soil Health & Penalty Breakdown:'}
               </strong>
               <div className="text-emerald-200/80 pl-3 border-l-2 border-emerald-500/40 space-y-1">
-                <div>{isBn ? 'ভিত্তি মাটির স্বাস্থ্য মান:' : 'Base soil health benefit:'} <strong className="text-white">{explanation?.soil?.base_soil_health_score ?? rotation.base_soil_health_score ?? 75} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
-                <div>{isBn ? 'নিষ্কাশন পেনাল্টি (৩×৩ ম্যাট্রিক্স):' : 'Drainage penalty (3x3 matrix):'} <strong className="text-rose-300">-{Math.abs(explanation?.soil?.drainage_penalty ?? rotation.drainage_penalty ?? 0)} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
-                <div>{isBn ? 'মাটির pH পেনাল্টি (দূরত্ব ভিত্তিক):' : 'Soil pH penalty (linear distance):'} <strong className="text-rose-300">-{Math.abs(explanation?.soil?.ph_penalty ?? rotation.ph_penalty ?? 0)} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
-                <div>{isBn ? 'চূড়ান্ত মৃত্তিকা স্কোর:' : 'Final soil score:'} <strong className="text-white">{explanation?.soil?.soil_score_final ?? explanation?.soil?.final_soil_score ?? rotation.soil_score ?? 75} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
+                <div>{isBn ? 'ভিত্তি মাটির স্বাস্থ্য মান:' : 'Base soil health benefit:'} <strong className="text-white">{toBnDigits(explanation?.soil?.base_soil_health_score ?? rotation.base_soil_health_score ?? 75, lang)} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
+                <div>{isBn ? 'নিষ্কাশন পেনাল্টি (৩×৩ ম্যাট্রিক্স):' : 'Drainage penalty (3x3 matrix):'} <strong className="text-rose-300">-{toBnDigits(Math.abs(explanation?.soil?.drainage_penalty ?? rotation.drainage_penalty ?? 0), lang)} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
+                <div>{isBn ? 'মাটির pH পেনাল্টি (দূরত্ব ভিত্তিক):' : 'Soil pH penalty (linear distance):'} <strong className="text-rose-300">-{toBnDigits(Math.abs(explanation?.soil?.ph_penalty ?? rotation.ph_penalty ?? 0), lang)} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
+                <div>{isBn ? 'চূড়ান্ত মৃত্তিকা স্কোর:' : 'Final soil score:'} <strong className="text-white">{toBnDigits(explanation?.soil?.soil_score_final ?? explanation?.soil?.final_soil_score ?? rotation.soil_score ?? 75, lang)} {isBn ? 'পয়েন্ট' : 'pts'}</strong></div>
               </div>
             </div>
 
@@ -321,7 +322,7 @@ export default function RotationCard({
               <div className="text-emerald-200/80 pl-3 border-l-2 border-teal-500/40 space-y-1">
                 <div>{isBn ? 'প্রস্তাবিত ফসল পরিবার:' : 'Candidate crop families:'} <code className="bg-[#051d12] px-1.5 py-0.5 rounded text-white font-mono text-[11px]">{JSON.stringify(explanation?.diversity?.candidate_crop_families || sequence.map(s => s.crop_family || s.family))}</code></div>
                 <div>{isBn ? 'ধারাবাহিকতা যাচাই:' : 'Repeat check sequence:'} <code className="bg-[#051d12] px-1.5 py-0.5 rounded text-white font-mono text-[11px]">{JSON.stringify(explanation?.diversity?.repeat_check_sequence || ['Standing Crop', ...sequence.map(s => s.crop_name || s.name)])}</code></div>
-                <div>{isBn ? 'পুনরাবৃত্তি পেনাল্টি:' : 'Repeat penalty:'} <strong className="text-rose-300">-{explanation?.diversity?.adjacent_repeat_penalty ?? explanation?.diversity?.repeat_penalty ?? 0} {isBn ? 'পয়েন্ট' : 'pts'}</strong> ({isBn ? 'চূড়ান্ত বৈচিত্র্য:' : 'Final diversity:'} {explanation?.diversity?.final_diversity_score ?? rotation.diversity_score ?? 50})</div>
+                <div>{isBn ? 'পুনরাবৃত্তি পেনাল্টি:' : 'Repeat penalty:'} <strong className="text-rose-300">-{toBnDigits(explanation?.diversity?.adjacent_repeat_penalty ?? explanation?.diversity?.repeat_penalty ?? 0, lang)} {isBn ? 'পয়েন্ট' : 'pts'}</strong> ({isBn ? 'চূড়ান্ত বৈচিত্র্য:' : 'Final diversity:'} {toBnDigits(explanation?.diversity?.final_diversity_score ?? rotation.diversity_score ?? 50, lang)})</div>
               </div>
             </div>
 
