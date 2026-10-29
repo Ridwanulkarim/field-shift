@@ -14,6 +14,7 @@ This project was built by **TEAM RAMT** for the **NASA International Space Apps 
 | **Mohammad Ridwanul Karim** | [@Ridwanulkarim](https://github.com/Ridwanulkarim) | **Full Stack Developer & Researcher**<br>End-to-end architecture, NASA Earthdata pipelines (HLS, SMAP, GPM, MODIS), dynamic scoring algorithms, agronomic research, Express API, and automated verification suites. |
 | **Raihan Islam** | [@Raihans-code](https://github.com/Raihans-code) | **Backend Developer**<br>Backend REST services, database modeling, environmental stress calculations, and server-side data workflows. |
 | **Md. Shahraj Mashrafe Mashfe** | [@SMash003](https://github.com/SMash003) | **UI/UX Designer**<br>Visual interface design, user journey mapping, design systems, and responsive design workflows. |
+| **Tofayel Ahmmed** | [@Tofayel5152](https://github.com/Tofayel5152) | **Video Editor**<br>Video narration, demo showcase cinematography, pacing, and visual storytelling. |
 
 ---
 
