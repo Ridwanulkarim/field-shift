@@ -1,6 +1,7 @@
 {
   "name": "field-shift",
   "version": "1.0.0",
+  "license": "Apache-2.0",
   "private": true,
   "description": "Field Shift: Adapting Farms with NASA Earth Observations (NASA Space Apps Challenge)",
   "scripts": {

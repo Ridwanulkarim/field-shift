@@ -6,6 +6,7 @@ import FieldSetup from './pages/FieldSetup';
 import RotationPlanner from './pages/RotationPlanner';
 import RotationComparison from './pages/RotationComparison';
 import Recommendation from './pages/Recommendation';
+import PlantingWindowAdvisory from './components/PlantingWindowAdvisory';
 import { t } from './utils/i18n';
 import farmBg from './assets/farm-bg.jpg';
 import {
@@ -146,6 +147,7 @@ export default function App() {
             <nav className="hidden lg:flex items-center p-1 rounded-2xl bg-[#030914]/85 border border-emerald-500/25 shadow-inner shadow-black/60 backdrop-blur-md gap-1">
               {[
                 { id: 'dashboard', icon: DashboardIcon, label: lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard' },
+                { id: 'advisory', icon: PlannerIcon, label: lang === 'bn' ? 'রোপণ পরামর্শ (কিলার ডেমো)' : 'Planting Advisory' },
                 { id: 'planner', icon: PlannerIcon, label: lang === 'bn' ? 'প্ল্যানার' : 'Planner' },
                 { id: 'comparison', icon: ComparisonIcon, label: lang === 'bn' ? 'তুলনা' : 'Comparison' },
                 { id: 'recommendation', icon: RecommendationIcon, label: lang === 'bn' ? 'সুপারিশ' : 'Recommendation' },
@@ -339,8 +341,9 @@ export default function App() {
               <div className="space-y-1">
                 {[
                   { id: 'dashboard', icon: DashboardIcon, name: t('nav_dashboard', lang), desc: lang === 'bn' ? 'সারসংক্ষেপ, স্কোর ও মানচিত্র' : 'Condition Score & Map' },
+                  { id: 'advisory', icon: PlannerIcon, name: lang === 'bn' ? 'রোপণ পরামর্শ (কিলার ডেমো)' : 'Planting Window Advisory', desc: lang === 'bn' ? 'রাজশাহী আমন ১১ দিন শিফট' : 'Rajshahi 11-Day Shift Killer Demo' },
                   { id: 'planner', icon: PlannerIcon, name: t('nav_planner', lang), desc: lang === 'bn' ? 'মৌসুমি ফসল নির্বাচন ও ঘূর্ণন' : 'Seasonal Crop Sequences' },
-                  { id: 'comparison', icon: ComparisonIcon, name: t('nav_comparison', lang), desc: lang === 'bn' ? 'নাসা স্ট্রেস র‍্যাংকিং তুলনা' : 'NASA Stress Ranking Shift' },
+                  { id: 'comparison', icon: ComparisonIcon, name: t('nav_comparison', lang), desc: lang === 'bn' ? '৩টি শস্য কৌশল ও বেঞ্চমার্ক তুলনা' : '3 Strategies & Baseline Compare' },
                   { id: 'recommendation', icon: RecommendationIcon, name: t('nav_recommendation', lang), desc: lang === 'bn' ? 'চূড়ান্ত সুপারিশ ও কর্মপরিকল্পনা' : 'Action Plan & Stewardship' },
                   { id: 'fields', icon: FieldsIcon, name: t('nav_fields', lang), desc: lang === 'bn' ? '৫টি পরীক্ষামূলক কৃষি অঞ্চল' : '5 Demo Field Zones' },
                 ].map((item) => {
@@ -415,7 +418,12 @@ export default function App() {
                   setSelectedFieldId(id);
                   setActiveTab('dashboard');
                 }}
+                onSelectTab={setActiveTab}
               />
+            )}
+
+            {activeTab === 'advisory' && (
+              <PlantingWindowAdvisory />
             )}
 
             {activeTab === 'planner' && (

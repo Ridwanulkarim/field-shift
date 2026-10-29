@@ -211,10 +211,21 @@ async function runApiTests() {
   assert.strictEqual(fieldRotRes.status, 200);
   assert.strictEqual(fieldRotRes.body.field_id, 1);
   assert.strictEqual(fieldRotRes.body.count >= 2, true);
-  console.log(`✓ Field rotations history verified: retrieved ${fieldRotRes.body.count} stored rotations for Field 1.\n`);
+  console.log('✓ Field rotations history verified: retrieved ' + fieldRotRes.body.count + ' stored rotations for Field 1.\n');
+
+  // 9. GET /api/advisory (Playbook Spec Image 4 & 5)
+  console.log('[Test 9] Testing GET /api/advisory (Killer Demo Rajshahi Aman Shift)...');
+  const advRes = await request(app, { method: 'GET', url: '/api/advisory?district=Rajshahi&crop=Aman%20Rice' });
+  assert.strictEqual(advRes.status, 200);
+  assert.strictEqual(advRes.body.district, 'Rajshahi');
+  assert.strictEqual(advRes.body.shift_in_days, 11);
+  assert.strictEqual(advRes.body.test_statistic.is_statistically_significant, true);
+  assert.strictEqual(advRes.body.sms_length <= 160, true);
+  assert.strictEqual(advRes.body.license, 'Apache-2.0');
+  console.log(`✓ Advisory endpoint verified: +${advRes.body.shift_in_days} days shift, SMS=<${advRes.body.sms_length} chars, Mann-Whitney U test p=${advRes.body.test_statistic.p_value}, provenance stack verified.\n`);
 
   console.log('================================================================');
-  console.log('ALL PHASE 12 REST API INTEGRATION TESTS PASSED! (8/8)');
+  console.log('ALL REST API INTEGRATION TESTS PASSED! (9/9)');
   console.log('================================================================');
 }
 

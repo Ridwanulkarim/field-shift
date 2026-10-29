@@ -19,6 +19,7 @@ const healthRoutes = require('./routes/health');
 const cropsRoutes = require('./routes/crops');
 const fieldsRoutes = require('./routes/fields');
 const rotationsRoutes = require('./routes/rotations');
+const advisoryRoutes = require('./routes/advisory');
 
 const app = express();
 
@@ -129,22 +130,25 @@ app.get(['/', '/api'], (req, res) => {
       '/api/crops',
       '/api/fields',
       '/api/rotations/evaluate',
-      '/api/rotations/compare'
+      '/api/rotations/compare',
+      '/api/advisory'
     ]
   });
 });
 
-// Mount API routes (Spec Section 45)
+// Mount API routes (Spec Section 45 & Playbook Spec)
 // Dual-mounted at both /api/* and root /* to ensure seamless serverless routing
 app.use('/api/health', healthRoutes);
 app.use('/api/crops', cropsRoutes);
 app.use('/api/fields', fieldsRoutes);
 app.use('/api/rotations', rotationsRoutes);
+app.use('/api/advisory', advisoryRoutes);
 
 app.use('/health', healthRoutes);
 app.use('/crops', cropsRoutes);
 app.use('/fields', fieldsRoutes);
 app.use('/rotations', rotationsRoutes);
+app.use('/advisory', advisoryRoutes);
 
 // 404 handler
 app.use((req, res) => {

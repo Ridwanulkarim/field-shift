@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node db/test_crud.js && node services/nasa/test_nasa_access.js && node services/nasa/test_preprocessing.js && node services/nasa/test_baselines.js && node services/stress/test_stress_engine.js && node services/soil/test_soil_engine.js && node services/rotations/test_rotations.js && node services/rotations/test_scoring.js && node test_api.js && node test_section57_fixtures.js"
+    "test": "node db/test_crud.js && node services/nasa/test_nasa_access.js && node services/nasa/test_preprocessing.js && node services/nasa/test_baselines.js && node services/stress/test_stress_engine.js && node services/soil/test_soil_engine.js && node services/rotations/test_rotations.js && node services/rotations/test_scoring.js && node services/agro/test_agro.js && node test_api.js && node test_section57_fixtures.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
