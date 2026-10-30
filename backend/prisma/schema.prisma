@@ -1,216 +1,94 @@
+// Field Shift database schema (PostgreSQL, hosted on Neon).
+// The generated client goes to src/generated/prisma (git-ignored; created by `npm run db:generate`).
+
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model Seasons {
-  id Int @id @default(autoincrement())
-  name String @unique
-  start_month Int
-  start_day Int
-  end_month Int
-  end_day Int
-  approx_days Int
-  region String? @default("Bangladesh")
-  source_reference String? @db.Text
-  configurable Boolean? @default(true)
-
-  @@map("seasons")
+enum RunStatus {
+  SUCCESS
+  FAILED
 }
 
-model DrainagePenalties {
-  id Int @id @default(autoincrement())
-  waterlogging_tolerance String
-  drainage_class String
-  penalty_points Int
-  version String @default("v6.2")
-
-  @@map("drainage_penalties")
+// A study area. Pilot districts only; coordinates are APPROXIMATE (see coordNote).
+model District {
+  id           Int            @id @default(autoincrement())
+  slug         String         @unique
+  nameEn       String
+  nameBn       String
+  division     String
+  latitude     Float
+  longitude    Float
+  coordNote    String
+  datasetRuns  DatasetRun[]
+  climateDaily ClimateDaily[]
 }
 
-model Fields {
-  id Int @id @default(autoincrement())
-  name String
-  latitude Decimal
-  longitude Decimal
-  boundary_geojson Json?
-  area_hectares Decimal?
-  soil_type String?
-  soil_ph Decimal?
-  organic_matter_percent Decimal?
-  drainage String?
-  irrigation_available Boolean @default(false)
-  current_crop String?
-  current_crop_family String?
-  previous_crop String?
-  previous_crop_family String?
-  current_season String?
-  is_demo Boolean @default(false)
-  data_label String?
-
-  @@map("fields")
+// Crop traits used by the rotation engine.
+// `basis` says how trustworthy the numbers are. Until a person has checked them
+// against BRRI / BARI / FAO sources it must stay UNVERIFIED_GENERAL_KNOWLEDGE.
+model Crop {
+  id                    Int     @id @default(autoincrement())
+  slug                  String  @unique
+  nameEn                String
+  nameBn                String
+  family                String // botanical family, used for rotation diversity
+  isLegume              Boolean
+  startMonth            Int // typical first month in the field (1-12)
+  endMonth              Int // typical last month in the field (wraps past December)
+  waterNeedMmMin        Int // approximate seasonal water need, mm (heuristic)
+  waterNeedMmMax        Int
+  heatThresholdC        Float // daily max temperature treated as heat stress (heuristic)
+  heatSensitivity       Int // 1 (tolerant) to 5 (sensitive)
+  salinityTolerance     Int // 1 (sensitive) to 5 (tolerant)
+  waterloggingTolerance Int // 1 (sensitive) to 5 (tolerant)
+  inputIntensity        Int // 1 (low input) to 5 (high input)
+  basis                 String
+  notes                 String
 }
 
-model FieldCropHistory {
-  id Int @id @default(autoincrement())
-  field_id Int
-  year Int
-  season String
-  crop String
-  crop_family String
-  source String
+// One attempt to bring a dataset in for one district. Keeps the provenance.
+model DatasetRun {
+  id            Int            @id @default(autoincrement())
+  districtId    Int
+  district      District       @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  source        String // e.g. "NASA POWER" or "SYNTHETIC"
+  product       String?
+  isSynthetic   Boolean        @default(false)
+  status        RunStatus
+  endpointUrl   String
+  requestParams Json
+  retrievedAt   DateTime       @default(now())
+  startDate     DateTime       @db.Date
+  endDate       DateTime       @db.Date
+  fillValue     Float?
+  units         Json?
+  rowCount      Int            @default(0)
+  missingCount  Int            @default(0)
+  errorMessage  String?
+  notes         String?
+  climateDaily  ClimateDaily[]
 
-  @@map("field_crop_history")
+  @@index([districtId, status, retrievedAt])
 }
 
-model Crops {
-  id Int @id @default(autoincrement())
-  name String @unique
-  crop_family String
-  water_demand Decimal?
-  heat_tolerance Decimal?
-  soil_health_benefit Decimal?
-  diversity_value Decimal?
-  profitability_value Decimal?
-  water_demand_status String @default("unverified")
-  heat_tolerance_status String @default("unverified")
-  soil_health_benefit_status String @default("unverified")
-  diversity_value_status String @default("unverified")
-  profitability_value_status String @default("unverified")
-  growing_days Int
-  suitable_seasons Json
-  waterlogging_tolerance String?
-  min_soil_ph Decimal?
-  max_soil_ph Decimal?
-  source_name String?
-  source_url String? @db.Text
-  source_reference String? @db.Text
-  source_notes String? @db.Text
-  trait_mapping_method String?
-  trait_mapping_version String?
-  source_status String @default("unverified")
+// Daily values. null means "missing", never a guessed number.
+model ClimateDaily {
+  id         Int        @id @default(autoincrement())
+  runId      Int
+  run        DatasetRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  districtId Int
+  district   District   @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  date       DateTime   @db.Date
+  precipMm   Float?
+  tMaxC      Float?
+  tMinC      Float?
 
-  @@map("crops")
-}
-
-model EarthObservations {
-  id Int @id @default(autoincrement())
-  field_id Int
-  observation_date DateTime @db.Date
-  ndvi Decimal?
-  evi Decimal?
-  ndmi Decimal?
-  ndmi_anomaly Decimal?
-  soil_moisture Decimal?
-  soil_moisture_anomaly Decimal?
-  rainfall_mm Decimal?
-  rolling_30d_rainfall Decimal?
-  rainfall_anomaly Decimal?
-  dry_day_count Int?
-  daytime_lst_c Decimal?
-  nighttime_lst_c Decimal?
-  daytime_lst_anomaly Decimal?
-  nighttime_lst_anomaly Decimal?
-  hot_day_count Int?
-  vegetation_stress Decimal?
-  water_stress_index Decimal?
-  adjusted_water_stress Decimal?
-  heat_stress_index Decimal?
-  quality_status String?
-  hls_product String?
-  hls_version String?
-  smap_product String?
-  smap_version String?
-  gpm_product String?
-  gpm_version String?
-  gpm_latency_class String?
-  modis_product String?
-  modis_version String?
-  processing_date DateTime? @db.Timestamptz(6)
-  data_sources Json?
-  analysis_window_start DateTime? @db.Date
-  analysis_window_end DateTime? @db.Date
-
-  @@map("earth_observations")
-}
-
-model Baselines {
-  id Int @id @default(autoincrement())
-  field_id Int
-  variable String
-  season String
-  mean Decimal
-  std Decimal
-  n Int
-  n_years Int
-  years_included Json
-  period_start DateTime @db.Date
-  period_end DateTime @db.Date
-  method String
-  sample_quality String
-  crop_matched Boolean?
-  gpm_latency_class String?
-
-  @@map("baselines")
-}
-
-model FieldConditionScores {
-  id Int @id @default(autoincrement())
-  field_id Int
-  window_start DateTime @db.Date
-  window_end DateTime @db.Date
-  vegetation_condition_score Decimal?
-  water_condition_score Decimal?
-  heat_condition_score Decimal?
-  field_condition_score Decimal?
-  available_components Json
-  missing_components Json
-  nasa_sources_available Int
-  data_quality_status String
-  scoring_version String @default("v6.2")
-
-  @@map("field_condition_scores")
-}
-
-model Rotations {
-  id Int @id @default(autoincrement())
-  field_id Int
-  name String
-  season_sequence Json
-  crops Json
-  rotation_cycle_mode String
-  repeat_context_crop String?
-  repeat_context_type String?
-  water_score Decimal?
-  soil_score Decimal?
-  heat_score Decimal?
-  diversity_score Decimal?
-  profitability_score Decimal?
-  base_soil_health_score Decimal?
-  drainage_penalty Decimal?
-  ph_penalty Decimal?
-  organic_matter_adjustment Decimal? @default(0)
-  soil_score_final Decimal?
-  water_stress_index Decimal?
-  adjusted_water_stress Decimal?
-  heat_stress_index Decimal?
-  water_multiplier Decimal?
-  heat_multiplier Decimal?
-  effective_water_weight Decimal?
-  effective_heat_weight Decimal?
-  overall_score Decimal?
-  feasibility_status String
-  sample_quality String?
-  crop_matched Boolean?
-  data_quality_status String?
-  observation_ids_used Json?
-  baseline_ids_used Json?
-  explanation Json
-  scoring_version String @default("v6.2")
-  scored_at DateTime @db.Timestamptz(6)
-
-  @@map("rotations")
+  @@unique([runId, date])
+  @@index([districtId, date])
 }

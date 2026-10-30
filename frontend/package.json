@@ -1,45 +1,21 @@
 {
-  "name": "frontend",
+  "name": "field-shift-frontend",
   "private": true,
-  "version": "0.0.0",
-  "license": "Apache-2.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
-    "leaflet": "^1.9.4",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
-    "@vitejs/plugin-react": "^6.1.1",
-    "oxlint": "^1.81.0",
+    "@vitejs/plugin-react": "^6.1.2",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.3.0"
-  },
-  "contributors": [
-    {
-      "name": "Mohammed Arman Alam",
-      "url": "https://github.com/Mohammed-Arman-Alam"
-    },
-    {
-      "name": "Mohammad Ridwanul Karim",
-      "url": "https://github.com/Ridwanulkarim"
-    },
-    {
-      "name": "Raihan Islam",
-      "url": "https://github.com/Raihans-code"
-    },
-    {
-      "name": "Md. Shahraj Mashrafe Mashfe",
-      "url": "https://github.com/SMash003"
-    }
-  ]
+    "vite": "^8.3.5"
+  }
 }
