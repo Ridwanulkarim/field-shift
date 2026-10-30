@@ -85,9 +85,15 @@ export function createRepository(prisma) {
         const rows = await prisma.climateDaily.findMany({
           where: { runId: run.id },
           orderBy: { date: 'asc' },
-          select: { date: true, precipMm: true, tMaxC: true, tMinC: true },
+          select: { date: true, precipMm: true, tMaxC: true, tMinC: true, measurements: true },
         });
-        series = rows.map((r) => ({ date: isoDate(r.date), precipMm: r.precipMm, tMaxC: r.tMaxC, tMinC: r.tMinC }));
+        series = rows.map((r) => ({
+          date: isoDate(r.date),
+          precipMm: r.precipMm,
+          tMaxC: r.tMaxC,
+          tMinC: r.tMinC,
+          measurements: r.measurements,
+        }));
         seriesCache.set(run.id, series);
       }
       return { provenance: toProvenance(run), series };

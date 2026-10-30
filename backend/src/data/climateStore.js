@@ -1,7 +1,7 @@
 // Stores one dataset run (provenance) together with its daily rows, and retires the older
-// run of the same kind for that district so the database does not grow without limit.
+// run of the same source and kind for that district so the database does not grow without limit.
 
-const CHUNK = 3000; // 3000 rows x 7 columns stays far below PostgreSQL's 65,535-parameter limit
+const CHUNK = 3000; // 3000 rows x 8 columns stays far below PostgreSQL's 65,535-parameter limit
 
 export async function storeRun(prisma, { districtId, run, days }) {
   return prisma.$transaction(
@@ -33,11 +33,17 @@ export async function storeRun(prisma, { districtId, run, days }) {
             precipMm: d.precipMm,
             tMaxC: d.tMaxC,
             tMinC: d.tMinC,
+            measurements: d.measurements ?? undefined,
           })),
         });
       }
       await tx.datasetRun.deleteMany({
-        where: { districtId, isSynthetic: run.isSynthetic, id: { not: created.id } },
+        where: {
+          districtId,
+          source: run.source,
+          isSynthetic: run.isSynthetic,
+          id: { not: created.id },
+        },
       });
       return created;
     },

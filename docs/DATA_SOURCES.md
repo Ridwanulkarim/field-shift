@@ -15,7 +15,7 @@ Status words used below: **Real** (retrieved from the named source), **Assumptio
 | Spatial resolution | Meteorology on a grid of roughly 0.5 degrees (tens of km). Values describe a grid cell, **not a farm** |
 | Missing values | NASA marks them with a fill value (-999). The parser reads the fill value from the response and stores `null` |
 
-What is stored per retrieval (`DatasetRun`): endpoint, request parameters, retrieval timestamp, product title and sources from NASA's response header, fill value, units, row count, missing count and any warnings. The API returns this as `climate.provenance`, and the interface shows it under "Climate evidence".
+What is stored per retrieval (`DatasetRun`): endpoint, request parameters, retrieval timestamp, product title and sources from NASA's response header, fill value, units, row count, missing count and any warnings. Daily rows retain the legacy POWER fields and a `measurements` object for source-specific values. The API returns this as `climate.provenance`, and the interface shows it under "Climate evidence".
 
 Checks applied before storing: required parameters present, units are mm and Celsius, values outside plausible limits become missing, and a district is refused if any variable is missing on more than 20% of days. Failures are recorded as `FAILED` runs and shown at `/api/health/data`.
 
@@ -38,6 +38,10 @@ Typical months in the field, seasonal water need range, heat threshold, heat sen
 ## Soil
 
 No soil dataset is used. Soil enters only as what the user selects (salinity and drainage), matched against crop tolerance levels. This is a stated limitation in the app.
+
+## Future dataset integration
+
+GPM precipitation, SMAP soil moisture, and HLS vegetation products can share the same district without replacing one another. Each ingestion should use its own `DatasetRun.source` and put variables that do not map to the legacy POWER fields in `ClimateDaily.measurements`, using stable names and units recorded in `DatasetRun.units`.
 
 ## Not used
 

@@ -60,7 +60,7 @@ The response contains `strategies` (the existing rotation first, then three rank
 ## Database (Prisma schema in `backend/prisma/schema.prisma`)
 
 - `District`, `Crop`: reference data (seeded from `src/data/reference/`).
-- `DatasetRun`: one ingestion attempt per district with source, endpoint, request parameters, retrieval time, fill value, units, row and missing counts, status (`SUCCESS` or `FAILED`), error message and notes.
-- `ClimateDaily`: daily precipitation (mm), maximum and minimum temperature (deg C), linked to a run. `null` means missing.
+- `DatasetRun`: one ingestion attempt per district and source with source, endpoint, request parameters, retrieval time, fill value, units, row and missing counts, status (`SUCCESS` or `FAILED`), error message and notes. Successful retention is scoped to the district, source, and synthetic/real category.
+- `ClimateDaily`: legacy POWER-compatible daily precipitation (mm), maximum and minimum temperature (deg C), plus a nullable `measurements` JSON object for dataset-specific variables such as SMAP soil moisture or HLS vegetation indices. `null` means missing.
 
 Migrations are plain SQL in `backend/prisma/migrations/` and are applied with `npm run db:deploy`.

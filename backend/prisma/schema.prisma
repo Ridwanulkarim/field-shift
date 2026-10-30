@@ -74,7 +74,7 @@ model DatasetRun {
   notes         String?
   climateDaily  ClimateDaily[]
 
-  @@index([districtId, status, retrievedAt])
+  @@index([districtId, source, isSynthetic, status, retrievedAt])
 }
 
 // Daily values. null means "missing", never a guessed number.
@@ -88,6 +88,9 @@ model ClimateDaily {
   precipMm   Float?
   tMaxC      Float?
   tMinC      Float?
+  // Dataset-specific measurements, keyed by a stable variable name.
+  // Examples: { "soilMoistureM3M3": 0.24 } or { "ndvi": 0.61, "evi": 0.32 }.
+  measurements Json?
 
   @@unique([runId, date])
   @@index([districtId, date])
