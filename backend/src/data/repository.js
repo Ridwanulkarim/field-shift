@@ -57,9 +57,13 @@ export function createRepository(prisma) {
         prisma.district.findMany({ orderBy: { nameEn: 'asc' } }),
         prisma.datasetRun.findMany({ where: { status: 'SUCCESS' }, select: { districtId: true, isSynthetic: true } }),
       ]);
+      const runStatus = new Map();
+      for (const run of runs) {
+        const status = runStatus.get(run.districtId);
+        if (!status || !run.isSynthetic) runStatus.set(run.districtId, run.isSynthetic ? 'synthetic' : 'nasa');
+      }
       return districts.map((d) => {
-        const mine = runs.filter((r) => r.districtId === d.id);
-        const climateData = mine.some((r) => !r.isSynthetic) ? 'nasa' : mine.length ? 'synthetic' : 'none';
+        const climateData = runStatus.get(d.id) ?? 'none';
         return { ...toDistrict(d), climateData };
       });
     },

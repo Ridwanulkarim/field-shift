@@ -27,6 +27,10 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
 - Errors always look like `{ "error": { "code", "message", "details?" } }`.
 - Missing climate values are stored as `null`, never guessed.
 - Synthetic data is flagged in the database (`isSynthetic`), in every API response and on screen.
+- The repository caches immutable daily series by dataset-run ID, while the evaluation service caches
+  derived climate indicators and crop metrics in bounded in-process caches. A new ingestion creates a
+  new run ID, so refreshed data is used without manual cache invalidation; old entries are evicted
+  after a small fixed limit.
 
 ## API
 

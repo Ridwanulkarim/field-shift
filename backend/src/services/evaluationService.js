@@ -64,13 +64,24 @@ function climateNotice(climate) {
   return null;
 }
 
+function boundedSet(cache, key, value, maxEntries) {
+  cache.set(key, value);
+  if (cache.size > maxEntries) cache.delete(cache.keys().next().value);
+  return value;
+}
+
 export function createEvaluationService(repo) {
+  const climateViewCache = new Map();
+  const cropClimateCache = new Map();
+
   async function climateBundle(district) {
     const climate = await repo.getClimate(district.id);
     if (!climate) {
       return { status: 'unavailable', provenance: null, coverage: null, indicators: [], notice: climateNotice(null), series: null };
     }
-    return {
+    const cached = climateViewCache.get(climate.provenance.runId);
+    if (cached) return cached;
+    const bundle = {
       status: 'available',
       provenance: climate.provenance,
       coverage: seriesCoverage(climate.series),
@@ -78,6 +89,7 @@ export function createEvaluationService(repo) {
       notice: climateNotice(climate),
       series: climate.series,
     };
+    return boundedSet(climateViewCache, climate.provenance.runId, bundle, 8);
   }
 
   return {
@@ -113,7 +125,17 @@ export function createEvaluationService(repo) {
 
       const { series, ...climate } = await climateBundle(district);
       const cropClimateMap = {};
-      if (series) for (const c of crops) cropClimateMap[c.slug] = cropClimate(series, c);
+      if (series) {
+        const runId = climate.provenance.runId;
+        const cropKey = `${runId}:${crops.map((c) => `${c.slug}:${c.startMonth}-${c.endMonth}:${c.heatThresholdC}`).join('|')}`;
+        const cachedCropClimate = cropClimateCache.get(cropKey);
+        if (cachedCropClimate) {
+          Object.assign(cropClimateMap, cachedCropClimate);
+        } else {
+          for (const c of crops) cropClimateMap[c.slug] = cropClimate(series, c);
+          boundedSet(cropClimateCache, cropKey, cropClimateMap, 8);
+        }
+      }
 
       const result = evaluateRotations({
         crops,

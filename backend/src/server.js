@@ -9,7 +9,7 @@ if (config.databaseUrl) {
   prisma = createPrismaClient(config.databaseUrl);
   repository = createRepository(prisma);
 } else {
-  console.warn('WARNING: DATABASE_URL is not set. The API will start, but data routes will answer 503. See docs/SETUP.md.');
+  console.warn('WARNING: No database URL is set for the selected NODE_ENV. The API will start, but data routes will answer 503. See docs/SETUP.md.');
 }
 
 const app = createApp(config, { repository });

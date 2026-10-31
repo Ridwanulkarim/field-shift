@@ -31,7 +31,7 @@ Twelve pilot districts, not all 64. Coordinates are approximate district-headqua
 
 ## Crop traits (Assumption)
 
-Typical months in the field, seasonal water need range, heat threshold, heat sensitivity, salinity tolerance, waterlogging tolerance and input intensity for ten crops (Aman, Boro, Aus, wheat, mustard, potato, lentil, rabi maize, mungbean, jute). They come from general agronomic knowledge, are stored with `basis = UNVERIFIED_GENERAL_KNOWLEDGE`, and are shown that way next to every result.
+Typical months in the field, seasonal water need range, heat threshold, heat sensitivity, salinity tolerance, waterlogging tolerance and input intensity for 22 crops (rice, wheat, mustard, potato, pulses, maize, jute, vegetables, oilseeds and sweet potato). They come from general agronomic knowledge, are stored with `basis = UNVERIFIED_GENERAL_KNOWLEDGE`, and are shown that way next to every result. The expanded list covers common crops grown across Bangladesh's aman, rabi, pre-monsoon and monsoon periods; it does not mean every crop can be grown continuously in every location.
 
 **Action before submission:** an agronomist or the team must check each value against BRRI, BARI and BARC publications and FAO Irrigation and Drainage Paper 56, record the citation per value, and only then change `basis`.
 

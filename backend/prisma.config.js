@@ -5,8 +5,10 @@ import { defineConfig } from 'prisma/config';
 try {
   process.loadEnvFile(fileURLToPath(new URL('./.env', import.meta.url)));
 } catch {
-  // .env is optional (CI or a shell that already exports the variables)
+  // .env is optional when variables are supplied by the shell or CI.
 }
+
+const suffix = process.env.NODE_ENV === 'production' ? 'PRODUCTION' : 'DEVELOPMENT';
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
@@ -14,6 +16,6 @@ export default defineConfig({
   datasource: {
     // DIRECT_URL = Neon's non-pooled connection (needed by `prisma migrate`).
     // Falls back to DATABASE_URL, which is fine for a local Postgres.
-    url: process.env.DIRECT_URL || process.env.DATABASE_URL || '',
+    url: process.env[`DIRECT_URL_${suffix}`] || process.env[`DATABASE_URL_${suffix}`] || '',
   },
 });

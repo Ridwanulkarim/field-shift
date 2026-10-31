@@ -17,16 +17,45 @@ enum RunStatus {
 
 // A study area. Pilot districts only; coordinates are APPROXIMATE (see coordNote).
 model District {
-  id           Int            @id @default(autoincrement())
-  slug         String         @unique
-  nameEn       String
-  nameBn       String
-  division     String
-  latitude     Float
-  longitude    Float
-  coordNote    String
+  id        Int    @id @default(autoincrement())
+  slug      String @unique
+  nameEn    String
+  nameBn    String
+  division  String
+  latitude  Float
+  longitude Float
+  coordNote String
+
   datasetRuns  DatasetRun[]
   climateDaily ClimateDaily[]
+  fields       Field[]
+}
+
+// Registered agricultural fields with PostGIS boundaries.
+model Field {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  districtId Int
+  district   District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+
+  // Stored and spatially analyzed by PostGIS.
+  // Prisma cannot directly read or write this unsupported geometry field.
+  boundary Unsupported("geometry(MultiPolygon,4326)")?
+
+  // Calculated by the backend using PostGIS.
+  areaHa Float?
+
+  // Optional farmer-provided field information.
+  soilType         String?
+  soilPh           Float?
+  organicMatterPct Float?
+  salinityDsM      Float?
+  irrigationSource String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([districtId])
 }
 
 // Crop traits used by the rotation engine.
@@ -79,15 +108,15 @@ model DatasetRun {
 
 // Daily values. null means "missing", never a guessed number.
 model ClimateDaily {
-  id         Int        @id @default(autoincrement())
-  runId      Int
-  run        DatasetRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  districtId Int
-  district   District   @relation(fields: [districtId], references: [id], onDelete: Cascade)
-  date       DateTime   @db.Date
-  precipMm   Float?
-  tMaxC      Float?
-  tMinC      Float?
+  id           Int        @id @default(autoincrement())
+  runId        Int
+  run          DatasetRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  districtId   Int
+  district     District   @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  date         DateTime   @db.Date
+  precipMm     Float?
+  tMaxC        Float?
+  tMinC        Float?
   // Dataset-specific measurements, keyed by a stable variable name.
   // Examples: { "soilMoistureM3M3": 0.24 } or { "ndvi": 0.61, "evi": 0.32 }.
   measurements Json?

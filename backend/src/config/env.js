@@ -13,17 +13,28 @@ function parsePort(raw) {
   return port;
 }
 
+function databaseUrls(env, nodeEnv) {
+  const suffix = nodeEnv === 'production' ? 'PRODUCTION' : 'DEVELOPMENT';
+  return {
+    databaseUrl: env[`DATABASE_URL_${suffix}`] || '',
+    directUrl: env[`DIRECT_URL_${suffix}`] || '',
+  };
+}
+
 export function loadConfig(env = process.env) {
+  const nodeEnv = env.NODE_ENV || 'development';
+  const { databaseUrl } = databaseUrls(env, nodeEnv);
   return {
     port: parsePort(env.PORT),
-    nodeEnv: env.NODE_ENV || 'development',
+    nodeEnv,
     // Browser origin allowed to call this API (the Vite dev server).
     corsOrigin: env.CORS_ORIGIN || 'http://localhost:5173',
     // Neon (or local PostgreSQL) connection string used by the running API. Empty = no database.
-    databaseUrl: env.DATABASE_URL || '',
+    databaseUrl,
     // Optional: folder with the built frontend, served by this same server (demo mode).
     frontendDist: env.FRONTEND_DIST || '',
   };
 }
 
+export { databaseUrls };
 export const config = loadConfig();
