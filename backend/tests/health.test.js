@@ -34,8 +34,13 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ PORT: 'abc' })).toThrow(/Invalid PORT/);
     expect(() => loadConfig({ PORT: '70000' })).toThrow(/Invalid PORT/);
   });
-  it('reads DATABASE_URL and defaults it to empty', () => {
+  it('reads the development database URL and defaults it to empty', () => {
     expect(loadConfig({}).databaseUrl).toBe('');
-    expect(loadConfig({ DATABASE_URL: 'postgresql://x' }).databaseUrl).toBe('postgresql://x');
+    expect(loadConfig({ DATABASE_URL_DEVELOPMENT: 'postgresql://x' }).databaseUrl).toBe('postgresql://x');
+    expect(loadConfig({
+      NODE_ENV: 'production',
+      DATABASE_URL_DEVELOPMENT: 'postgresql://dev',
+      DATABASE_URL_PRODUCTION: 'postgresql://prod',
+    }).databaseUrl).toBe('postgresql://prod');
   });
 });

@@ -47,6 +47,7 @@ export const LIMITATIONS = [
   'The score ranks options under simple rules. It does not predict yield, profit, or soil improvement.',
   'Only the information you enter and the loaded climate data are considered: no prices, pests, diseases, seed supply, labour or flood timing.',
   'Trend statements are indicative: the series are short and a rough statistical hint is not proof of climate change.',
+  'Missing days are never treated as zero rain. Rainfall windows use consecutive calendar days; years with too many unobserved days are left out and, for onset and dry spells, the response says which years were unknown.',
 ];
 
 function districtPublic(d) {
@@ -64,13 +65,32 @@ function climateNotice(climate) {
   return null;
 }
 
+function salinityFromDsM(value) {
+  if (value === null || value === undefined) return null;
+  if (value < 2) return 'none';
+  if (value < 4) return 'slight';
+  if (value < 8) return 'moderate';
+  return 'high';
+}
+
+function boundedSet(cache, key, value, maxEntries) {
+  cache.set(key, value);
+  if (cache.size > maxEntries) cache.delete(cache.keys().next().value);
+  return value;
+}
+
 export function createEvaluationService(repo) {
+  const climateViewCache = new Map();
+  const cropClimateCache = new Map();
+
   async function climateBundle(district) {
     const climate = await repo.getClimate(district.id);
     if (!climate) {
       return { status: 'unavailable', provenance: null, coverage: null, indicators: [], notice: climateNotice(null), series: null };
     }
-    return {
+    const cached = climateViewCache.get(climate.provenance.runId);
+    if (cached) return cached;
+    const bundle = {
       status: 'available',
       provenance: climate.provenance,
       coverage: seriesCoverage(climate.series),
@@ -78,6 +98,7 @@ export function createEvaluationService(repo) {
       notice: climateNotice(climate),
       series: climate.series,
     };
+    return boundedSet(climateViewCache, climate.provenance.runId, bundle, 8);
   }
 
   return {
@@ -96,7 +117,16 @@ export function createEvaluationService(repo) {
     },
 
     async evaluate(input) {
-      const district = await repo.getDistrictBySlug(input.district);
+      let field = null;
+      if (input.fieldId) {
+        if (!repo.getField) throw notFound('FIELD_NOT_FOUND', `No field with id "${input.fieldId}".`);
+        field = await repo.getField(input.fieldId);
+        if (!field) throw notFound('FIELD_NOT_FOUND', `No field with id "${input.fieldId}".`);
+        if (field.district?.slug !== input.district) {
+          throw validationError([{ field: 'fieldId', message: 'The selected field must belong to the selected district.' }]);
+        }
+      }
+      const district = await repo.getDistrictBySlug(field?.district?.slug ?? input.district);
       if (!district) throw notFound('DISTRICT_NOT_FOUND', `No district with slug "${input.district}".`);
 
       const crops = await repo.listCrops();
@@ -113,17 +143,36 @@ export function createEvaluationService(repo) {
 
       const { series, ...climate } = await climateBundle(district);
       const cropClimateMap = {};
-      if (series) for (const c of crops) cropClimateMap[c.slug] = cropClimate(series, c);
+      if (series) {
+        const runId = climate.provenance.runId;
+        const cropKey = `${runId}:${crops.map((c) => `${c.slug}:${c.startMonth}-${c.endMonth}:${c.heatThresholdC}`).join('|')}`;
+        const cachedCropClimate = cropClimateCache.get(cropKey);
+        if (cachedCropClimate) {
+          Object.assign(cropClimateMap, cachedCropClimate);
+        } else {
+          for (const c of crops) cropClimateMap[c.slug] = cropClimate(series, c);
+          boundedSet(cropClimateCache, cropKey, cropClimateMap, 8);
+        }
+      }
 
+      const soil = {
+        ...input.soil,
+        ...(field?.salinityDsM !== null && field?.salinityDsM !== undefined
+          ? { salinity: salinityFromDsM(field.salinityDsM) }
+          : {}),
+      };
       const result = evaluateRotations({
         crops,
         existingSlugs: input.existingRotation,
-        ctx: { cropClimate: cropClimateMap, soil: input.soil, irrigation: input.irrigation, priorities: input.priorities },
+        ctx: { cropClimate: cropClimateMap, soil, irrigation: input.irrigation, priorities: input.priorities },
       });
 
       return {
         district: districtPublic(district),
-        input,
+        input: { ...input, soil },
+        field: field
+          ? { id: field.id, name: field.name, districtId: field.districtId, areaHa: field.areaHa, soilType: field.soilType, soilPh: field.soilPh, salinityDsM: field.salinityDsM, irrigationSource: field.irrigationSource }
+          : null,
         climate,
         strategies: result.strategies,
         alternativesConsidered: result.alternativesConsidered,

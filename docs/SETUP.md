@@ -33,8 +33,8 @@ git commit -m "Field Shift: full application"
 1. Go to https://neon.com (formerly neon.tech) and sign up (free plan is enough).
 2. Create a project named `field-shift`. Pick the region closest to you that Neon offers (for Bangladesh, a Singapore region if listed).
 3. In the project dashboard click **Connect**. You need **two** strings:
-   - **Pooled** connection string: the host contains `-pooler`. Turn the *Connection pooling* switch **on** to see it. This is `DATABASE_URL` (used by the running app).
-   - **Direct** connection string: no `-pooler` in the host. Turn pooling **off** to see it. This is `DIRECT_URL` (used by `prisma migrate`).
+   - **Pooled** connection string: the host contains `-pooler`. Turn the *Connection pooling* switch **on** to see it. This is `DATABASE_URL_PRODUCTION` (used by the production app).
+   - **Direct** connection string: no `-pooler` in the host. Turn pooling **off** to see it. This is `DIRECT_URL_PRODUCTION` (used by Prisma migrations).
 4. If a string ends with `&channel_binding=require`, delete that part.
 
 Treat these strings like passwords. Never commit them, never paste them into chat or issues.
@@ -43,11 +43,22 @@ Treat these strings like passwords. Never commit them, never paste them into cha
 
 Working directory: `field-shift/backend`
 
+Create one environment file:
+
 ```bash
 cp .env.example .env
 ```
 
-Open `backend/.env` in an editor and replace the two placeholder URLs with your real Neon strings. Keep `?sslmode=require` at the end of both.
+Set the local PostgreSQL URLs in `DATABASE_URL_DEVELOPMENT` and
+`DIRECT_URL_DEVELOPMENT`. Set the Neon URLs in `DATABASE_URL_PRODUCTION` and
+`DIRECT_URL_PRODUCTION`. `NODE_ENV` selects which pair is used:
+
+```bash
+NODE_ENV=development npm run dev
+NODE_ENV=production npm start
+```
+
+The real `.env` file is ignored by git. Never commit it.
 
 ## 4. Install, create tables, load reference data
 
@@ -55,13 +66,16 @@ Working directory: `field-shift/backend`
 
 ```bash
 npm install
-npm run db:deploy
+NODE_ENV=development npm run db:deploy
 npm run db:seed
 ```
 
 - `npm install` installs packages and runs `prisma generate` (creates the database client in `src/generated/`).
-- `npm run db:deploy` creates the tables in Neon. Expected last line: `All migrations have been successfully applied.`
-- `npm run db:seed` loads 12 districts and 10 crops. Expected: `Seeded reference data: 12 districts, 10 crops.` It is safe to run again.
+- `NODE_ENV=development npm run db:deploy` creates the tables in the local development database. Expected last line: `All migrations have been successfully applied.`
+- `npm run db:seed` loads 12 districts and 22 crops. Expected: `Seeded reference data: 12 districts, 22 crops.` It is safe to run again.
+
+The seed, ingestion and analysis commands use the database selected by `NODE_ENV`.
+Set `NODE_ENV=production` before running them against the production database.
 
 ## 5. Load climate data
 

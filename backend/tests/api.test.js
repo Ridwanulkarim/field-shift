@@ -144,6 +144,36 @@ describe('POST /api/evaluate', () => {
     expect(res.body.error.details[0].message).toMatch(/quinoa/);
   });
 
+  it('uses a registered field for district and salinity context', async () => {
+    const repository = fakeRepository();
+    repository.getField = async () => ({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      name: 'Test Field',
+      districtId: 1,
+      district: { id: 1, slug: 'rajshahi' },
+      areaHa: 2,
+      soilType: 'Clay',
+      soilPh: 6,
+      salinityDsM: 5,
+      irrigationSource: 'Canal',
+    });
+    const res = await request(createApp(loadConfig({}), { repository })).post('/api/evaluate').send({
+      ...body,
+      fieldId: '550e8400-e29b-41d4-a716-446655440000',
+      district: 'rajshahi',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.field.name).toBe('Test Field');
+    expect(res.body.input.soil.salinity).toBe('moderate');
+    const mismatch = await request(createApp(loadConfig({}), { repository })).post('/api/evaluate').send({
+      ...body,
+      district: 'sylhet',
+      fieldId: '550e8400-e29b-41d4-a716-446655440000',
+    });
+    expect(mismatch.status).toBe(422);
+    expect(mismatch.body.error.details[0].field).toBe('fieldId');
+  });
+
   it('returns 422 when the current rotation cannot fit in one year', async () => {
     const res = await request(appWith()).post('/api/evaluate').send({ ...body, existingRotation: ['boro', 'mustard'] });
     expect(res.status).toBe(422);

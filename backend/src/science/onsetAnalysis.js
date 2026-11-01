@@ -98,15 +98,31 @@ function median(values) {
 }
 
 // Compare the first and second halves of a yearly onset series.
+//
+// Each yearly point is { year, value } for a confirmed onset, or { year, status: 'no_onset' }.
+// A 'no_onset' year (no qualifying window up to the end of the search season) is
+// RIGHT-CENSORED at `censorValue` instead of being dropped: dropping it would remove exactly
+// the latest years and make a later onset look smaller than it is. Points with status
+// 'unknown' (or any non-numeric value without a no_onset status) are excluded and counted.
 export function analyzeOnsetShift(yearly, {
   splitYear = null,
   alpha = 0.05,
   minYearsPerPeriod = 3,
   minShiftDays = 1,
+  censorValue = 244,
 } = {}) {
-  const points = yearly
-    .filter((point) => Number.isInteger(point.year) && isNumber(point.value))
-    .sort((a, b) => a.year - b.year);
+  let censoredYears = 0;
+  let excludedYears = 0;
+  const points = [];
+  for (const point of yearly) {
+    if (!Number.isInteger(point.year)) continue;
+    if (isNumber(point.value)) points.push({ year: point.year, value: point.value });
+    else if (point.status === 'no_onset') {
+      points.push({ year: point.year, value: censorValue });
+      censoredYears += 1;
+    } else excludedYears += 1;
+  }
+  points.sort((a, b) => a.year - b.year);
   const split = splitYear ?? (points.length ? points[Math.floor(points.length / 2)].year : null);
   const early = points.filter((point) => point.year < split).map((point) => point.value);
   const late = points.filter((point) => point.year >= split).map((point) => point.value);
@@ -114,6 +130,8 @@ export function analyzeOnsetShift(yearly, {
     splitYear: split,
     earlyYears: early.length,
     lateYears: late.length,
+    censoredYears,
+    excludedYears,
     earlyMedian: early.length ? median(early) : null,
     lateMedian: late.length ? median(late) : null,
     shiftDays: early.length && late.length ? median(late) - median(early) : null,

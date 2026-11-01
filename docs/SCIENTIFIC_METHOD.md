@@ -4,7 +4,12 @@ All tunable numbers are in `backend/src/science/rules.js`. None is a NASA result
 
 ## 1. Climate indicators (from NASA POWER daily data)
 
-Computed per calendar year, years with less than 90% of days present are skipped (`MIN_COVERAGE`).
+Computed per cycle year. Missing days are never treated as zero rain, and every window is built from **consecutive calendar dates** (`backend/src/science/series.js`), not from neighbouring array rows. A date with no row and a row with a null value are both "unknown".
+
+- Heat indicators: years with less than 90% of days present are skipped (`MIN_COVERAGE`).
+- Seasonal rainfall totals: years with less than 98% of days observed are skipped (`RAIN_TOTAL_MIN_COVERAGE`); kept years report `observedDays` and `expectedDays`.
+- Usable-rain onset: a window counts only if all 7 calendar days are observed. Each year gets a status: `onset`, `no_onset` (every window observed, none qualified) or `unknown` (an earlier onset cannot be ruled out). Years whose earlier windows were partly unobserved are excluded from `yearly` and listed in `yearStatus`. Day numbers use a fixed 365-day calendar, so 1 June is day 152 in leap and non-leap years.
+- Dry spell: each day is dry, wet or unknown. `value` is the longest run that is certainly dry (lower bound); `longestPossible` counts unknown days as dry (upper bound). Years where the bounds differ by more than 7 days are left out.
 
 | Indicator | Definition |
 |---|---|
@@ -16,7 +21,7 @@ Computed per calendar year, years with less than 90% of days present are skipped
 
 **Trend statement.** For each indicator we show the mean of the earliest and latest block of years (10 years each for a 25-year series; the response states the block length) and a least-squares line over years. A trend is called "distinguishable from year-to-year variation" only if the slope's |t| is at least 2. With 25 yearly points this is a rough hint: on trend-free synthetic series it flags about 5% by chance alone (`validation-synthetic.test.js` checks this). It is never presented as proof of climate change, and fewer than 10 years gives "insufficient data".
 
-The backend CLI `npm run analyze:onset` provides a separate early-versus-late comparison for onset dates. It reports the difference in median day-of-year and a two-sided Mann-Whitney test: an exact permutation distribution when there are no ties and an asymptotic, tie-corrected normal approximation otherwise. A result is labelled earlier or later only when the p-value is below 0.05; this is an exploratory comparison, not proof of a climate trend. Years without a qualifying onset are omitted, and fewer than three observations in either period is reported as insufficient data.
+The backend CLI `npm run analyze:onset` provides a separate early-versus-late comparison for onset dates. It reports the difference in median day-of-year and a two-sided Mann-Whitney test: an exact permutation distribution when there are no ties and an asymptotic, tie-corrected normal approximation otherwise. A result is labelled earlier or later only when the p-value is below 0.05; this is an exploratory comparison, not proof of a climate trend. Years with `no_onset` are right-censored at day 244 (1 September) and counted in `censoredYears`, not dropped; years with `unknown` status are excluded and counted in `excludedYears`. Fewer than three observations in either period is reported as insufficient data.
 
 ## 2. Per-crop climate (for scoring)
 
@@ -63,3 +68,10 @@ Every strategy returns benefits, risks, information gaps and per-crop evidence (
 - API and database integration tests, including the no-database and no-climate-data paths.
 
 Still needed: review of crop parameters by an agronomist, a first live NASA run, and comparison of a few indicators against an independent source.
+
+
+## 8. Phase 0 change log (calendar-gap safety)
+
+Reproduced before the change (hand-built series, not NASA data): with 8 date rows absent, the old onset code returned day 128 for a season whose first real qualifying window starts later; a dry spell of 108 days was reported as 142 when a wet day sat inside a gap; a series with 10% of days null reported a 10% smaller rainfall total. After the change the same inputs yield `unknown` onset, a dropped dry-spell year (bounds differ by more than 7 days) and a dropped rainfall year. See `backend/tests/climate.test.js`, `series.test.js`.
+
+NASA POWER parsing now refuses a response in which any requested calendar date is absent (previously a warning). Not yet done: the first live POWER run, which is still the real test of the parser.

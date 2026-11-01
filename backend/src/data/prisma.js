@@ -10,7 +10,7 @@ import { PrismaClient } from '../generated/prisma/client.ts';
 export function createPrismaClient(databaseUrl) {
   if (!databaseUrl) {
     throw new Error(
-      'DATABASE_URL is not set. Copy backend/.env.example to backend/.env and paste your Neon connection string (see docs/SETUP.md).',
+      'No database URL is set for the selected NODE_ENV. Copy backend/.env.example to backend/.env and configure the matching database URL (see docs/SETUP.md).',
     );
   }
   const adapter = new PrismaPg({ connectionString: databaseUrl, max: 5 });

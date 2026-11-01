@@ -1,6 +1,8 @@
 // Read-only data access for the API. Keeps every database query in one place so the science
 // code never touches the database and tests can swap in a fake repository.
 
+import { FieldDistrictError, FieldGeometryError } from '../utils/fieldErrors.js';
+
 const NASA_NOTE =
   'NASA POWER meteorological data come on a grid of roughly 0.5 degrees (tens of km). Values describe the grid cell around the district point, not a single field.';
 const SYNTHETIC_NOTE =
@@ -46,6 +48,55 @@ function toProvenance(run) {
 export function createRepository(prisma) {
   const seriesCache = new Map(); // runId -> series (runs never change once stored)
 
+  const fieldFromRow = (row) => ({
+    id: row.id,
+    name: row.name,
+    districtId: row.districtId,
+    district: row.districtSlug
+      ? { id: row.districtId, slug: row.districtSlug, nameEn: row.districtNameEn, nameBn: row.districtNameBn }
+      : undefined,
+    boundary: row.boundary ? JSON.parse(row.boundary) : null,
+    areaHa: row.areaHa,
+    soilType: row.soilType,
+    soilPh: row.soilPh,
+    organicMatterPct: row.organicMatterPct,
+    salinityDsM: row.salinityDsM,
+    irrigationSource: row.irrigationSource,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  });
+
+  async function getFieldWithClient(client, id) {
+    const rows = await client.$queryRaw`
+      SELECT f."id", f."name", f."districtId", f."areaHa", f."soilType", f."soilPh",
+             f."organicMatterPct", f."salinityDsM", f."irrigationSource",
+             f."createdAt", f."updatedAt",
+             d."slug" AS "districtSlug", d."nameEn" AS "districtNameEn", d."nameBn" AS "districtNameBn",
+             ST_AsGeoJSON(f."boundary") AS "boundary"
+      FROM "Field" f
+      JOIN "District" d ON d."id" = f."districtId"
+      WHERE f."id" = ${id}::uuid
+    `;
+    return rows[0] ? fieldFromRow(rows[0]) : null;
+  }
+
+  async function validateBoundary(client, boundary) {
+    const rows = await client.$queryRaw`
+      WITH input AS (
+        SELECT ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326)) AS geometry
+      )
+      SELECT ST_IsValid(geometry) AS valid,
+             ST_IsEmpty(geometry) AS empty,
+             ST_Area(geometry::geography) AS area,
+             ST_GeometryType(geometry) AS geometry_type
+      FROM input
+    `;
+    const result = rows[0];
+    if (!result || result.empty || result.geometry_type !== 'ST_MultiPolygon' || !result.valid || !(Number(result.area) > 0)) {
+      throw new FieldGeometryError('Boundary must be a non-empty, valid polygon with a positive area.');
+    }
+  }
+
   return {
     async ping() {
       await prisma.$queryRaw`SELECT 1`;
@@ -57,9 +108,13 @@ export function createRepository(prisma) {
         prisma.district.findMany({ orderBy: { nameEn: 'asc' } }),
         prisma.datasetRun.findMany({ where: { status: 'SUCCESS' }, select: { districtId: true, isSynthetic: true } }),
       ]);
+      const runStatus = new Map();
+      for (const run of runs) {
+        const status = runStatus.get(run.districtId);
+        if (!status || !run.isSynthetic) runStatus.set(run.districtId, run.isSynthetic ? 'synthetic' : 'nasa');
+      }
       return districts.map((d) => {
-        const mine = runs.filter((r) => r.districtId === d.id);
-        const climateData = mine.some((r) => !r.isSynthetic) ? 'nasa' : mine.length ? 'synthetic' : 'none';
+        const climateData = runStatus.get(d.id) ?? 'none';
         return { ...toDistrict(d), climateData };
       });
     },
@@ -71,6 +126,78 @@ export function createRepository(prisma) {
 
     async listCrops() {
       return prisma.crop.findMany({ orderBy: { slug: 'asc' } });
+    },
+
+    async createField(input) {
+      return prisma.$transaction(async (tx) => {
+        const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true } });
+        if (!district) throw new FieldDistrictError(input.districtId);
+        await validateBoundary(tx, input.boundary);
+        const ids = await tx.$queryRaw`
+          WITH input AS (
+            SELECT ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326)) AS geometry
+          )
+          INSERT INTO "Field" (
+            "id", "name", "districtId", "boundary", "areaHa", "soilType", "soilPh",
+            "organicMatterPct", "salinityDsM", "irrigationSource", "updatedAt"
+          )
+          SELECT ${crypto.randomUUID()}::uuid, ${input.name}, ${input.districtId}, geometry,
+                 ST_Area(geometry::geography) / 10000, ${input.soilType ?? null}, ${input.soilPh ?? null},
+                 ${input.organicMatterPct ?? null}, ${input.salinityDsM ?? null}, ${input.irrigationSource ?? null},
+                 CURRENT_TIMESTAMP
+          FROM input
+          RETURNING "id"
+        `;
+        return getFieldWithClient(tx, ids[0].id);
+      });
+    },
+
+    async listFields() {
+      const rows = await prisma.$queryRaw`
+        SELECT f."id", f."name", f."districtId", f."areaHa", f."soilType", f."soilPh",
+               f."organicMatterPct", f."salinityDsM", f."irrigationSource",
+               f."createdAt", f."updatedAt",
+               d."slug" AS "districtSlug", d."nameEn" AS "districtNameEn", d."nameBn" AS "districtNameBn",
+               ST_AsGeoJSON(f."boundary") AS "boundary"
+        FROM "Field" f
+        JOIN "District" d ON d."id" = f."districtId"
+        ORDER BY f."createdAt" DESC, f."id" ASC
+      `;
+      return rows.map(fieldFromRow);
+    },
+
+    getField: (id) => getFieldWithClient(prisma, id),
+
+    async updateField(id, input) {
+      return prisma.$transaction(async (tx) => {
+        const existing = await tx.field.findUnique({ where: { id }, select: { id: true } });
+        if (!existing) return null;
+        if (input.districtId !== undefined) {
+          const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true } });
+          if (!district) throw new FieldDistrictError(input.districtId);
+        }
+        if (input.boundary !== undefined) {
+          await validateBoundary(tx, input.boundary);
+          await tx.$executeRaw`
+            UPDATE "Field"
+            SET "boundary" = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326)),
+                "areaHa" = ST_Area(ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326))::geography) / 10000,
+                "updatedAt" = CURRENT_TIMESTAMP
+            WHERE "id" = ${id}::uuid
+          `;
+        }
+        const data = {};
+        for (const key of ['name', 'districtId', 'soilType', 'soilPh', 'organicMatterPct', 'salinityDsM', 'irrigationSource']) {
+          if (input[key] !== undefined) data[key] = input[key];
+        }
+        if (Object.keys(data).length) await tx.field.update({ where: { id }, data });
+        return getFieldWithClient(tx, id);
+      });
+    },
+
+    async deleteField(id) {
+      const result = await prisma.field.deleteMany({ where: { id } });
+      return result.count > 0;
     },
 
     // Real NASA data wins over synthetic; otherwise the newest successful run.

@@ -40,4 +40,19 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),
     }),
+  fields: () => request('/api/fields'),
+  createField: (payload) =>
+    request('/api/fields', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
+  updateField: (id, payload) =>
+    request(`/api/fields/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
+  deleteField: (id) =>
+    request(`/api/fields/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 };

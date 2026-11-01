@@ -14,7 +14,7 @@ import {
 } from '../science/rules.js';
 
 const SLUG = /^[a-z0-9-]{2,40}$/;
-const TOP_LEVEL = ['district', 'existingRotation', 'soil', 'irrigation', 'priorities'];
+const TOP_LEVEL = ['district', 'fieldId', 'existingRotation', 'soil', 'irrigation', 'priorities'];
 
 function isPlainObject(v) {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -28,6 +28,10 @@ export function parseEvaluateRequest(body) {
 
   for (const key of Object.keys(body)) {
     if (!TOP_LEVEL.includes(key)) errors.push({ field: key, message: 'Unknown field.' });
+  }
+
+  if (body.fieldId !== undefined && (typeof body.fieldId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.fieldId))) {
+    errors.push({ field: 'fieldId', message: 'Must be a valid field UUID.' });
   }
 
   if (typeof body.district !== 'string' || !SLUG.test(body.district)) {
@@ -87,5 +91,5 @@ export function parseEvaluateRequest(body) {
   }
 
   if (errors.length) throw validationError(errors);
-  return { district: body.district, existingRotation: existing, soil, irrigation, priorities };
+  return { district: body.district, fieldId: body.fieldId, existingRotation: existing, soil, irrigation, priorities };
 }

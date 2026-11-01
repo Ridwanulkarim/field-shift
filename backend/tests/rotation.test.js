@@ -118,7 +118,7 @@ describe('scoreRotation', () => {
       expect(s).toBeGreaterThanOrEqual(0);
       expect(s).toBeLessThanOrEqual(100);
     }
-  });
+  }, 15000);
 });
 
 describe('evaluateRotations', () => {

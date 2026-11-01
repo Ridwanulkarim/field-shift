@@ -60,9 +60,19 @@ describe('parsePowerResponse', () => {
     expect(parsed.units).toEqual({ PRECTOTCORR: 'mm/day', T2M_MAX: 'C', T2M_MIN: 'C' });
     expect(parsed.product).toBe('FIXTURE title');
   });
-  it('warns when fewer days arrive than requested', () => {
-    const p = parsePowerResponse(fixtureResponse(), { startDate: '20240101', endDate: '20240110' });
-    expect(p.warnings.join(' ')).toMatch(/Received 4 days but 10 were requested/);
+  it('refuses a response with fewer days than requested (truncated)', () => {
+    expect(() => parsePowerResponse(fixtureResponse(), { startDate: '20240101', endDate: '20240110' })).toThrow(/received 4 days but 10 were requested/);
+  });
+  it('refuses a response whose day count matches but a requested date is absent', () => {
+    const r = fixtureResponse();
+    for (const name of ['PRECTOTCORR', 'T2M_MAX', 'T2M_MIN']) {
+      r.properties.parameter[name][20240110] = r.properties.parameter[name][20240102];
+      delete r.properties.parameter[name][20240102];
+    }
+    expect(() => parsePowerResponse(r, { startDate: '20240101', endDate: '20240104' })).toThrow(/date 20240102 is missing/);
+  });
+  it('accepts a complete response for the requested range', () => {
+    expect(parsePowerResponse(fixtureResponse(), { startDate: '20240101', endDate: '20240104' }).days).toHaveLength(4);
   });
   it('refuses a response with a missing parameter', () => {
     const bad = fixtureResponse();

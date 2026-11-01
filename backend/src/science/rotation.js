@@ -41,6 +41,8 @@ const PRIORITY_COMPONENT = {
   lowInput: 'lowInput',
 };
 
+const metricCache = new WeakMap();
+
 export function cropMonthList(crop) {
   return monthsBetween(crop.startMonth, crop.endMonth);
 }
@@ -87,6 +89,14 @@ export function orderForDisplay(crops) {
 }
 
 function perCropMetrics(crop, ctx) {
+  let contextMetrics = metricCache.get(ctx);
+  if (!contextMetrics) {
+    contextMetrics = new Map();
+    metricCache.set(ctx, contextMetrics);
+  }
+  const cached = contextMetrics.get(crop);
+  if (cached) return cached;
+
   const cc = ctx.cropClimate?.[crop.slug] ?? null;
   const need = (crop.waterNeedMmMin + crop.waterNeedMmMax) / 2;
   const access = IRRIGATION_ACCESS_FACTOR[ctx.irrigation];
@@ -108,7 +118,7 @@ function perCropMetrics(crop, ctx) {
   const drainagePenalty = Math.max(0, DRAINAGE_LEVEL[ctx.soil.drainage] - crop.waterloggingTolerance) / 3;
   const soilFit = 1 - Math.min(1, salinityPenalty + drainagePenalty);
 
-  return {
+  const metrics = {
     slug: crop.slug,
     needMm: need,
     rainMm: cc?.rainMm ?? null,
@@ -122,6 +132,8 @@ function perCropMetrics(crop, ctx) {
     salinityPenalty,
     drainagePenalty,
   };
+  contextMetrics.set(crop, metrics);
+  return metrics;
 }
 
 function meanOrNull(values) {
