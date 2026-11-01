@@ -5,6 +5,24 @@
 // A cropping window/year is used only if at least this share of its days has data.
 export const MIN_COVERAGE = 0.9;
 
+// Seasonal rainfall TOTALS are stricter: missing days contribute nothing to a sum, so a
+// year with 10% of days missing would understate rainfall by up to ~10%. Below this share
+// of observed days the year is left out instead of reported as a smaller total.
+export const RAIN_TOTAL_MIN_COVERAGE = 0.98;
+
+// Dry spell: a year is reported only if the unknown days could change the longest run by
+// at most this many days (longestPossible - longestKnown).
+export const DRY_SPELL_MAX_UNCERTAINTY_DAYS = 7;
+
+// Onset: a 7-day window counts as observed only if every one of its calendar days has a
+// value (all windowDays). A year whose earlier windows were not fully observed, and in
+// which no fully observed window qualified first, is 'unknown' (an earlier onset cannot
+// be ruled out), not 'no onset'.
+
+// Onset analysis: a year without any qualifying window is right-censored at 1 September
+// (day 244 on the fixed 365-day calendar) rather than dropped.
+export const ONSET_CENSOR_DAY = 244;
+
 // "Usable rain onset": first day on/after 1 May whose 7-day rainfall total is at least
 // 50 mm, searched until 31 August. HEURISTIC DEFINITION, not an official onset index.
 export const ONSET = { startMonth: 5, endMonth: 8, windowDays: 7, thresholdMm: 50 };

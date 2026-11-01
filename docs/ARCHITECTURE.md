@@ -43,6 +43,11 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
 | `GET /api/districts` | Districts with `climateData` status |
 | `GET /api/crops` | Crops with their traits and `basis` |
 | `GET /api/districts/:slug/climate` | Provenance, coverage and yearly climate indicators |
+| `POST /api/fields` | Register a field boundary and optional soil metadata |
+| `GET /api/fields` | List fields with GeoJSON boundaries |
+| `GET /api/fields/:id` | Retrieve one field |
+| `PATCH /api/fields/:id` | Update field metadata or boundary |
+| `DELETE /api/fields/:id` | Delete a field |
 | `POST /api/evaluate` | The recommendation (below) |
 
 `POST /api/evaluate` body:
@@ -59,7 +64,15 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
 
 Only `district` and `existingRotation` are required. Unknown fields are rejected (typos). Status codes: 200 success, 400 malformed JSON, 404 unknown district, 413 body too large, 422 invalid content, 503 database unavailable.
 
+An evaluation may also include `fieldId` for a registered field. The field must
+belong to the selected district. Its stored salinity measurement is converted
+to the evaluation salinity category, and the response includes the selected
+field context. Other evaluation inputs, such as drainage and irrigation access,
+remain explicit user inputs.
+
 The response contains `strategies` (the existing rotation first, then three ranked alternatives). Each strategy has `score`, `components`, `benefits`, `risks`, `informationGaps`, `evidence` and, for alternatives, a `comparison` with the existing rotation. It also returns `climate` (with provenance and a notice when data are synthetic or missing), `method`, `limitations` and `disclaimer`.
+
+Detailed field boundary API documentation is in [FIELDS_API.md](./FIELDS_API.md).
 
 ## Database (Prisma schema in `backend/prisma/schema.prisma`)
 

@@ -123,7 +123,17 @@ export function parsePowerResponse(json, { startDate, endDate } = {}) {
   if (startDate && endDate) {
     const expected = Math.round((Date.UTC(+endDate.slice(0, 4), +endDate.slice(4, 6) - 1, +endDate.slice(6, 8)) -
       Date.UTC(+startDate.slice(0, 4), +startDate.slice(4, 6) - 1, +startDate.slice(6, 8))) / 86400000) + 1;
-    if (days.length < expected) warnings.push(`Received ${days.length} days but ${expected} were requested.`);
+    // Every requested calendar date must be present (POWER marks missing VALUES with the fill
+    // value, it does not omit dates). A shorter response is a truncated or wrong response:
+    // refuse it instead of storing a series whose date gaps would be read as adjacent days.
+    if (days.length !== expected) {
+      throw new PowerError(`Incomplete NASA POWER response: received ${days.length} days but ${expected} were requested. Refusing to ingest.`);
+    }
+    const allDates = new Set(dates);
+    for (let t = Date.UTC(+startDate.slice(0, 4), +startDate.slice(4, 6) - 1, +startDate.slice(6, 8)), i = 0; i < expected; i += 1, t += 86400000) {
+      const c = new Date(t).toISOString().slice(0, 10).replaceAll('-', '');
+      if (!allDates.has(c)) throw new PowerError(`Incomplete NASA POWER response: date ${c} is missing. Refusing to ingest.`);
+    }
   }
   if (outOfRange > 0) warnings.push(`${outOfRange} value(s) outside plausible limits were treated as missing.`);
   if (maxBelowMin > 0) warnings.push(`${maxBelowMin} day(s) had a daily maximum below the daily minimum (kept as reported).`);

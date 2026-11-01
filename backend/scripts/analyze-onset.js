@@ -5,7 +5,7 @@ import { parseArgs } from 'node:util';
 import { config } from '../src/config/env.js';
 import { createPrismaClient } from '../src/data/prisma.js';
 import { createRepository } from '../src/data/repository.js';
-import { yearlyMonsoonOnset } from '../src/science/climate.js';
+import { monsoonOnsetByYear } from '../src/science/climate.js';
 import { analyzeOnsetShift } from '../src/science/onsetAnalysis.js';
 
 const { values } = parseArgs({
@@ -31,7 +31,8 @@ try {
       console.log(`${district.slug}: no climate data`);
       continue;
     }
-    const yearly = yearlyMonsoonOnset(climate.series);
+    // no_onset years are censored in the test; unknown years are excluded and counted.
+    const yearly = monsoonOnsetByYear(climate.series).map((p) => (p.earlierWindowsUnobserved ? { year: p.year, status: 'unknown' } : p));
     const result = analyzeOnsetShift(yearly, { splitYear });
     console.log(JSON.stringify({
       district: district.slug,

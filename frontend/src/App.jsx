@@ -4,6 +4,7 @@ import { makeT } from './i18n.js';
 import EvaluateForm from './components/EvaluateForm.jsx';
 import StrategyCard from './components/StrategyCard.jsx';
 import ClimatePanel from './components/ClimatePanel.jsx';
+import FieldManager from './components/FieldManager.jsx';
 
 function Notice({ tone, children }) {
   const styles = tone === 'warn' ? 'border-amber-400 bg-amber-50 text-amber-950' : 'border-red-400 bg-red-50 text-red-900';
@@ -23,8 +24,8 @@ export default function App() {
   const loadSetup = useCallback(async () => {
     setSetup({ state: 'loading' });
     try {
-      const [meta, d, c] = await Promise.all([api.meta(), api.districts(), api.crops()]);
-      setSetup({ state: 'ready', meta, districts: d.districts, crops: c.crops });
+      const [meta, d, c, f] = await Promise.all([api.meta(), api.districts(), api.crops(), api.fields()]);
+      setSetup({ state: 'ready', meta, districts: d.districts, crops: c.crops, fields: f.fields });
       setForm((prev) =>
         prev ?? {
           district: (d.districts.find((x) => x.slug === 'rajshahi') ?? d.districts[0])?.slug ?? '',
@@ -32,6 +33,7 @@ export default function App() {
           soil: { salinity: 'none', drainage: 'good' },
           irrigation: 'limited',
           priorities: Object.fromEntries(meta.priorities.map((p) => [p.key, meta.priorityRange.default])),
+          fieldId: '',
         },
       );
     } catch (err) {
@@ -98,7 +100,10 @@ export default function App() {
               busy={busy}
               t={t}
               lang={lang}
+              fields={setup.fields}
             />
+
+            <FieldManager districts={setup.districts} t={t} />
 
             {lang === 'bn' && <p className="mt-3 text-sm text-gray-700">{t('englishOnly')}</p>}
 

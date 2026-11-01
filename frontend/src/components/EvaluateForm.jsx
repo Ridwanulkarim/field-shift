@@ -6,12 +6,28 @@ function dataBadge(kind, t) {
   return t('noClimate');
 }
 
-export default function EvaluateForm({ meta, districts, crops, form, setForm, onSubmit, busy, t, lang }) {
+export default function EvaluateForm({ meta, districts, crops, fields, form, setForm, onSubmit, busy, t, lang }) {
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
 
   function toggleCrop(slug) {
     const has = form.existingRotation.includes(slug);
     set({ existingRotation: has ? form.existingRotation.filter((s) => s !== slug) : [...form.existingRotation, slug] });
+  }
+
+  function selectField(fieldId) {
+    const field = fields.find((item) => item.id === fieldId);
+    set({
+      fieldId,
+      ...(field ? {
+        district: field.district?.slug ?? form.district,
+        soil: {
+          ...form.soil,
+          salinity: field.salinityDsM === null || field.salinityDsM === undefined
+            ? form.soil.salinity
+            : field.salinityDsM < 2 ? 'none' : field.salinityDsM < 4 ? 'slight' : field.salinityDsM < 8 ? 'moderate' : 'high',
+        },
+      } : {}),
+    });
   }
 
   const tooMany = form.existingRotation.length > 3;
@@ -25,6 +41,14 @@ export default function EvaluateForm({ meta, districts, crops, form, setForm, on
       }}
       className="space-y-6 rounded-xl border border-gray-300 bg-white p-4 sm:p-6"
     >
+      <div>
+        <label htmlFor="field" className="font-semibold">{t('registeredField')}</label>
+        <select id="field" className={selectClass} value={form.fieldId ?? ''} onChange={(e) => selectField(e.target.value)}>
+          <option value="">{t('noFieldSelected')}</option>
+          {fields.map((field) => <option key={field.id} value={field.id}>{field.name} — {field.district?.nameEn} ({field.areaHa?.toFixed(2) ?? '?'} ha)</option>)}
+        </select>
+        {form.fieldId && <p className="mt-1 text-xs text-gray-600">{t('fieldContextHelp')}</p>}
+      </div>
       <div>
         <label htmlFor="district" className="font-semibold">{t('district')}</label>
         <select id="district" className={selectClass} value={form.district} onChange={(e) => set({ district: e.target.value })}>
