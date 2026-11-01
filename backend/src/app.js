@@ -5,19 +5,23 @@ import cors from 'cors';
 import { createHealthRouter } from './routes/health.js';
 import { createApiRouter } from './routes/api.js';
 import { createEvaluationService } from './services/evaluationService.js';
+import { createFieldService } from './services/fieldService.js';
+import { createFieldRouter } from './routes/fields.js';
 import { HttpError } from './utils/errors.js';
 
 // Builds the Express app WITHOUT starting a server, so tests can call it directly.
 // `repository` is optional: without it the data routes answer 503 instead of pretending.
-export function createApp(config, { repository } = {}) {
+export function createApp(config, { repository, fieldService } = {}) {
   const app = express();
   const service = repository ? createEvaluationService(repository) : null;
+  const fields = fieldService ?? (repository ? createFieldService(repository) : null);
 
   app.use(cors({ origin: config.corsOrigin }));
   app.use(express.json({ limit: '100kb' }));
 
   app.use('/api/health', createHealthRouter(repository));
   app.use('/api', createApiRouter(service));
+  app.use('/api', createFieldRouter(fields));
 
   // Optional: serve the built frontend from this same server (handy for an offline demo).
   if (config.frontendDist && fs.existsSync(path.join(config.frontendDist, 'index.html'))) {
