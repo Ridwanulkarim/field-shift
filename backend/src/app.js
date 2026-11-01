@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
+import helmet from 'helmet';
 import { createHealthRouter } from './routes/health.js';
 import { createApiRouter } from './routes/api.js';
 import { createEvaluationService } from './services/evaluationService.js';
@@ -16,8 +18,31 @@ export function createApp(config, { repository, fieldService } = {}) {
   const service = repository ? createEvaluationService(repository) : null;
   const fields = fieldService ?? (repository ? createFieldService(repository) : null);
 
+  const rateLimits = new Map();
+  const rateLimit = (req, res, next) => {
+    const now = Date.now();
+    const windowMs = 60_000;
+    const mutating = ['POST', 'PATCH', 'DELETE'].includes(req.method);
+    const limit = mutating ? 60 : 300;
+    const key = `${req.ip}:${mutating ? 'write' : 'read'}`;
+    const current = rateLimits.get(key);
+    if (!current || now - current.startedAt >= windowMs) {
+      rateLimits.set(key, { startedAt: now, count: 1 });
+      return next();
+    }
+    if (current.count >= limit) {
+      res.set('Retry-After', String(Math.ceil((windowMs - (now - current.startedAt)) / 1000)));
+      return res.status(429).json({ error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } });
+    }
+    current.count += 1;
+    return next();
+  };
+
+  app.use(helmet());
+  app.use(compression());
   app.use(cors({ origin: config.corsOrigin }));
   app.use(express.json({ limit: '100kb' }));
+  app.use(rateLimit);
 
   app.use('/api/health', createHealthRouter(repository));
   app.use('/api', createApiRouter(service));

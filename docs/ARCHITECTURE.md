@@ -31,6 +31,14 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
   derived climate indicators and crop metrics in bounded in-process caches. A new ingestion creates a
   new run ID, so refreshed data is used without manual cache invalidation; old entries are evicted
   after a small fixed limit.
+- Helmet, compression, and method-sensitive in-process rate limits are applied before API routes.
+- Daily climate responses are calendar-complete: dates absent from storage are returned with `null`
+  measurements. They include an ETag keyed by dataset run and requested range and are publicly
+  cacheable for five minutes.
+- Climate responses include a shared-grid-cell list derived from the stored daily series, rather than
+  hard-coded district names. This describes identical source series, not field-level similarity.
+- `npm run ingest:refresh` fetches the latest seven-day lag window and atomically stores a merged run.
+  A failed refresh records the failed attempt and does not replace the previous successful run.
 
 ## API
 
@@ -40,9 +48,10 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
 | `GET /api/health/db` | Database reachable (503 if not) |
 | `GET /api/health/data` | Per district: `nasa`, `synthetic` or `none`, plus recent failed ingestions |
 | `GET /api/meta` | Form options, priority list, disclaimer |
-| `GET /api/districts` | Districts with `climateData` status |
+| `GET /api/districts` | Districts with `climateData` status and dynamic shared-grid-cell metadata |
 | `GET /api/crops` | Crops with their traits and `basis` |
 | `GET /api/districts/:slug/climate` | Provenance, coverage and yearly climate indicators |
+| `GET /api/districts/:slug/climate/daily?from=YYYY-MM-DD&to=YYYY-MM-DD` | Calendar-complete real NASA POWER daily values for a capped date range; includes provenance, freshness, ETag and cache headers |
 | `POST /api/fields` | Register a field boundary and optional soil metadata |
 | `GET /api/fields` | List fields with GeoJSON boundaries |
 | `GET /api/fields/:id` | Retrieve one field |

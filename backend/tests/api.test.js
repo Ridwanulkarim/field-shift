@@ -90,6 +90,40 @@ describe('GET /api/districts, /api/crops, climate', () => {
     expect(res.body.climate.indicators).toHaveLength(5);
     expect(res.body.climate).not.toHaveProperty('series');
   });
+  it('returns validated real daily climate data with provenance', async () => {
+    const res = await request(appWith()).get('/api/districts/rajshahi/climate/daily?from=2001-01-01&to=2001-01-03');
+    expect(res.status).toBe(200);
+    expect(res.body.daily).toHaveLength(3);
+    expect(res.body.daily[0]).toEqual(expect.objectContaining({ date: '2001-01-01' }));
+    expect(res.body.provenance).toEqual(expect.objectContaining({ source: 'NASA POWER', isSynthetic: false }));
+    expect(res.body.provenance.missing).toEqual({ precipMm: 0, tMaxC: 0, tMinC: 3 });
+    expect(res.body.dataLabel.kind).toBe('nasa_stored');
+    expect(res.headers['cache-control']).toBe('public, max-age=300');
+  });
+  it('fills dates outside the stored series and returns 304 for the same run and range', async () => {
+    const app = appWith();
+    const first = await request(app).get('/api/districts/rajshahi/climate/daily?from=2000-12-31&to=2001-01-02');
+    expect(first.body.daily).toEqual([
+      { date: '2000-12-31', precipMm: null, tMaxC: null, tMinC: null },
+      { date: '2001-01-01', precipMm: 0.2, tMaxC: 30, tMinC: null },
+      { date: '2001-01-02', precipMm: 0.2, tMaxC: 30, tMinC: null },
+    ]);
+    const second = await request(app)
+      .get('/api/districts/rajshahi/climate/daily?from=2000-12-31&to=2001-01-02')
+      .set('If-None-Match', first.headers.etag);
+    expect(second.status).toBe(304);
+  });
+  it('rejects invalid and overlong daily climate ranges', async () => {
+    const app = appWith();
+    expect((await request(app).get('/api/districts/rajshahi/climate/daily?from=2001-02-30&to=2001-03-01')).status).toBe(422);
+    expect((await request(app).get('/api/districts/rajshahi/climate/daily?from=2002-01-01&to=2001-01-01')).status).toBe(422);
+    expect((await request(app).get('/api/districts/rajshahi/climate/daily?from=2001-01-01&to=2007-01-01')).status).toBe(422);
+  });
+  it('does not fall back to synthetic data for daily climate', async () => {
+    const res = await request(appWith({ climate: 'synthetic' })).get('/api/districts/rajshahi/climate/daily?from=2001-01-01&to=2001-01-03');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NO_REAL_CLIMATE_DATA');
+  });
   it('404s for an unknown district', async () => {
     const res = await request(app).get('/api/districts/atlantis/climate');
     expect(res.status).toBe(404);

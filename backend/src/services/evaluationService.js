@@ -4,6 +4,7 @@
 import { cropClimate, climateIndicators, seriesCoverage } from '../science/climate.js';
 import { evaluateRotations, checkFeasible } from '../science/rotation.js';
 import { notFound, validationError } from '../utils/errors.js';
+import { freshnessFor, makeDataLabel } from '../utils/dataLabel.js';
 import {
   BASE_WEIGHTS,
   DISCLAIMER,
@@ -52,7 +53,7 @@ export const LIMITATIONS = [
 
 function districtPublic(d) {
   const { id, ...rest } = d;
-  return rest;
+  return { ...rest, sharedGridCellWith: d.sharedGridCellWith ?? [] };
 }
 
 function climateNotice(climate) {
@@ -86,7 +87,17 @@ export function createEvaluationService(repo) {
   async function climateBundle(district) {
     const climate = await repo.getClimate(district.id);
     if (!climate) {
-      return { status: 'unavailable', provenance: null, coverage: null, indicators: [], notice: climateNotice(null), series: null };
+      return {
+        status: 'unavailable',
+        provenance: null,
+        coverage: null,
+        indicators: [],
+        notice: climateNotice(null),
+        dataLabel: null,
+        latestObservationDate: null,
+        daysSinceLatest: null,
+        series: null,
+      };
     }
     const cached = climateViewCache.get(climate.provenance.runId);
     if (cached) return cached;
@@ -96,6 +107,11 @@ export function createEvaluationService(repo) {
       coverage: seriesCoverage(climate.series),
       indicators: climateIndicators(climate.series),
       notice: climateNotice(climate),
+      dataLabel: makeDataLabel(climate.provenance, {
+        coverageStart: climate.provenance.startDate,
+        coverageEnd: climate.provenance.endDate,
+      }),
+      ...freshnessFor(climate.provenance),
       series: climate.series,
     };
     return boundedSet(climateViewCache, climate.provenance.runId, bundle, 8);
@@ -114,6 +130,44 @@ export function createEvaluationService(repo) {
       if (!district) throw notFound('DISTRICT_NOT_FOUND', `No district with slug "${slug}".`);
       const { series, ...climate } = await climateBundle(district);
       return { district: districtPublic(district), climate };
+    },
+
+    async dailyClimate(slug, { from, to }) {
+      const district = await repo.getDistrictBySlug(slug);
+      if (!district) throw notFound('DISTRICT_NOT_FOUND', `No district with slug "${slug}".`);
+      const climate = await repo.getClimate(district.id);
+      if (!climate || climate.provenance.isSynthetic) {
+        throw notFound('NO_REAL_CLIMATE_DATA', `No real NASA POWER data is available for district "${slug}".`);
+      }
+      const seriesByDate = new Map(climate.series.map((row) => [row.date, row]));
+      const series = [];
+      for (let cursor = new Date(`${from}T00:00:00Z`); cursor <= new Date(`${to}T00:00:00Z`); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+        const date = cursor.toISOString().slice(0, 10);
+        const row = seriesByDate.get(date);
+        series.push({ date, precipMm: row?.precipMm ?? null, tMaxC: row?.tMaxC ?? null, tMinC: row?.tMinC ?? null });
+      }
+      const missing = { precipMm: 0, tMaxC: 0, tMinC: 0 };
+      for (const row of series) {
+        for (const key of Object.keys(missing)) {
+          if (row[key] === null || row[key] === undefined) missing[key] += 1;
+        }
+      }
+      return {
+        district: districtPublic(district),
+        from,
+        to,
+        daily: series.map(({ date, precipMm, tMaxC, tMinC }) => ({ date, precipMm, tMaxC, tMinC })),
+        provenance: {
+          runId: climate.provenance.runId,
+          source: climate.provenance.source,
+          retrievedAt: climate.provenance.retrievedAt,
+          isSynthetic: climate.provenance.isSynthetic,
+          units: climate.provenance.units,
+          missing,
+        },
+        dataLabel: makeDataLabel(climate.provenance, { coverageStart: from, coverageEnd: to }),
+        ...freshnessFor(climate.provenance),
+      };
     },
 
     async evaluate(input) {

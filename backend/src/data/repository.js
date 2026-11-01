@@ -66,6 +66,39 @@ export function createRepository(prisma) {
     updatedAt: row.updatedAt.toISOString(),
   });
 
+  async function sharedGridCells() {
+    const rows = await prisma.$queryRaw`
+      WITH ranked AS (
+        SELECT "id", "districtId",
+               ROW_NUMBER() OVER (
+                 PARTITION BY "districtId"
+                 ORDER BY "isSynthetic" ASC, "retrievedAt" DESC
+               ) AS position
+        FROM "DatasetRun"
+        WHERE "status" = 'SUCCESS'
+      ),
+      fingerprints AS (
+        SELECT r."districtId",
+               md5(string_agg(
+                 concat_ws('|', d."date"::text, d."precipMm"::text, d."tMaxC"::text, d."tMinC"::text),
+                 ',' ORDER BY d."date"
+               )) AS fingerprint
+        FROM ranked r
+        JOIN "ClimateDaily" d ON d."runId" = r."id"
+        WHERE r.position = 1
+        GROUP BY r."districtId"
+      )
+      SELECT f."districtId", array_agg(other."slug" ORDER BY other."slug") AS "sharedWith"
+      FROM fingerprints f
+      JOIN fingerprints same ON same.fingerprint = f.fingerprint
+        AND same."districtId" <> f."districtId"
+      JOIN "District" other ON other."id" = same."districtId"
+      GROUP BY f."districtId"
+      HAVING COUNT(*) > 0
+    `;
+    return new Map(rows.map((row) => [row.districtId, row.sharedWith]));
+  }
+
   async function getFieldWithClient(client, id) {
     const rows = await client.$queryRaw`
       SELECT f."id", f."name", f."districtId", f."areaHa", f."soilType", f."soilPh",
@@ -104,9 +137,10 @@ export function createRepository(prisma) {
     },
 
     async listDistricts() {
-      const [districts, runs] = await Promise.all([
+      const [districts, runs, sharing] = await Promise.all([
         prisma.district.findMany({ orderBy: { nameEn: 'asc' } }),
         prisma.datasetRun.findMany({ where: { status: 'SUCCESS' }, select: { districtId: true, isSynthetic: true } }),
+        sharedGridCells(),
       ]);
       const runStatus = new Map();
       for (const run of runs) {
@@ -115,13 +149,15 @@ export function createRepository(prisma) {
       }
       return districts.map((d) => {
         const climateData = runStatus.get(d.id) ?? 'none';
-        return { ...toDistrict(d), climateData };
+        return { ...toDistrict(d), climateData, sharedGridCellWith: sharing.get(d.id) ?? [] };
       });
     },
 
     async getDistrictBySlug(slug) {
       const row = await prisma.district.findUnique({ where: { slug } });
-      return row ? toDistrict(row) : null;
+      if (!row) return null;
+      const sharing = await sharedGridCells();
+      return { ...toDistrict(row), sharedGridCellWith: sharing.get(row.id) ?? [] };
     },
 
     async listCrops() {

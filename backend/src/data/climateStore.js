@@ -37,6 +37,7 @@ export async function storeRun(prisma, { districtId, run, days }) {
           })),
         });
       }
+
       await tx.datasetRun.deleteMany({
         where: {
           districtId,
@@ -49,6 +50,33 @@ export async function storeRun(prisma, { districtId, run, days }) {
     },
     { timeout: 180000, maxWait: 30000 },
   );
+}
+
+export async function storeMergedRun(prisma, { districtId, previousRunId, run, days }) {
+  const previous = await prisma.climateDaily.findMany({
+    where: { runId: previousRunId },
+    orderBy: { date: 'asc' },
+    select: { date: true, precipMm: true, tMaxC: true, tMinC: true, measurements: true },
+  });
+  const merged = new Map(previous.map((row) => [row.date.toISOString().slice(0, 10), {
+    date: row.date.toISOString().slice(0, 10),
+    precipMm: row.precipMm,
+    tMaxC: row.tMaxC,
+    tMinC: row.tMinC,
+    measurements: row.measurements,
+  }]));
+  for (const day of days) merged.set(day.date, day);
+  const allDays = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date));
+  return storeRun(prisma, {
+    districtId,
+    days: allDays,
+    run: {
+      ...run,
+      startDate: allDays[0].date,
+      endDate: allDays[allDays.length - 1].date,
+      missingCount: allDays.reduce((count, day) => count + (day.precipMm === null ? 1 : 0) + (day.tMaxC === null ? 1 : 0) + (day.tMinC === null ? 1 : 0), 0),
+    },
+  });
 }
 
 // A failed attempt is recorded too, so a failure is visible and not silent.

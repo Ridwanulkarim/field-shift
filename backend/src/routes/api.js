@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { parseEvaluateRequest } from '../validation/evaluateRequest.js';
 import { unavailable } from '../utils/errors.js';
+import { parseDailyClimateRequest } from '../validation/dailyClimateRequest.js';
+import crypto from 'node:crypto';
 import {
   PRIORITIES,
   PRIORITY_MIN,
@@ -39,6 +41,15 @@ export function createApiRouter(service) {
   // GET /api/districts/:slug/climate
   router.get('/districts/:slug/climate', async (req, res) => {
     res.json(await need().climateSummary(req.params.slug));
+  });
+
+  router.get('/districts/:slug/climate/daily', async (req, res) => {
+    const result = await need().dailyClimate(req.params.slug, parseDailyClimateRequest(req.query));
+    const etag = `"${crypto.createHash('sha256').update(`${result.provenance.runId}:${result.from}:${result.to}`).digest('hex')}"`;
+    res.set('Cache-Control', 'public, max-age=300');
+    res.set('ETag', etag);
+    if (req.get('If-None-Match') === etag) return res.status(304).end();
+    return res.json(result);
   });
 
   // GET /api/crops
