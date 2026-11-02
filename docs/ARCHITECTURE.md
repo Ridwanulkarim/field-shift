@@ -41,8 +41,14 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
   cacheable for five minutes.
 - Climate responses include a shared-grid-cell list derived from the stored daily series, rather than
   hard-coded district names. This describes identical source series, not field-level similarity.
+- Stored NASA observations are labeled `cached`; `demo` is reserved for synthetic data and
+  `unavailable` means no usable observations exist. The ingestion command reports a successful
+  upstream retrieval separately rather than labeling all stored data `live`.
 - `npm run ingest:refresh` fetches the latest seven-day lag window and atomically stores a merged run.
   A failed refresh records the failed attempt and does not replace the previous successful run.
+- NASA ingestion validates coordinates, calendar dates, matching variable date sets, units, fill
+  values and plausible ranges. Cross-process ingestion locks are stored in `DatasetIngestionLock`;
+  failed run history is retained when successful data is replaced.
 
 ## API
 

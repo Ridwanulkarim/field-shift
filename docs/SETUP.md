@@ -98,7 +98,11 @@ npm run ingest:nasa
 
 Allow several minutes; it waits 2 seconds between districts on purpose. No NASA key is needed.
 
-> **Important:** the NASA download code has been tested only against a hand-built sample shaped like NASA's documented response. It has never been run against NASA's live service by the people who wrote it. Your first run is the real test. If it prints `FAILED ...`, the failure is recorded (see `/api/health/data`); send the exact message to the team.
+> **Important:** failures are recorded at `/api/health/data`; successful retrieval is stored with provenance and later API responses identify it as cached.
+
+The NASA client timeout and retry count are configurable with
+`NASA_POWER_TIMEOUT_MS` and `NASA_POWER_RETRIES`. Historical ingestion uses
+`--start=YYYY --end=YYYY`.
 
 **Option B: synthetic demo data (works offline, clearly not NASA).**
 
@@ -107,6 +111,17 @@ npm run db:seed:synthetic
 ```
 
 This generates numbers by software so you can demo the screens. Every screen and API answer then shows a **SYNTHETIC DEMO DATA** warning. Real NASA data automatically takes priority once it is loaded. Do not present synthetic results as findings.
+
+To refresh an existing real dataset without downloading the full history:
+
+```bash
+npm run ingest:refresh -- --lag=7 --overlap=2
+```
+
+Schedule this command with the deployment platform's cron or a separate worker,
+not inside the Express process. `--lag` avoids requesting dates NASA POWER may
+not have published yet; `--overlap` re-fetches a recent window and preserves
+previously valid values when the refresh contains fill values.
 
 ## 6. Start the app (two terminals)
 

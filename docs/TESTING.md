@@ -29,7 +29,11 @@ Expected: the database-free suite skips only real database tests; with `TEST_DAT
 
 The refresh command is intentionally not part of automated tests because it contacts NASA
 POWER. Run `npm run ingest:refresh` only when a configured database and network are available;
-it records failures and preserves the prior successful run.
+it records failures, preserves the prior successful run, and uses the ingestion lock.
+
+On 2026-11-02, a real three-day NASA POWER request for Rajshahi succeeded against
+`https://power.larc.nasa.gov/api/temporal/daily/point`. This verifies upstream
+availability and response shape only; it did not write to a production database.
 
 Field integration checks should use separate cookie jars to verify that one
 anonymous session cannot read or create a field belonging to another session.
