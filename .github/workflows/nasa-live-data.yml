@@ -1,0 +1,64 @@
+# Keeps the PRODUCTION database on real NASA POWER data.
+#
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   DATABASE_URL_PRODUCTION      Neon pooled connection string
+#   DIRECT_URL_PRODUCTION        Neon direct connection string
+#   ANONYMOUS_SESSION_SECRET     same 32+ character value the production API uses
+#                                (the shared config loader refuses to start in production without it)
+#
+# First time: Actions > "NASA live data" > Run workflow > mode = initial.
+# After that the daily schedule runs the incremental refresh by itself.
+
+name: NASA live data
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # daily, 03:30 UTC (09:30 Bangladesh time)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'initial = full history download, then verify. refresh = incremental only.'
+        type: choice
+        options: [refresh, initial]
+        default: refresh
+      start_year:
+        description: 'initial mode only: first year to download'
+        default: '2001'
+
+concurrency:
+  group: nasa-live-data
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: production
+      DATABASE_URL_PRODUCTION: ${{ secrets.DATABASE_URL_PRODUCTION }}
+      DIRECT_URL_PRODUCTION: ${{ secrets.DIRECT_URL_PRODUCTION }}
+      ANONYMOUS_SESSION_SECRET: ${{ secrets.ANONYMOUS_SESSION_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+
+      - name: Apply pending migrations
+        run: npm run db:deploy
+
+      - name: Initial NASA POWER download
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'initial'
+        run: npm run ingest:nasa -- --start=${{ inputs.start_year }}
+
+      - name: Incremental refresh
+        run: npm run ingest:refresh
+
+      - name: Verify every district is on fresh NASA data
+        run: npm run verify:live
