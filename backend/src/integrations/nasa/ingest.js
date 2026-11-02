@@ -21,6 +21,12 @@ function addDays(date, amount) {
   return isoDate(result);
 }
 
+// One lock per district: a full ingest and an incremental refresh both replace the district's stored run,
+// so they must never run at the same time (a range-specific key would let them overlap and lose data).
+export function ingestionLockKey(district) {
+  return `NASA POWER:${district.id}`;
+}
+
 function runBase(district, startDate, endDate) {
   return {
     source: 'NASA POWER',
@@ -82,7 +88,7 @@ export async function ingestDistrict({ prisma, district, startYear, endYear, fet
   }
   const startDate = `${startYear}0101`;
   const endDate = `${endYear}1231`;
-  const key = `NASA POWER:${district.id}:${startDate}:${endDate}`;
+  const key = ingestionLockKey(district);
   const result = await withIngestionLock(prisma, key, async () => {
     try {
       return { ok: true, ...(await storeFetched({ prisma, district, fetchPower, startDate: `${startYear}-01-01`, endDate: `${endYear}-12-31` })) };
@@ -103,7 +109,7 @@ export async function refreshDistrict({ prisma, district, lagDays = 7, overlapDa
   const endDate = addDays(isoDate(new Date()), -lagDays);
   const startDate = addDays(isoDate(previous.endDate), -overlapDays);
   if (startDate > endDate) return { ok: true, skipped: true, reason: 'already_current', through: isoDate(previous.endDate) };
-  const key = `NASA POWER:${district.id}:${startDate}:${endDate}`;
+  const key = ingestionLockKey(district);
   const result = await withIngestionLock(prisma, key, async () => {
     try {
       return { ok: true, ...(await storeFetched({ prisma, district, fetchPower, startDate, endDate, previousRunId: previous.id })) };
