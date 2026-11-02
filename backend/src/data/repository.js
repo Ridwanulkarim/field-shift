@@ -46,6 +46,19 @@ function toProvenance(run) {
   };
 }
 
+
+// Prisma wraps raw-query database errors (code P2010), so the PostgreSQL code 23505 is not on `error.code`.
+// Match only the one-field-per-session constraint, so other unique violations are not reported as a session conflict.
+export function isSessionUniqueViolation(error) {
+  if (!error) return false;
+  const text = [error.message, error.meta?.message, error.meta?.driverAdapterError?.message, error.meta?.driverAdapterError?.cause?.message]
+    .filter((v) => typeof v === 'string').join(' ');
+  const cause = error.meta?.driverAdapterError?.cause;
+  const isUnique = error.code === '23505' || error.meta?.code === '23505' || cause?.originalCode === '23505'
+    || cause?.kind === 'UniqueConstraintViolation' || text.includes('23505');
+  return isUnique && (text.includes('Field_sessionId_key') || JSON.stringify(cause ?? {}).includes('sessionId'));
+}
+
 export function createRepository(prisma) {
   const seriesCache = new Map(); // runId -> series (runs never change once stored)
 
@@ -211,7 +224,7 @@ export function createRepository(prisma) {
           RETURNING "id"
           `;
         } catch (error) {
-          if (error?.code === '23505') throw new FieldSessionConflictError();
+          if (isSessionUniqueViolation(error)) throw new FieldSessionConflictError();
           throw error;
         }
         return getFieldWithClient(tx, ids[0].id, sessionId);

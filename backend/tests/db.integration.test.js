@@ -13,6 +13,7 @@ import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config/env.js';
 import { CROPS } from '../src/data/reference/crops.js';
 import { FieldGeometryError, FieldDistrictError } from '../src/utils/fieldErrors.js';
+import crypto from 'node:crypto';
 import request from 'supertest';
 
 const url = process.env.TEST_DATABASE_URL;
@@ -109,7 +110,8 @@ describe.skipIf(!url)('database integration', () => {
   });
 
   it('completes the field CRUD workflow through the API', async () => {
-    const app = createApp(loadConfig({}), { repository: repo });
+    const application = createApp(loadConfig({}), { repository: repo });
+    const app = request.agent(application); // keeps the anonymous session cookie between calls
     const boundary = {
       type: 'Polygon',
       coordinates: [[[88.6, 24.37], [88.61, 24.37], [88.61, 24.38], [88.6, 24.37]]],
@@ -119,87 +121,104 @@ describe.skipIf(!url)('database integration', () => {
       coordinates: [[[88.6, 24.37], [88.62, 24.37], [88.62, 24.39], [88.6, 24.37]]],
     };
 
-    const created = await request(app).post('/api/fields').send({
+    const spoofed = await app.post('/api/fields').send({
+      name: 'Spoofed Area', districtId: district.id, boundary, areaHa: 999,
+    });
+    expect(spoofed.status).toBe(422);
+    expect(spoofed.body.error.details[0].field).toBe('areaHa');
+
+    const created = await app.post('/api/fields').send({
       name: 'Integration Field',
       districtId: district.id,
       boundary,
       soilType: 'Clay',
       soilPh: 6.5,
-      areaHa: 999,
     });
     expect(created.status).toBe(201);
     expect(created.body.field.boundary.type).toBe('MultiPolygon');
     expect(created.body.field.district.id).toBe(district.id);
     expect(created.body.field.soilType).toBe('Clay');
     expect(created.body.field.areaHa).toBeGreaterThan(0);
-    expect(created.body.field.areaHa).not.toBe(999);
 
     const id = created.body.field.id;
-    const listed = await request(app).get('/api/fields');
+
+    // One field per anonymous session.
+    const second = await app.post('/api/fields').send({ name: 'Second', districtId: district.id, boundary });
+    expect(second.status).toBe(409);
+
+    // A different session cannot see, change or delete this field.
+    const stranger = request.agent(application);
+    expect((await stranger.get('/api/fields')).body.fields).toHaveLength(0);
+    expect((await stranger.get(`/api/fields/${id}`)).status).toBe(404);
+    expect((await stranger.patch(`/api/fields/${id}`).send({ name: 'Stolen' })).status).toBe(404);
+    expect((await stranger.delete(`/api/fields/${id}`)).status).toBe(404);
+
+    const listed = await app.get('/api/fields');
     expect(listed.status).toBe(200);
     expect(listed.body.fields.some((field) => field.id === id)).toBe(true);
 
-    const retrieved = await request(app).get(`/api/fields/${id}`);
+    const retrieved = await app.get(`/api/fields/${id}`);
     expect(retrieved.status).toBe(200);
     expect(retrieved.body.field.boundary.type).toBe('MultiPolygon');
 
-    const metadataUpdate = await request(app).patch(`/api/fields/${id}`).send({ soilType: null });
+    const metadataUpdate = await app.patch(`/api/fields/${id}`).send({ soilType: null });
     expect(metadataUpdate.status).toBe(200);
     expect(metadataUpdate.body.field.soilType).toBeNull();
     expect(metadataUpdate.body.field.areaHa).toBe(created.body.field.areaHa);
 
-    const boundaryUpdate = await request(app).patch(`/api/fields/${id}`).send({ boundary: replacementBoundary, areaHa: 0 });
+    const boundaryUpdate = await app.patch(`/api/fields/${id}`).send({ boundary: replacementBoundary });
     expect(boundaryUpdate.status).toBe(200);
     expect(boundaryUpdate.body.field.boundary.type).toBe('MultiPolygon');
     expect(boundaryUpdate.body.field.areaHa).toBeGreaterThan(created.body.field.areaHa);
-    expect(boundaryUpdate.body.field.areaHa).not.toBe(0);
 
-    const invalidBoundary = await request(app).patch(`/api/fields/${id}`).send({
+    const invalidBoundary = await app.patch(`/api/fields/${id}`).send({
       boundary: { type: 'Polygon', coordinates: [[[88.6, 24.37], [88.62, 24.37], [88.6, 24.38]]] },
     });
     expect(invalidBoundary.status).toBe(422);
-    expect((await request(app).get(`/api/fields/${id}`)).body.field.boundary.type).toBe('MultiPolygon');
+    expect((await app.get(`/api/fields/${id}`)).body.field.boundary.type).toBe('MultiPolygon');
 
-    const deleted = await request(app).delete(`/api/fields/${id}`);
+    const deleted = await app.delete(`/api/fields/${id}`);
     expect(deleted.status).toBe(200);
     expect(deleted.body.deleted.id).toBe(id);
-    expect((await request(app).get(`/api/fields/${id}`)).status).toBe(404);
+    expect((await app.get(`/api/fields/${id}`)).status).toBe(404);
   });
 
   it('rejects invalid field references and preserves records after failed updates', async () => {
-    const app = createApp(loadConfig({}), { repository: repo });
+    const application = createApp(loadConfig({}), { repository: repo });
+    const app = request.agent(application);
+    const sessionId = `test-session-${crypto.randomUUID()}`; // repository-level calls need a session id
     const boundary = {
       type: 'Polygon',
       coordinates: [[[88.6, 24.37], [88.61, 24.37], [88.61, 24.38], [88.6, 24.37]]],
     };
-    const created = await repo.createField({ name: 'Rollback Field', districtId: district.id, boundary });
+    const created = await repo.createField({ name: 'Rollback Field', districtId: district.id, boundary }, sessionId);
 
-    await expect(repo.createField({ name: 'Bad District Field', districtId: 999999, boundary })).rejects.toBeInstanceOf(
+    await expect(repo.createField({ name: 'Bad District Field', districtId: 999999, boundary }, `${sessionId}-b`)).rejects.toBeInstanceOf(
       FieldDistrictError,
     );
-    expect(await repo.listFields()).toHaveLength(1);
+    expect(await repo.listFields(sessionId)).toHaveLength(1);
 
-    await expect(repo.updateField(created.id, { districtId: 999999 })).rejects.toBeInstanceOf(FieldDistrictError);
+    await expect(repo.updateField(created.id, { districtId: 999999 }, sessionId)).rejects.toBeInstanceOf(FieldDistrictError);
     await expect(repo.updateField(created.id, {
       boundary: {
         type: 'Polygon',
         coordinates: [[[88.6, 24.37], [88.61, 24.38], [88.61, 24.37], [88.6, 24.38], [88.6, 24.37]]],
       },
-    })).rejects.toBeInstanceOf(FieldGeometryError);
+    }, sessionId)).rejects.toBeInstanceOf(FieldGeometryError);
 
-    const unchanged = await request(app).get(`/api/fields/${created.id}`);
-    expect(unchanged.status).toBe(200);
-    expect(unchanged.body.field.name).toBe('Rollback Field');
-    expect(unchanged.body.field.boundary.type).toBe('MultiPolygon');
-    expect(await repo.deleteField(created.id)).toBe(true);
+    const unchanged = await repo.getField(created.id, sessionId);
+    expect(unchanged.name).toBe('Rollback Field');
+    expect(unchanged.boundary.type).toBe('MultiPolygon');
+    expect(await repo.deleteField(created.id, `${sessionId}-other`)).toBe(false); // wrong session
+    expect(await repo.deleteField(created.id, sessionId)).toBe(true);
 
-    const invalidCreate = await request(app).post('/api/fields').send({
+    const invalidCreate = await app.post('/api/fields').send({
       name: 'Invalid Field',
       districtId: district.id,
       boundary: { type: 'Point', coordinates: [88.6, 24.37] },
     });
     expect(invalidCreate.status).toBe(422);
-    expect((await request(app).post('/api/fields').send({
+    expect((await app.post('/api/fields').send({
       name: 'Unknown District Field',
       districtId: 999999,
       boundary,

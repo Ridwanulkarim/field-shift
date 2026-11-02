@@ -62,6 +62,7 @@ describe('field management API', () => {
   it('issues an opaque session cookie and passes it to field operations', async () => {
     const sessions = new Map();
     const service = createFieldService({
+      async listFields() { return []; },
       async createField(input, sessionId) {
         if (sessions.has(sessionId)) {
           const error = new Error('This anonymous session already has a registered field.');
@@ -150,6 +151,9 @@ describe('field management API', () => {
         }
         sessions.add(sessionId);
         return { id: crypto.randomUUID(), ...input };
+      },
+      async listFields() {
+        return [];
       },
     });
     const application = createApp(loadConfig({}), { fieldService: service });
