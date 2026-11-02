@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { freshnessFor } from '../utils/dataLabel.js';
 
 // GET /api/health        is the API process alive? (no database needed)
 // GET /api/health/db     can it reach the database? 503 if not
@@ -44,6 +45,7 @@ export function createHealthRouter(repository) {
         lastRetrievedAt: d.lastRetrievedAt,
         rowCount: d.rowCount,
         missingCount: d.missingCount,
+        daysSinceLatest: d.latestObservationDate ? freshnessFor({ endDate: d.latestObservationDate }).daysSinceLatest : null,
       })),
       tally,
       recentFailedRuns: failures,

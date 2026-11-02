@@ -43,6 +43,7 @@ npm run ingest:refresh -- --lag=7 --overlap=2
 Refresh starts a small configurable overlap before the last stored observation, ends at
 the configured lag behind today, and preserves previously valid non-null values when a
 re-fetched response contains a missing value. It never fabricates current observations.
+See docs/LIVE_DATA_PRODUCTION.md for the ready-made daily GitHub Actions schedule.
 Run this command from a separate scheduled worker or platform cron job, not from the
 Express web process.
 

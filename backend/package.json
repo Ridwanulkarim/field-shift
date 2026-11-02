@@ -18,6 +18,7 @@
     "db:seed:synthetic": "node --env-file-if-exists=.env scripts/seed-synthetic.js",
     "ingest:nasa": "node --env-file-if-exists=.env scripts/ingest-nasa.js",
     "ingest:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa.js",
+    "verify:live": "node --env-file-if-exists=.env scripts/verify-live-data.js",
     "analyze:onset": "node --env-file-if-exists=.env scripts/analyze-onset.js",
     "analyze:sensitivity": "node --env-file-if-exists=.env scripts/onset-sensitivity.js"
   },
