@@ -1,7 +1,7 @@
 // Read-only data access for the API. Keeps every database query in one place so the science
 // code never touches the database and tests can swap in a fake repository.
 
-import { FieldDistrictError, FieldGeometryError } from '../utils/fieldErrors.js';
+import { FieldDistrictError, FieldGeometryError, FieldSessionConflictError } from '../utils/fieldErrors.js';
 
 const NASA_NOTE =
   'NASA POWER meteorological data come on a grid of roughly 0.5 degrees (tens of km). Values describe the grid cell around the district point, not a single field.';
@@ -99,7 +99,7 @@ export function createRepository(prisma) {
     return new Map(rows.map((row) => [row.districtId, row.sharedWith]));
   }
 
-  async function getFieldWithClient(client, id) {
+  async function getFieldWithClient(client, id, sessionId) {
     const rows = await client.$queryRaw`
       SELECT f."id", f."name", f."districtId", f."areaHa", f."soilType", f."soilPh",
              f."organicMatterPct", f."salinityDsM", f."irrigationSource",
@@ -108,7 +108,7 @@ export function createRepository(prisma) {
              ST_AsGeoJSON(f."boundary") AS "boundary"
       FROM "Field" f
       JOIN "District" d ON d."id" = f."districtId"
-      WHERE f."id" = ${id}::uuid
+      WHERE f."id" = ${id}::uuid AND f."sessionId" = ${sessionId}
     `;
     return rows[0] ? fieldFromRow(rows[0]) : null;
   }
@@ -164,31 +164,38 @@ export function createRepository(prisma) {
       return prisma.crop.findMany({ orderBy: { slug: 'asc' } });
     },
 
-    async createField(input) {
+    async createField(input, sessionId) {
+      if (!sessionId) throw new Error('Anonymous session is required to create a field.');
       return prisma.$transaction(async (tx) => {
         const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true } });
         if (!district) throw new FieldDistrictError(input.districtId);
         await validateBoundary(tx, input.boundary);
-        const ids = await tx.$queryRaw`
+        let ids;
+        try {
+          ids = await tx.$queryRaw`
           WITH input AS (
             SELECT ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326)) AS geometry
           )
           INSERT INTO "Field" (
-            "id", "name", "districtId", "boundary", "areaHa", "soilType", "soilPh",
+            "id", "sessionId", "name", "districtId", "boundary", "areaHa", "soilType", "soilPh",
             "organicMatterPct", "salinityDsM", "irrigationSource", "updatedAt"
           )
-          SELECT ${crypto.randomUUID()}::uuid, ${input.name}, ${input.districtId}, geometry,
+          SELECT ${crypto.randomUUID()}::uuid, ${sessionId}, ${input.name}, ${input.districtId}, geometry,
                  ST_Area(geometry::geography) / 10000, ${input.soilType ?? null}, ${input.soilPh ?? null},
                  ${input.organicMatterPct ?? null}, ${input.salinityDsM ?? null}, ${input.irrigationSource ?? null},
                  CURRENT_TIMESTAMP
           FROM input
           RETURNING "id"
-        `;
-        return getFieldWithClient(tx, ids[0].id);
+          `;
+        } catch (error) {
+          if (error?.code === '23505') throw new FieldSessionConflictError();
+          throw error;
+        }
+        return getFieldWithClient(tx, ids[0].id, sessionId);
       });
     },
 
-    async listFields() {
+    async listFields(sessionId) {
       const rows = await prisma.$queryRaw`
         SELECT f."id", f."name", f."districtId", f."areaHa", f."soilType", f."soilPh",
                f."organicMatterPct", f."salinityDsM", f."irrigationSource",
@@ -197,16 +204,17 @@ export function createRepository(prisma) {
                ST_AsGeoJSON(f."boundary") AS "boundary"
         FROM "Field" f
         JOIN "District" d ON d."id" = f."districtId"
+        WHERE f."sessionId" = ${sessionId}
         ORDER BY f."createdAt" DESC, f."id" ASC
       `;
       return rows.map(fieldFromRow);
     },
 
-    getField: (id) => getFieldWithClient(prisma, id),
+    getField: (id, sessionId) => getFieldWithClient(prisma, id, sessionId),
 
-    async updateField(id, input) {
+    async updateField(id, input, sessionId) {
       return prisma.$transaction(async (tx) => {
-        const existing = await tx.field.findUnique({ where: { id }, select: { id: true } });
+        const existing = await tx.field.findFirst({ where: { id, sessionId }, select: { id: true } });
         if (!existing) return null;
         if (input.districtId !== undefined) {
           const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true } });
@@ -219,7 +227,7 @@ export function createRepository(prisma) {
             SET "boundary" = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326)),
                 "areaHa" = ST_Area(ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326))::geography) / 10000,
                 "updatedAt" = CURRENT_TIMESTAMP
-            WHERE "id" = ${id}::uuid
+            WHERE "id" = ${id}::uuid AND "sessionId" = ${sessionId}
           `;
         }
         const data = {};
@@ -227,12 +235,12 @@ export function createRepository(prisma) {
           if (input[key] !== undefined) data[key] = input[key];
         }
         if (Object.keys(data).length) await tx.field.update({ where: { id }, data });
-        return getFieldWithClient(tx, id);
+        return getFieldWithClient(tx, id, sessionId);
       });
     },
 
-    async deleteField(id) {
-      const result = await prisma.field.deleteMany({ where: { id } });
+    async deleteField(id, sessionId) {
+      const result = await prisma.field.deleteMany({ where: { id, sessionId } });
       return result.count > 0;
     },
 

@@ -31,4 +31,7 @@ The refresh command is intentionally not part of automated tests because it cont
 POWER. Run `npm run ingest:refresh` only when a configured database and network are available;
 it records failures and preserves the prior successful run.
 
+Field integration checks should use separate cookie jars to verify that one
+anonymous session cannot read or create a field belonging to another session.
+
 **What is not tested automatically:** a live call to NASA POWER (no test may depend on the internet) and the React screens (checked by hand).

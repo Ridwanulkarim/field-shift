@@ -24,11 +24,17 @@ function databaseUrls(env, nodeEnv) {
 export function loadConfig(env = process.env) {
   const nodeEnv = env.NODE_ENV || 'development';
   const { databaseUrl } = databaseUrls(env, nodeEnv);
+  const anonymousSessionSecret = env.ANONYMOUS_SESSION_SECRET || (nodeEnv === 'production' ? '' : 'development-only-session-secret');
+  if (nodeEnv === 'production' && anonymousSessionSecret.length < 32) {
+    throw new Error('ANONYMOUS_SESSION_SECRET must be at least 32 characters in production.');
+  }
   return {
     port: parsePort(env.PORT),
     nodeEnv,
     // Browser origin allowed to call this API (the Vite dev server).
     corsOrigin: env.CORS_ORIGIN || 'http://localhost:5173',
+    anonymousSessionSecret,
+    anonymousSessionMaxAgeMs: 1000 * 60 * 60 * 24 * 365,
     // Neon (or local PostgreSQL) connection string used by the running API. Empty = no database.
     databaseUrl,
     // Optional: folder with the built frontend, served by this same server (demo mode).

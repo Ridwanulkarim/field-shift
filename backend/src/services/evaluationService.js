@@ -170,11 +170,11 @@ export function createEvaluationService(repo) {
       };
     },
 
-    async evaluate(input) {
+    async evaluate(input, sessionId) {
       let field = null;
       if (input.fieldId) {
         if (!repo.getField) throw notFound('FIELD_NOT_FOUND', `No field with id "${input.fieldId}".`);
-        field = await repo.getField(input.fieldId);
+        field = await repo.getField(input.fieldId, sessionId);
         if (!field) throw notFound('FIELD_NOT_FOUND', `No field with id "${input.fieldId}".`);
         if (field.district?.slug !== input.district) {
           throw validationError([{ field: 'fieldId', message: 'The selected field must belong to the selected district.' }]);

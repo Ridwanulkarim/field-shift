@@ -34,6 +34,7 @@ model District {
 // Registered agricultural fields with PostGIS boundaries.
 model Field {
   id         String   @id @default(uuid()) @db.Uuid
+  sessionId  String?  @unique @db.VarChar(64)
   name       String
   districtId Int
   district   District @relation(fields: [districtId], references: [id], onDelete: Cascade)

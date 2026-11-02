@@ -77,6 +77,11 @@ npm run db:seed
 The seed, ingestion and analysis commands use the database selected by `NODE_ENV`.
 Set `NODE_ENV=production` before running them against the production database.
 
+The anonymous field migration is additive. Existing fields created before
+anonymous ownership have no session and are not exposed by the field API until
+an operator assigns ownership; do not guess or share a session identifier.
+New fields receive an opaque cookie automatically.
+
 ## 5. Load climate data
 
 **Option A: real NASA POWER data (what you should present).**

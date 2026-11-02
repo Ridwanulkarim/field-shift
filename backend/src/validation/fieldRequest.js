@@ -12,7 +12,6 @@ const SUPPORTED_FIELDS = [
   'organicMatterPct',
   'salinityDsM',
   'irrigationSource',
-  'areaHa',
 ];
 
 function isObject(value) {
@@ -93,6 +92,9 @@ export function parseFieldRequest(body, { partial = false } = {}) {
   for (const key of Object.keys(body)) {
     if (!SUPPORTED_FIELDS.includes(key)) errors.push({ field: key, message: 'Unknown field.' });
   }
+  if (Object.prototype.hasOwnProperty.call(body, 'areaHa')) {
+    errors.push({ field: 'areaHa', message: 'Area is calculated by the backend and must not be provided.' });
+  }
 
   if (!partial || body.name !== undefined) {
     if (typeof body.name !== 'string' || body.name.trim().length === 0 || body.name.length > MAX_NAME_LENGTH) {
@@ -113,11 +115,10 @@ export function parseFieldRequest(body, { partial = false } = {}) {
   optionalNumber(body.salinityDsM, 'salinityDsM', errors, { min: 0, max: 1000 });
 
   if (errors.length) throw validationError(errors);
-  if (partial && Object.keys(body).filter((key) => key !== 'areaHa' && SUPPORTED_FIELDS.includes(key)).length === 0) {
+  if (partial && Object.keys(body).filter((key) => SUPPORTED_FIELDS.includes(key)).length === 0) {
     throw validationError([{ field: 'body', message: 'Provide at least one field property to update.' }]);
   }
   const result = { ...body };
-  delete result.areaHa;
   if (typeof result.name === 'string') result.name = result.name.trim();
   return result;
 }

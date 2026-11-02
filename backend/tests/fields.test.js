@@ -3,7 +3,8 @@ import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config/env.js';
 import { createFieldService } from '../src/services/fieldService.js';
-import { FieldGeometryError } from '../src/utils/fieldErrors.js';
+import { FieldGeometryError, FieldSessionConflictError } from '../src/utils/fieldErrors.js';
+import crypto from 'node:crypto';
 
 const polygon = {
   type: 'Polygon',
@@ -55,16 +56,128 @@ const validBody = {
   organicMatterPct: 2.1,
   salinityDsM: 0.5,
   irrigationSource: 'Groundwater',
-  areaHa: 999,
 };
 
 describe('field management API', () => {
-  it('registers a field, converts Polygon output to MultiPolygon, and ignores client area', async () => {
+  it('issues an opaque session cookie and passes it to field operations', async () => {
+    const sessions = new Map();
+    const service = createFieldService({
+      async createField(input, sessionId) {
+        if (sessions.has(sessionId)) {
+          const error = new Error('This anonymous session already has a registered field.');
+          error.status = 409;
+          error.code = 'FIELD_ALREADY_EXISTS';
+          throw error;
+        }
+        const field = { id: '550e8400-e29b-41d4-a716-446655440000', ...input };
+        sessions.set(sessionId, field);
+        return field;
+      },
+      async listFields(sessionId) {
+        return sessions.has(sessionId) ? [sessions.get(sessionId)] : [];
+      },
+    });
+    const application = createApp(loadConfig({}), { fieldService: service });
+    const first = request.agent(application);
+    const created = await first.post('/api/fields').send(validBody);
+    expect(created.status).toBe(201);
+    expect(created.headers['set-cookie'][0]).toMatch(/field_shift_session=[A-Za-z0-9_-]{32}\.[a-z0-9]+\.[A-Za-z0-9_-]{16};.*HttpOnly/);
+    expect((await first.get('/api/fields')).body.fields).toHaveLength(1);
+    expect((await request.agent(application).get('/api/fields')).body.fields).toHaveLength(0);
+  });
+
+  it('reuses a valid cookie, rejects malformed or expired cookies, and isolates CRUD operations', async () => {
+    const records = new Map();
+    const service = createFieldService({
+      async createField(input, sessionId) {
+        if (records.has(sessionId)) {
+          const error = new Error('This anonymous session already has a registered field.');
+          error.status = 409;
+          error.code = 'FIELD_ALREADY_EXISTS';
+          throw error;
+        }
+        const field = { id: crypto.randomUUID(), ...input, sessionId };
+        records.set(sessionId, field);
+        return field;
+      },
+      async listFields(sessionId) {
+        return records.has(sessionId) ? [records.get(sessionId)] : [];
+      },
+      async getField(id, sessionId) {
+        const field = records.get(sessionId);
+        return field?.id === id ? field : null;
+      },
+      async updateField(id, input, sessionId) {
+        const field = records.get(sessionId);
+        if (!field || field.id !== id) return null;
+        Object.assign(field, input);
+        return field;
+      },
+      async deleteField(id, sessionId) {
+        const field = records.get(sessionId);
+        return Boolean(field?.id === id && records.delete(sessionId));
+      },
+    });
+    const application = createApp(loadConfig({}), { fieldService: service });
+    const ownerCookie = (await request(application).get('/api/fields')).headers['set-cookie'][0].split(';')[0];
+    const otherCookie = (await request(application).get('/api/fields')).headers['set-cookie'][0].split(';')[0];
+    expect(otherCookie).not.toBe(ownerCookie);
+    const created = await request(application).post('/api/fields').set('Cookie', ownerCookie).send(validBody);
+    const id = created.body.field.id;
+    expect((await request(application).get('/api/fields').set('Cookie', ownerCookie)).headers['set-cookie']).toBeUndefined();
+    expect((await request(application).get(`/api/fields/${id}`).set('Cookie', otherCookie)).status).toBe(404);
+    expect((await request(application).patch(`/api/fields/${id}`).set('Cookie', otherCookie).send({ name: 'Stolen' })).status).toBe(404);
+    expect((await request(application).delete(`/api/fields/${id}`).set('Cookie', otherCookie)).status).toBe(404);
+    expect((await request(application).get(`/api/fields/${id}`).set('Cookie', ownerCookie)).body.field.name).toBe(validBody.name);
+
+    const malformed = await request(application).get('/api/fields').set('Cookie', 'field_shift_session=bad');
+    expect(malformed.headers['set-cookie'][0]).not.toContain('field_shift_session=bad');
+
+    const unsigned = `${'a'.repeat(32)}.${(Date.now() - 1).toString(36)}`;
+    const signature = crypto.createHmac('sha256', 'development-only-session-secret').update(unsigned).digest('base64url').slice(0, 16);
+    const expired = await request(application).get('/api/fields').set('Cookie', `field_shift_session=${unsigned}.${signature}`);
+    expect(expired.headers['set-cookie'][0]).not.toContain(`${unsigned}.${signature}`);
+    expect(expired.body.fields).toHaveLength(0);
+    expect(ownerCookie).toMatch(/^field_shift_session=/);
+  });
+
+  it('returns one conflict and one success for concurrent registration in one session', async () => {
+    const sessions = new Set();
+    const service = createFieldService({
+      async createField(input, sessionId) {
+        if (sessions.has(sessionId)) {
+          throw new FieldSessionConflictError();
+        }
+        sessions.add(sessionId);
+        return { id: crypto.randomUUID(), ...input };
+      },
+    });
+    const application = createApp(loadConfig({}), { fieldService: service });
+    const cookie = (await request(application).get('/api/fields')).headers['set-cookie'][0].split(';')[0];
+    const responses = await Promise.all([
+      request(application).post('/api/fields').set('Cookie', cookie).send(validBody),
+      request(application).post('/api/fields').set('Cookie', cookie).send(validBody),
+    ]);
+    expect(responses.map((response) => response.status).sort()).toEqual([201, 409]);
+  });
+
+  it('registers a field, converts Polygon output to MultiPolygon, and rejects client area', async () => {
+    const res = await request(app()).post('/api/fields').send({ ...validBody, areaHa: 999 });
+    expect(res.status).toBe(422);
+    expect(res.body.error.details[0].field).toBe('areaHa');
+
+    const created = await request(app()).post('/api/fields').send(validBody);
+    expect(created.status).toBe(201);
+    expect(created.body.field.boundary.type).toBe('MultiPolygon');
+    expect(created.body.field.areaHa).toBe(1.2);
+  });
+
+  it('does not trust an area value during updates', async () => {
     const res = await request(app()).post('/api/fields').send(validBody);
     expect(res.status).toBe(201);
-    expect(res.body.field.boundary.type).toBe('MultiPolygon');
-    expect(res.body.field.areaHa).toBe(1.2);
-    expect(res.body.field.areaHa).not.toBe(999);
+    const id = res.body.field.id;
+    const updated = await request(app()).patch(`/api/fields/${id}`).send({ areaHa: 999 });
+    expect(updated.status).toBe(422);
   });
 
   it('rejects missing name, invalid district ID, and invalid GeoJSON', async () => {
@@ -107,7 +220,6 @@ describe('field management API', () => {
     const updated = await request(application).patch(`/api/fields/${id}`).send({
       name: 'Updated Field',
       boundary: polygon,
-      areaHa: 0,
     });
     expect(updated.status).toBe(200);
     expect(updated.body.field.name).toBe('Updated Field');

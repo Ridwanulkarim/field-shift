@@ -41,6 +41,11 @@ describe('loadConfig', () => {
       NODE_ENV: 'production',
       DATABASE_URL_DEVELOPMENT: 'postgresql://dev',
       DATABASE_URL_PRODUCTION: 'postgresql://prod',
+      ANONYMOUS_SESSION_SECRET: 'a'.repeat(32),
     }).databaseUrl).toBe('postgresql://prod');
+  });
+
+  it('requires a strong anonymous session secret in production', () => {
+    expect(() => loadConfig({ NODE_ENV: 'production' })).toThrow(/ANONYMOUS_SESSION_SECRET/);
   });
 });

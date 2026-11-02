@@ -32,6 +32,10 @@ PostgreSQL (Neon or local) via Prisma 7 with the `pg` driver adapter
   new run ID, so refreshed data is used without manual cache invalidation; old entries are evicted
   after a small fixed limit.
 - Helmet, compression, and method-sensitive in-process rate limits are applied before API routes.
+- Field APIs use an opaque, signed random `field_shift_session` HttpOnly cookie. The database unique
+  constraint on `Field.sessionId` enforces one field per anonymous session; this is not farmer
+  identity and clearing browser storage loses access to the prior field. Production requires
+  `ANONYMOUS_SESSION_SECRET`; expiry is checked server-side.
 - Daily climate responses are calendar-complete: dates absent from storage are returned with `null`
   measurements. They include an ETag keyed by dataset run and requested range and are publicly
   cacheable for five minutes.
@@ -81,12 +85,14 @@ remain explicit user inputs.
 
 The response contains `strategies` (the existing rotation first, then three ranked alternatives). Each strategy has `score`, `components`, `benefits`, `risks`, `informationGaps`, `evidence` and, for alternatives, a `comparison` with the existing rotation. It also returns `climate` (with provenance and a notice when data are synthetic or missing), `method`, `limitations` and `disclaimer`.
 
-Detailed field boundary API documentation is in [FIELDS_API.md](./FIELDS_API.md).
+Detailed field boundary and anonymous-session API documentation is in [FIELDS_API.md](./FIELDS_API.md).
 
 ## Database (Prisma schema in `backend/prisma/schema.prisma`)
 
 - `District`, `Crop`: reference data (seeded from `src/data/reference/`).
 - `DatasetRun`: one ingestion attempt per district and source with source, endpoint, request parameters, retrieval time, fill value, units, row and missing counts, status (`SUCCESS` or `FAILED`), error message and notes. Successful retention is scoped to the district, source, and synthetic/real category.
 - `ClimateDaily`: legacy POWER-compatible daily precipitation (mm), maximum and minimum temperature (deg C), plus a nullable `measurements` JSON object for dataset-specific variables such as SMAP soil moisture or HLS vegetation indices. `null` means missing.
+- `Field.sessionId`: nullable for backward-compatible migration of pre-existing rows and populated
+  for all new API-created fields; it has a unique index and is never exposed in API responses.
 
 Migrations are plain SQL in `backend/prisma/migrations/` and are applied with `npm run db:deploy`.

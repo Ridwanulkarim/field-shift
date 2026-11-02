@@ -10,23 +10,23 @@ export function createFieldRouter(service) {
   };
 
   router.post('/fields', async (req, res) => {
-    res.status(201).json({ field: await need().createField(parseFieldRequest(req.body)) });
+    res.status(201).json({ field: await need().createField(parseFieldRequest(req.body), req.anonymousSessionId) });
   });
 
   router.get('/fields', async (req, res) => {
-    res.json({ fields: await need().listFields() });
+    res.json({ fields: await need().listFields(req.anonymousSessionId) });
   });
 
   router.get('/fields/:id', async (req, res) => {
-    res.json({ field: await need().getField(parseFieldId(req.params.id)) });
+    res.json({ field: await need().getField(parseFieldId(req.params.id), req.anonymousSessionId) });
   });
 
   router.patch('/fields/:id', async (req, res) => {
-    res.json({ field: await need().updateField(parseFieldId(req.params.id), parseFieldRequest(req.body, { partial: true })) });
+    res.json({ field: await need().updateField(parseFieldId(req.params.id), parseFieldRequest(req.body, { partial: true }), req.anonymousSessionId) });
   });
 
   router.delete('/fields/:id', async (req, res) => {
-    res.json({ deleted: await need().deleteField(parseFieldId(req.params.id)) });
+    res.json({ deleted: await need().deleteField(parseFieldId(req.params.id), req.anonymousSessionId) });
   });
 
   return router;

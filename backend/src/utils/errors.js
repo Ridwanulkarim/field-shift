@@ -23,6 +23,10 @@ export function notFound(code, message) {
   return new HttpError(404, code, message);
 }
 
+export function conflict(code, message) {
+  return new HttpError(409, code, message);
+}
+
 // 503: a needed dependency (the database) is not available.
 export function unavailable(message) {
   return new HttpError(503, 'SERVICE_UNAVAILABLE', message);

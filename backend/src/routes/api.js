@@ -60,7 +60,7 @@ export function createApiRouter(service) {
   // POST /api/evaluate
   router.post('/evaluate', async (req, res) => {
     const input = parseEvaluateRequest(req.body);
-    res.json(await need().evaluate(input));
+    res.json(await need().evaluate(input, req.anonymousSessionId));
   });
 
   return router;
