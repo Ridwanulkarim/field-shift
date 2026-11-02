@@ -87,6 +87,11 @@ describe('parsePowerResponse', () => {
     expect(() => parsePowerResponse({})).toThrow(/properties.parameter/);
     expect(() => parsePowerResponse(null)).toThrow(PowerError);
   });
+  it('refuses inconsistent dates between variables', () => {
+    const bad = fixtureResponse();
+    delete bad.properties.parameter.T2M_MIN[20240104];
+    expect(() => parsePowerResponse(bad)).toThrow(/inconsistent dates/);
+  });
   it('notes when units are not reported but still parses', () => {
     const p = parsePowerResponse(fixtureResponse({ parameters: undefined }));
     expect(p.warnings.join(' ')).toMatch(/Units for PRECTOTCORR not reported/);
@@ -103,6 +108,17 @@ describe('fetchPowerDaily', () => {
     const fetchImpl = vi.fn(async () => ok());
     const r = await fetchPowerDaily(args, { fetchImpl, sleep });
     expect(r.parsed.days).toHaveLength(4);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+  it('rejects invalid coordinates and date ranges before making a request', async () => {
+    const fetchImpl = vi.fn();
+    await expect(fetchPowerDaily({ ...args, latitude: 91 }, { fetchImpl, sleep })).rejects.toThrow(/latitude/);
+    await expect(fetchPowerDaily({ ...args, startDate: '20240230' }, { fetchImpl, sleep })).rejects.toThrow(/valid calendar date/);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+  it('reports malformed JSON without retrying it as a transient network failure', async () => {
+    const fetchImpl = vi.fn(async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('bad json'); } }));
+    await expect(fetchPowerDaily(args, { fetchImpl, sleep })).rejects.toThrow(/malformed JSON/);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
   it('retries on a 503 and then succeeds', async () => {

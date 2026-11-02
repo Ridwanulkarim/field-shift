@@ -1,7 +1,30 @@
 // Stores one dataset run (provenance) together with its daily rows, and retires the older
 // run of the same source and kind for that district so the database does not grow without limit.
 
+import crypto from 'node:crypto';
+
 const CHUNK = 3000; // 3000 rows x 8 columns stays far below PostgreSQL's 65,535-parameter limit
+
+export async function withIngestionLock(prisma, key, work, { staleAfterMinutes = 30 } = {}) {
+  const owner = crypto.randomUUID();
+  const acquired = await prisma.$queryRaw`
+    INSERT INTO "DatasetIngestionLock" ("key", "owner")
+    VALUES (${key}, ${owner}::uuid)
+    ON CONFLICT ("key") DO UPDATE
+      SET "owner" = EXCLUDED."owner", "acquiredAt" = CURRENT_TIMESTAMP
+      WHERE "DatasetIngestionLock"."acquiredAt" < CURRENT_TIMESTAMP - (${staleAfterMinutes} * INTERVAL '1 minute')
+    RETURNING "owner"
+  `;
+  if (acquired.length === 0) return { locked: false, value: null };
+  try {
+    return { locked: true, value: await work() };
+  } finally {
+    await prisma.$executeRaw`
+      DELETE FROM "DatasetIngestionLock"
+      WHERE "key" = ${key} AND "owner" = ${owner}::uuid
+    `;
+  }
+}
 
 export async function storeRun(prisma, { districtId, run, days }) {
   return prisma.$transaction(
@@ -43,6 +66,7 @@ export async function storeRun(prisma, { districtId, run, days }) {
           districtId,
           source: run.source,
           isSynthetic: run.isSynthetic,
+          status: 'SUCCESS',
           id: { not: created.id },
         },
       });
@@ -65,7 +89,18 @@ export async function storeMergedRun(prisma, { districtId, previousRunId, run, d
     tMinC: row.tMinC,
     measurements: row.measurements,
   }]));
-  for (const day of days) merged.set(day.date, day);
+  for (const day of days) {
+    const previousDay = merged.get(day.date);
+    merged.set(day.date, previousDay
+      ? {
+          ...previousDay,
+          ...day,
+          precipMm: day.precipMm ?? previousDay.precipMm,
+          tMaxC: day.tMaxC ?? previousDay.tMaxC,
+          tMinC: day.tMinC ?? previousDay.tMinC,
+        }
+      : day);
+  }
   const allDays = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date));
   return storeRun(prisma, {
     districtId,

@@ -21,6 +21,15 @@ function databaseUrls(env, nodeEnv) {
   };
 }
 
+function parseBoundedInteger(raw, fallback, label, min, max) {
+  if (raw === undefined || raw === '') return fallback;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < min || value > max) {
+    throw new Error(`Invalid ${label}. Use a whole number between ${min} and ${max}.`);
+  }
+  return value;
+}
+
 export function loadConfig(env = process.env) {
   const nodeEnv = env.NODE_ENV || 'development';
   const { databaseUrl } = databaseUrls(env, nodeEnv);
@@ -35,6 +44,8 @@ export function loadConfig(env = process.env) {
     corsOrigin: env.CORS_ORIGIN || 'http://localhost:5173',
     anonymousSessionSecret,
     anonymousSessionMaxAgeMs: 1000 * 60 * 60 * 24 * 365,
+    nasaPowerTimeoutMs: parseBoundedInteger(env.NASA_POWER_TIMEOUT_MS, 120000, 'NASA_POWER_TIMEOUT_MS', 1000, 300000),
+    nasaPowerRetries: parseBoundedInteger(env.NASA_POWER_RETRIES, 3, 'NASA_POWER_RETRIES', 0, 5),
     // Neon (or local PostgreSQL) connection string used by the running API. Empty = no database.
     databaseUrl,
     // Optional: folder with the built frontend, served by this same server (demo mode).

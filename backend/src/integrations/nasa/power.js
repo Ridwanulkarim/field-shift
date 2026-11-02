@@ -10,10 +10,9 @@
 // units from NASA's own response instead of trusting our assumptions, and it refuses a
 // response it does not recognise rather than guessing.
 //
-// IMPORTANT: this code was written without network access to NASA. It has been tested only
-// against a hand-built fixture that mimics the documented shape (tests/power.test.js).
-// The first live run (`npm run ingest:nasa`) is the real test: if it fails, paste the
-// error. Nothing here pretends otherwise.
+// The parser is tested with hand-built fixtures in tests/power.test.js. A small live
+// request has also been verified separately; database persistence still requires a
+// configured non-production database.
 
 export const POWER_BASE_URL = 'https://power.larc.nasa.gov/api/temporal/daily/point';
 export const POWER_COMMUNITY = 'AG';
@@ -29,7 +28,32 @@ export class PowerError extends Error {
   }
 }
 
+function validateDate(value, label) {
+  if (!/^\d{8}$/.test(value)) throw new PowerError(`${label} must be YYYYMMDD.`);
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(4, 6));
+  const day = Number(value.slice(6, 8));
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    throw new PowerError(`${label} is not a valid calendar date.`);
+  }
+  if (year < 1981) throw new PowerError(`${label} is before NASA POWER daily coverage (1981).`);
+}
+
+function validateRequest({ latitude, longitude, startDate, endDate }) {
+  if (typeof latitude !== 'number' || !Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+    throw new PowerError('latitude must be a finite number from -90 to 90.');
+  }
+  if (typeof longitude !== 'number' || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+    throw new PowerError('longitude must be a finite number from -180 to 180.');
+  }
+  validateDate(startDate, 'startDate');
+  validateDate(endDate, 'endDate');
+  if (startDate > endDate) throw new PowerError('startDate must not be after endDate.');
+}
+
 export function buildPowerUrl({ latitude, longitude, startDate, endDate }) {
+  validateRequest({ latitude, longitude, startDate, endDate });
   const q = new URLSearchParams({
     parameters: POWER_PARAMETERS.join(','),
     community: POWER_COMMUNITY,
@@ -62,6 +86,7 @@ const LIMITS = {
 };
 
 export function parsePowerResponse(json, { startDate, endDate } = {}) {
+  if (startDate !== undefined && endDate !== undefined) validateRequest({ latitude: 0, longitude: 0, startDate, endDate });
   const parameter = json?.properties?.parameter;
   if (!parameter || typeof parameter !== 'object') {
     throw new PowerError('Unexpected NASA POWER response: "properties.parameter" is missing.');
@@ -92,8 +117,14 @@ export function parsePowerResponse(json, { startDate, endDate } = {}) {
     }
   }
 
-  const dates = Object.keys(parameter.PRECTOTCORR).filter((k) => /^\d{8}$/.test(k)).sort();
+  const dateSets = POWER_PARAMETERS.map((name) => new Set(Object.keys(parameter[name]).filter((k) => /^\d{8}$/.test(k))));
+  const dates = [...dateSets[0]].sort();
   if (dates.length === 0) throw new PowerError('NASA POWER response contained no daily values.');
+  for (const [index, datesForParameter] of dateSets.entries()) {
+    if (datesForParameter.size !== dates.length || dates.some((date) => !datesForParameter.has(date))) {
+      throw new PowerError(`NASA POWER response has inconsistent dates for ${POWER_PARAMETERS[index]}.`);
+    }
+  }
 
   const missing = { precipMm: 0, tMaxC: 0, tMinC: 0 };
   let outOfRange = 0;
@@ -159,6 +190,9 @@ export async function fetchPowerDaily(
   { latitude, longitude, startDate, endDate },
   { fetchImpl = fetch, retries = 3, timeoutMs = 120000, sleep = sleepDefault } = {},
 ) {
+  validateRequest({ latitude, longitude, startDate, endDate });
+  if (!Number.isInteger(retries) || retries < 0 || retries > 5) throw new PowerError('retries must be a whole number from 0 to 5.');
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 300000) throw new PowerError('timeoutMs must be a whole number from 1000 to 300000.');
   const url = buildPowerUrl({ latitude, longitude, startDate, endDate });
   let lastError;
   for (let attempt = 1; attempt <= retries + 1; attempt += 1) {
@@ -171,7 +205,12 @@ export async function fetchPowerDaily(
           retryable: res.status === 429 || res.status >= 500,
         });
       }
-      const json = await res.json();
+      let json;
+      try {
+        json = await res.json();
+      } catch {
+        throw new PowerError('NASA POWER returned malformed JSON.');
+      }
       return { url, parsed: parsePowerResponse(json, { startDate, endDate }) };
     } catch (err) {
       lastError = err;

@@ -13,6 +13,7 @@ import { parseArgs } from 'node:util';
 import { config } from '../src/config/env.js';
 import { createPrismaClient } from '../src/data/prisma.js';
 import { ingestDistrict } from '../src/integrations/nasa/ingest.js';
+import { fetchPowerDaily } from '../src/integrations/nasa/power.js';
 
 const { values } = parseArgs({
   options: {
@@ -32,6 +33,10 @@ if (!Number.isInteger(startYear) || !Number.isInteger(endYear) || startYear < 19
 }
 
 const prisma = createPrismaClient(config.databaseUrl);
+const fetchPower = (args) => fetchPowerDaily(args, {
+  timeoutMs: config.nasaPowerTimeoutMs,
+  retries: config.nasaPowerRetries,
+});
 let failures = 0;
 try {
   const where = values.district ? { slug: { in: values.district.split(',') } } : {};
@@ -43,13 +48,13 @@ try {
   console.log(`Fetching NASA POWER daily data ${startYear}-${endYear} for ${districts.length} district(s)...`);
   for (const [i, d] of districts.entries()) {
     process.stdout.write(`[${i + 1}/${districts.length}] ${d.slug} ... `);
-    const r = await ingestDistrict({ prisma, district: d, startYear, endYear });
+    const r = await ingestDistrict({ prisma, district: d, startYear, endYear, fetchPower });
     if (r.ok) {
       console.log(`OK  ${r.rows} days, ${r.missingCount} missing values`);
       for (const w of r.warnings) console.log(`      note: ${w}`);
     } else {
       failures += 1;
-      console.log(`FAILED  ${r.error}`);
+      console.log(`${r.skipped ? 'SKIPPED' : 'FAILED'}  ${r.error}`);
     }
     if (i < districts.length - 1) await new Promise((res) => setTimeout(res, delayMs));
   }

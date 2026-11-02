@@ -55,6 +55,7 @@ describe('storeRun', () => {
       districtId: 4,
       source: 'NASA GPM',
       isSynthetic: false,
+      status: 'SUCCESS',
       id: { not: 17 },
     });
     expect(prisma.calls.dailyRows[0]).toMatchObject({

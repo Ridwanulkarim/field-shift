@@ -160,6 +160,7 @@ export function createEvaluationService(repo) {
         provenance: {
           runId: climate.provenance.runId,
           source: climate.provenance.source,
+          dataStatus: climate.provenance.dataStatus ?? (climate.provenance.isSynthetic ? 'demo' : 'cached'),
           retrievedAt: climate.provenance.retrievedAt,
           isSynthetic: climate.provenance.isSynthetic,
           units: climate.provenance.units,

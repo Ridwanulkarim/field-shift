@@ -8,6 +8,7 @@ export function makeDataLabel(provenance, { coverageStart = null, coverageEnd = 
   const isSynthetic = Boolean(provenance?.isSynthetic);
   return {
     kind: isSynthetic ? 'synthetic' : 'nasa_stored',
+    dataStatus: isSynthetic ? 'demo' : 'cached',
     source: provenance?.source ?? null,
     retrievedAt: provenance?.retrievedAt ?? null,
     coverageStart,

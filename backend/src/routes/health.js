@@ -35,7 +35,16 @@ export function createHealthRouter(repository) {
     const tally = { nasa: 0, synthetic: 0, none: 0 };
     for (const d of districts) tally[d.climateData] += 1;
     res.status(200).json({
-      districts: districts.map((d) => ({ slug: d.slug, climateData: d.climateData })),
+      upstream: { service: 'NASA POWER', checked: false, status: 'not_checked' },
+      districts: districts.map((d) => ({
+        slug: d.slug,
+        climateData: d.climateData,
+        dataStatus: d.dataStatus,
+        latestObservationDate: d.latestObservationDate,
+        lastRetrievedAt: d.lastRetrievedAt,
+        rowCount: d.rowCount,
+        missingCount: d.missingCount,
+      })),
       tally,
       recentFailedRuns: failures,
     });

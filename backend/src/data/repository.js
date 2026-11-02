@@ -31,6 +31,7 @@ function toProvenance(run) {
     source: run.source,
     product: run.product,
     isSynthetic: run.isSynthetic,
+    dataStatus: run.isSynthetic ? 'demo' : 'cached',
     retrievedAt: run.retrievedAt.toISOString(),
     startDate: isoDate(run.startDate),
     endDate: isoDate(run.endDate),
@@ -139,17 +140,39 @@ export function createRepository(prisma) {
     async listDistricts() {
       const [districts, runs, sharing] = await Promise.all([
         prisma.district.findMany({ orderBy: { nameEn: 'asc' } }),
-        prisma.datasetRun.findMany({ where: { status: 'SUCCESS' }, select: { districtId: true, isSynthetic: true } }),
+        prisma.datasetRun.findMany({
+          where: { status: 'SUCCESS' },
+          select: { districtId: true, isSynthetic: true, retrievedAt: true, endDate: true, rowCount: true, missingCount: true },
+          orderBy: [{ isSynthetic: 'asc' }, { retrievedAt: 'desc' }],
+        }),
         sharedGridCells(),
       ]);
       const runStatus = new Map();
       for (const run of runs) {
         const status = runStatus.get(run.districtId);
-        if (!status || !run.isSynthetic) runStatus.set(run.districtId, run.isSynthetic ? 'synthetic' : 'nasa');
+        if (!status) {
+          runStatus.set(run.districtId, {
+            climateData: run.isSynthetic ? 'synthetic' : 'nasa',
+            dataStatus: run.isSynthetic ? 'demo' : 'cached',
+            latestObservationDate: isoDate(run.endDate),
+            lastRetrievedAt: run.retrievedAt.toISOString(),
+            rowCount: run.rowCount,
+            missingCount: run.missingCount,
+          });
+        }
       }
       return districts.map((d) => {
-        const climateData = runStatus.get(d.id) ?? 'none';
-        return { ...toDistrict(d), climateData, sharedGridCellWith: sharing.get(d.id) ?? [] };
+        const status = runStatus.get(d.id);
+        return {
+          ...toDistrict(d),
+          climateData: status?.climateData ?? 'none',
+          dataStatus: status?.dataStatus ?? 'unavailable',
+          latestObservationDate: status?.latestObservationDate ?? null,
+          lastRetrievedAt: status?.lastRetrievedAt ?? null,
+          rowCount: status?.rowCount ?? 0,
+          missingCount: status?.missingCount ?? 0,
+          sharedGridCellWith: sharing.get(d.id) ?? [],
+        };
       });
     },
 
