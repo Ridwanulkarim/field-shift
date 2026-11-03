@@ -20,7 +20,8 @@
     "ingest:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa.js",
     "verify:live": "node --env-file-if-exists=.env scripts/verify-live-data.js",
     "analyze:onset": "node --env-file-if-exists=.env scripts/analyze-onset.js",
-    "analyze:sensitivity": "node --env-file-if-exists=.env scripts/onset-sensitivity.js"
+    "analyze:sensitivity": "node --env-file-if-exists=.env scripts/onset-sensitivity.js",
+    "analyze:planting": "node --env-file-if-exists=.env scripts/planting-overview.js"
   },
   "engines": {
     "node": ">=22.18"

@@ -79,3 +79,35 @@ export const DISCLAIMER =
   'Field Shift is a decision-support tool. It explores options using climate data and simple, ' +
   'documented rules. It does not predict yield or profit and does not replace the judgment of ' +
   'the farmer or advice from local agricultural extension officers.';
+
+
+// ---- Planting-window advisory (Phase 4). All HEURISTIC modelling choices, not NASA results. ----
+
+// Growing degree days (GDD), modified method: each day's maximum is capped at capC and its
+// minimum is raised to baseC, then GDD = max(0, (cappedMax + raisedMin) / 2 - baseC).
+// 10 C base and 35 C cap are commonly used for rice but are NOT verified for any Bangladeshi variety.
+export const GDD = { baseC: 10, capC: 35 };
+
+// A cycle's GDD total is reported only if this share of its days has BOTH temperatures.
+// Missing days add nothing to a sum, so a lower share would silently understate the total.
+export const GDD_MIN_COVERAGE = 0.98;
+
+// The early/late split year is fixed in advance (2001-2012 vs 2013-2025) so that nobody picks it
+// after looking at the data.
+export const PLANTING_SPLIT_YEAR = 2013;
+
+// A shift is called "supported" only if at least this share of the alternative onset definitions
+// (thresholds, window lengths, start dates) reach the same verdict as the main definition.
+export const SHIFT_ROBUST_SHARE = 0.6;
+
+
+// Which "usable rain onset" definition applies to which crop. A crop without an entry has no onset
+// advisory (for example irrigated Boro, which does not wait for the rains).
+// Aus is sown in April-May and depends on early rain, so its search starts on 1 May.
+// Aman is transplanted in July-August after the monsoon arrives, so its search starts on 1 June.
+// UNVERIFIED AGRONOMIC ASSUMPTIONS: they must be reviewed against BRRI/DAE guidance. Window length
+// and threshold are the same heuristic as ONSET above.
+export const ONSET_BY_CROP = {
+  aus: { startMonth: 5, endMonth: 8, windowDays: 7, thresholdMm: 50 },
+  aman: { startMonth: 6, endMonth: 8, windowDays: 7, thresholdMm: 50 },
+};
