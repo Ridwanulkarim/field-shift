@@ -2,6 +2,7 @@
 // run of the same source and kind for that district so the database does not grow without limit.
 
 import crypto from 'node:crypto';
+import { powerCellFor } from '../geo/climateGrid.js';
 
 const CHUNK = 3000; // 3000 rows x 8 columns stays far below PostgreSQL's 65,535-parameter limit
 
@@ -45,6 +46,7 @@ export async function storeRun(prisma, { districtId, run, days }) {
           rowCount: days.length,
           missingCount: run.missingCount ?? 0,
           notes: run.notes ?? null,
+          gridCellId: run.gridCellId ?? null,
         },
       });
       for (let i = 0; i < days.length; i += CHUNK) {
@@ -133,6 +135,48 @@ export async function recordFailedRun(prisma, { districtId, run, errorMessage })
       startDate: new Date(`${run.startDate}T00:00:00Z`),
       endDate: new Date(`${run.endDate}T00:00:00Z`),
       errorMessage: String(errorMessage).slice(0, 1000),
+      gridCellId: run.gridCellId ?? null,
     },
   });
+}
+
+// Finds or creates the row for one provider grid cell (the shape returned by powerCellFor).
+export async function ensureGridCell(prisma, cell) {
+  return prisma.climateGridCell.upsert({
+    where: { provider_cellKey: { provider: cell.provider, cellKey: cell.cellKey } },
+    create: {
+      provider: cell.provider,
+      cellKey: cell.cellKey,
+      gridName: cell.gridName,
+      centerLat: cell.centerLat,
+      centerLon: cell.centerLon,
+      resLatDeg: cell.resLatDeg,
+      resLonDeg: cell.resLonDeg,
+    },
+    update: {},
+  });
+}
+
+// Sets gridCellId on real NASA POWER runs stored before cells were recorded. A run is placed in the cell that
+// contains its district's reference point (the point that was sent to NASA). Safe to repeat: it only touches
+// runs whose gridCellId is still null, and never changes climate values. `dryRun` reports without writing.
+export async function backfillGridCells(prisma, { dryRun = false, districtId } = {}) {
+  const runs = await prisma.datasetRun.findMany({
+    where: { source: 'NASA POWER', isSynthetic: false, gridCellId: null, ...(districtId !== undefined ? { districtId } : {}) },
+    select: { id: true, district: { select: { slug: true, latitude: true, longitude: true } } },
+    orderBy: { id: 'asc' },
+  });
+  const summary = { runsFound: runs.length, runsUpdated: 0, cells: new Map() };
+  for (const run of runs) {
+    const cell = powerCellFor(run.district.latitude, run.district.longitude);
+    const entry = summary.cells.get(cell.cellKey) ?? { cellKey: cell.cellKey, centerLat: cell.centerLat, centerLon: cell.centerLon, districts: new Set() };
+    entry.districts.add(run.district.slug);
+    summary.cells.set(cell.cellKey, entry);
+    if (dryRun) continue;
+    const stored = await ensureGridCell(prisma, cell);
+    await prisma.datasetRun.update({ where: { id: run.id }, data: { gridCellId: stored.id } });
+    summary.runsUpdated += 1;
+  }
+  summary.cells = [...summary.cells.values()].map((c) => ({ ...c, districts: [...c.districts].sort() }));
+  return summary;
 }

@@ -1,4 +1,5 @@
 import { validationError } from '../utils/errors.js';
+import { BANGLADESH_BBOX, geometryBbox, isInsideBangladeshBox } from '../geo/climateGrid.js';
 
 const MAX_NAME_LENGTH = 120;
 const MAX_TEXT_LENGTH = 120;
@@ -64,12 +65,23 @@ function validateBoundary(boundary, errors) {
     errors.push({ field: 'boundary.coordinates', message: 'Must contain at least one polygon.' });
     return;
   }
+  const errorsBefore = errors.length;
   let coordinateCount = 0;
   for (const [i, polygon] of polygons.entries()) {
     coordinateCount = validatePolygonCoordinates(polygon, `boundary.coordinates[${i}]`, errors, coordinateCount);
   }
   if (coordinateCount > MAX_COORDINATES) {
     errors.push({ field: 'boundary.coordinates', message: `Must contain no more than ${MAX_COORDINATES} coordinate positions.` });
+  }
+  // Field Shift covers Bangladesh only. Checked only when every coordinate is well formed.
+  if (errors.length === errorsBefore) {
+    const { minLon, maxLon, minLat, maxLat } = BANGLADESH_BBOX;
+    if (!isInsideBangladeshBox(geometryBbox(boundary))) {
+      errors.push({
+        field: 'boundary',
+        message: `Boundary must lie within Bangladesh (longitude ${minLon} to ${maxLon}, latitude ${minLat} to ${maxLat}). Check that coordinates are [longitude, latitude].`,
+      });
+    }
   }
 }
 

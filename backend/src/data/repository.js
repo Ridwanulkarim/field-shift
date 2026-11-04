@@ -3,6 +3,7 @@
 
 import { FieldDistrictError, FieldGeometryError, FieldSessionConflictError } from '../utils/fieldErrors.js';
 import { boundedSet } from '../utils/boundedCache.js';
+import { MAX_DISTRICT_DISTANCE_KM } from '../geo/climateGrid.js';
 
 const NASA_NOTE =
   'NASA POWER meteorological data come on a grid of roughly 0.5 degrees (tens of km). Values describe the grid cell around the district point, not a single field.';
@@ -147,6 +148,57 @@ export function createRepository(prisma) {
     }
   }
 
+  // Loads (and caches) the daily rows of one stored run. Runs never change once stored.
+  async function seriesForRun(run) {
+    let series = seriesCache.get(run.id);
+    if (!series) {
+      const rows = await prisma.climateDaily.findMany({
+        where: { runId: run.id },
+        orderBy: { date: 'asc' },
+        select: { date: true, precipMm: true, tMaxC: true, tMinC: true, measurements: true },
+      });
+      series = rows.map((r) => ({
+        date: isoDate(r.date),
+        precipMm: r.precipMm,
+        tMaxC: r.tMaxC,
+        tMinC: r.tMinC,
+        measurements: r.measurements,
+      }));
+      boundedSet(seriesCache, run.id, series, SERIES_CACHE_MAX);
+    }
+    return series;
+  }
+
+  // Data-entry guard: a boundary far from its district's reference point is filed under the wrong district.
+  async function assertNearDistrict(client, district, boundaryJson) {
+    const maxMeters = MAX_DISTRICT_DISTANCE_KM * 1000;
+    const rows = await client.$queryRaw`
+      SELECT ST_DWithin(
+        ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${boundaryJson}), 4326))::geography,
+        ST_SetSRID(ST_MakePoint(${district.longitude}, ${district.latitude}), 4326)::geography,
+        ${maxMeters}
+      ) AS near
+    `;
+    if (!rows[0]?.near) {
+      throw new FieldGeometryError(`Boundary is more than ${MAX_DISTRICT_DISTANCE_KM} km from the reference point of the selected district. Check the district.`);
+    }
+  }
+
+  async function assertStoredFieldNearDistrict(client, fieldId, district) {
+    const maxMeters = MAX_DISTRICT_DISTANCE_KM * 1000;
+    const rows = await client.$queryRaw`
+      SELECT ST_DWithin(
+        f."boundary"::geography,
+        ST_SetSRID(ST_MakePoint(${district.longitude}, ${district.latitude}), 4326)::geography,
+        ${maxMeters}
+      ) AS near
+      FROM "Field" f WHERE f."id" = ${fieldId}::uuid AND f."boundary" IS NOT NULL
+    `;
+    if (rows[0] && !rows[0].near) {
+      throw new FieldGeometryError(`The field is more than ${MAX_DISTRICT_DISTANCE_KM} km from the reference point of the selected district. Check the district.`);
+    }
+  }
+
   return {
     async ping() {
       await prisma.$queryRaw`SELECT 1`;
@@ -206,9 +258,10 @@ export function createRepository(prisma) {
     async createField(input, sessionId) {
       if (!sessionId) throw new Error('Anonymous session is required to create a field.');
       return prisma.$transaction(async (tx) => {
-        const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true } });
+        const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true, latitude: true, longitude: true } });
         if (!district) throw new FieldDistrictError(input.districtId);
         await validateBoundary(tx, input.boundary);
+        await assertNearDistrict(tx, district, JSON.stringify(input.boundary));
         let ids;
         try {
           ids = await tx.$queryRaw`
@@ -253,14 +306,17 @@ export function createRepository(prisma) {
 
     async updateField(id, input, sessionId) {
       return prisma.$transaction(async (tx) => {
-        const existing = await tx.field.findFirst({ where: { id, sessionId }, select: { id: true } });
+        const existing = await tx.field.findFirst({ where: { id, sessionId }, select: { id: true, districtId: true } });
         if (!existing) return null;
+        let district = null;
         if (input.districtId !== undefined) {
-          const district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true } });
+          district = await tx.district.findUnique({ where: { id: input.districtId }, select: { id: true, latitude: true, longitude: true } });
           if (!district) throw new FieldDistrictError(input.districtId);
         }
         if (input.boundary !== undefined) {
           await validateBoundary(tx, input.boundary);
+          const target = district ?? await tx.district.findUnique({ where: { id: existing.districtId }, select: { id: true, latitude: true, longitude: true } });
+          await assertNearDistrict(tx, target, JSON.stringify(input.boundary));
           await tx.$executeRaw`
             UPDATE "Field"
             SET "boundary" = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(input.boundary)}), 4326)),
@@ -269,6 +325,7 @@ export function createRepository(prisma) {
             WHERE "id" = ${id}::uuid AND "sessionId" = ${sessionId}
           `;
         }
+        if (district && input.boundary === undefined) await assertStoredFieldNearDistrict(tx, id, district);
         const data = {};
         for (const key of ['name', 'districtId', 'soilType', 'soilPh', 'organicMatterPct', 'salinityDsM', 'irrigationSource']) {
           if (input[key] !== undefined) data[key] = input[key];
@@ -292,23 +349,49 @@ export function createRepository(prisma) {
         orderBy: [{ isSynthetic: 'asc' }, { retrievedAt: 'desc' }],
       });
       if (!run) return null;
-      let series = seriesCache.get(run.id);
-      if (!series) {
-        const rows = await prisma.climateDaily.findMany({
-          where: { runId: run.id },
-          orderBy: { date: 'asc' },
-          select: { date: true, precipMm: true, tMaxC: true, tMinC: true, measurements: true },
-        });
-        series = rows.map((r) => ({
-          date: isoDate(r.date),
-          precipMm: r.precipMm,
-          tMaxC: r.tMaxC,
-          tMinC: r.tMinC,
-          measurements: r.measurements,
-        }));
-        boundedSet(seriesCache, run.id, series, SERIES_CACHE_MAX);
-      }
-      return { provenance: toProvenance(run), series };
+      return { provenance: toProvenance(run), series: await seriesForRun(run) };
+    },
+
+    // Daily climate for one provider grid cell: the newest successful REAL run recorded against that cell.
+    // Synthetic runs are never returned. Returns null when the cell has no stored run.
+    async getClimateByCell(cell, { source = 'NASA POWER' } = {}) {
+      const stored = await prisma.climateGridCell.findUnique({
+        where: { provider_cellKey: { provider: cell.provider, cellKey: cell.cellKey } },
+        select: { id: true },
+      });
+      if (!stored) return null;
+      const run = await prisma.datasetRun.findFirst({
+        where: { gridCellId: stored.id, status: 'SUCCESS', isSynthetic: false, source },
+        orderBy: [{ retrievedAt: 'desc' }, { id: 'desc' }],
+      });
+      if (!run) return null;
+      return { provenance: toProvenance(run), series: await seriesForRun(run) };
+    },
+
+    // Where a registered field is, as PostGIS sees it. The representative point is ST_PointOnSurface:
+    // unlike the centroid it is guaranteed to lie ON the polygon, even for concave or multi-part shapes.
+    async getFieldGeoContext(id, sessionId) {
+      const rows = await prisma.$queryRaw`
+        SELECT f."id", f."name", f."areaHa", f."districtId",
+               d."slug" AS "districtSlug", d."nameEn" AS "districtNameEn", d."nameBn" AS "districtNameBn",
+               ST_Y(ST_PointOnSurface(f."boundary")) AS "lat",
+               ST_X(ST_PointOnSurface(f."boundary")) AS "lon",
+               ST_XMin(f."boundary") AS "minLon", ST_XMax(f."boundary") AS "maxLon",
+               ST_YMin(f."boundary") AS "minLat", ST_YMax(f."boundary") AS "maxLat"
+        FROM "Field" f
+        JOIN "District" d ON d."id" = f."districtId"
+        WHERE f."id" = ${id}::uuid AND f."sessionId" = ${sessionId} AND f."boundary" IS NOT NULL
+      `;
+      const r = rows[0];
+      if (!r) return null;
+      return {
+        id: r.id,
+        name: r.name,
+        areaHa: r.areaHa,
+        district: { id: r.districtId, slug: r.districtSlug, nameEn: r.districtNameEn, nameBn: r.districtNameBn },
+        point: { lat: Number(r.lat), lon: Number(r.lon) },
+        bbox: { minLon: Number(r.minLon), maxLon: Number(r.maxLon), minLat: Number(r.minLat), maxLat: Number(r.maxLat) },
+      };
     },
 
     // Most recent failed ingestion attempts, shown to developers via /api/health/data.

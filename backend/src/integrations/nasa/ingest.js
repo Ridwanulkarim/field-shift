@@ -2,7 +2,8 @@
 // A failure is recorded as a FAILED run (visible at /api/health/data), never hidden.
 
 import { fetchPowerDaily, POWER_BASE_URL, POWER_COMMUNITY, POWER_PARAMETERS } from './power.js';
-import { storeRun, storeMergedRun, recordFailedRun, withIngestionLock } from '../../data/climateStore.js';
+import { storeRun, storeMergedRun, recordFailedRun, withIngestionLock, ensureGridCell } from '../../data/climateStore.js';
+import { powerCellFor } from '../../geo/climateGrid.js';
 
 // If any variable is missing on more than this share of days we refuse the data.
 export const MAX_MISSING_SHARE = 0.2;
@@ -75,6 +76,8 @@ async function storeFetched({ prisma, district, fetchPower, startDate, endDate, 
     startDate: parsed.days[0].date,
     endDate: parsed.days[total - 1].date,
     notes,
+    // The grid cell that contains the district point NASA was asked about.
+    gridCellId: (await ensureGridCell(prisma, powerCellFor(district.latitude, district.longitude))).id,
   };
   const stored = previousRunId
     ? await storeMergedRun(prisma, { districtId: district.id, previousRunId, days: parsed.days, run })

@@ -4,6 +4,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { createPrismaClient } from '../src/data/prisma.js';
 import { ingestDistrict, refreshDistrict } from '../src/integrations/nasa/ingest.js';
 import { storeRun, storeMergedRun, withIngestionLock } from '../src/data/climateStore.js';
+import { powerCellFor } from '../src/geo/climateGrid.js';
 
 const url = process.env.TEST_DATABASE_URL;
 const SLUG = 'zz-ingest-test';
@@ -65,6 +66,8 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
   afterAll(async () => {
     await prisma.datasetRun.deleteMany({ where: { districtId: district.id } });
     await prisma.district.deleteMany({ where: { slug: SLUG } });
+    const { cellKey } = powerCellFor(24.37, 88.6); // the test district's cell; removed only if no run uses it
+    await prisma.$executeRaw`DELETE FROM "ClimateGridCell" c WHERE c."cellKey" = ${cellKey} AND c."provider" = 'NASA POWER' AND NOT EXISTS (SELECT 1 FROM "DatasetRun" r WHERE r."gridCellId" = c."id")`;
     await prisma.$disconnect();
   });
 
@@ -78,6 +81,20 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
     expect(run.rowCount).toBe(731);
     expect(run.requestParams.latitude).toBe(24.37);
     expect(await prisma.climateDaily.count({ where: { runId: run.id } })).toBe(731);
+  });
+
+  it('records the grid cell that contains the district point on every stored run, full or refreshed', async () => {
+    const expected = powerCellFor(district.latitude, district.longitude);
+    const full = await ingestDistrict({ prisma, district, startYear: 2020, endYear: 2020, fetchPower: fakeFetch() });
+    expect(full.ok).toBe(true);
+    let run = (await successRuns())[0];
+    let cell = await prisma.climateGridCell.findUnique({ where: { id: run.gridCellId } });
+    expect(cell).toMatchObject({ provider: 'NASA POWER', cellKey: expected.cellKey, centerLat: expected.centerLat, centerLon: expected.centerLon });
+
+    const refreshed = await refreshDistrict({ prisma, district, fetchPower: fakeFetch() });
+    expect(refreshed.ok).toBe(true);
+    run = (await successRuns())[0];
+    expect(run.gridCellId).toBe(cell.id); // a merged (refreshed) run keeps its cell
   });
 
   it('records a failure, keeps the earlier good data, and releases the lock', async () => {

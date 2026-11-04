@@ -20,6 +20,7 @@ session. A field belonging to another session is returned as `FIELD_NOT_FOUND`.
 | GET | `/api/fields/:id` | Retrieve the current session's field |
 | PATCH | `/api/fields/:id` | Update metadata or boundary |
 | DELETE | `/api/fields/:id` | Delete the current session's field |
+| GET | `/api/fields/:id/climate?from=YYYY-MM-DD&to=YYYY-MM-DD` | Climate of the NASA POWER grid cell that contains the field |
 
 `POST` and `PATCH` accept the field name, district ID, GeoJSON `Polygon` or
 `MultiPolygon`, and optional soil/irrigation fields. The backend validates the
@@ -39,3 +40,34 @@ State-changing requests from a browser origin must match the configured
 `CORS_ORIGIN`; `SameSite=Lax` and this origin check provide the CSRF boundary
 for cookie-authenticated field operations. CORS credentials are enabled only
 for that configured origin.
+
+## Boundary checks
+
+Besides valid, non-empty GeoJSON, a boundary must satisfy two geographic checks:
+
+- Every coordinate lies inside Bangladesh's bounding box (longitude 88.0 to 92.7, latitude 20.5 to 26.7).
+  Field Shift covers Bangladesh only. This also catches coordinates sent as `[latitude, longitude]`.
+  A box is a coarse guard, not a border: it admits small parts of neighbouring countries.
+- The boundary is within 100 km of the selected district's reference point. This is a data-entry guard
+  against filing a field under the wrong district, not a district-boundary test.
+
+Both failures return HTTP 422 `VALIDATION_ERROR` on `boundary`. The same checks apply when `PATCH`
+changes the boundary or the district.
+
+## Field climate: `GET /api/fields/:id/climate`
+
+Query: `from` and `to` (both required, `YYYY-MM-DD`, range at most 5 years), as for the district climate endpoint.
+
+A field polygon does **not** create finer climate data. NASA POWER has one value per grid cell, so the
+response is the data of the cell that contains the field's **representative point** (PostGIS
+`ST_PointOnSurface`, which always lies on the polygon, unlike the centroid of a concave shape). Nothing is
+interpolated and nothing is borrowed from a neighbouring cell.
+
+Response fields: `field`, `location.representativePoint`, `cell` (provider, `cellKey`, centre, `resolutionDeg`,
+`approxAreaKm2`, `gridVerified`), `spatialContext` (`fieldAreaHa`, `fieldToCellAreaRatio`, `spansMultipleCells`),
+`daily` (missing days are `null`, never zero), `provenance`, `dataLabel` and `limitations` (plain-language caveats).
+
+Errors: `404 FIELD_NOT_FOUND` (unknown or another session's field); `404 CLIMATE_CELL_NOT_INGESTED` (no real NASA
+POWER run is stored for that cell; the message names the cell); `422` for a bad id or date range.
+
+Two fields in the same cell receive the same observations. That is correct, and the shared `cellKey` shows it.

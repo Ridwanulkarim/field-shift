@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { parseFieldId, parseFieldRequest } from '../validation/fieldRequest.js';
 import { unavailable } from '../utils/errors.js';
+import { parseDailyClimateRequest } from '../validation/dailyClimateRequest.js';
 
 export function createFieldRouter(service) {
   const router = Router();
@@ -19,6 +20,14 @@ export function createFieldRouter(service) {
 
   router.get('/fields/:id', async (req, res) => {
     res.json({ field: await need().getField(parseFieldId(req.params.id), req.anonymousSessionId) });
+  });
+
+  // GET /api/fields/:id/climate?from=YYYY-MM-DD&to=YYYY-MM-DD : climate of the grid cell containing the field
+  router.get('/fields/:id/climate', async (req, res) => {
+    const id = parseFieldId(req.params.id);
+    const range = parseDailyClimateRequest(req.query);
+    res.set('Cache-Control', 'private, no-store');
+    res.json(await need().getFieldClimate(id, req.anonymousSessionId, range));
   });
 
   router.patch('/fields/:id', async (req, res) => {

@@ -104,9 +104,32 @@ model DatasetRun {
   missingCount  Int            @default(0)
   errorMessage  String?
   notes         String?
+  // The provider grid cell this run describes (null for synthetic runs and for runs stored before
+  // cells were recorded; `npm run db:backfill-cells` fills those in).
+  gridCellId    Int?
+  gridCell      ClimateGridCell? @relation(fields: [gridCellId], references: [id], onDelete: SetNull)
   climateDaily  ClimateDaily[]
 
   @@index([districtId, source, isSynthetic, status, retrievedAt])
+  @@index([gridCellId, status, isSynthetic, retrievedAt])
+}
+
+// One cell of a data provider's grid. Climate values describe the whole cell, never a single point,
+// so fields and districts that fall in the same cell share the same observations.
+model ClimateGridCell {
+  id        Int      @id @default(autoincrement())
+  provider  String // e.g. "NASA POWER"; a future GPM IMERG cell has its own provider and grid
+  cellKey   String // "<latIndex>:<lonIndex>" on that provider's grid
+  gridName  String
+  centerLat Float
+  centerLon Float
+  resLatDeg Float
+  resLonDeg Float
+  createdAt DateTime @default(now())
+
+  runs DatasetRun[]
+
+  @@unique([provider, cellKey])
 }
 
 // Daily values. null means "missing", never a guessed number.

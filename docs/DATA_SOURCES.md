@@ -21,6 +21,29 @@ Checks applied before storing: coordinates and dates are validated, required par
 
 **Verification status.** A live three-day request to the official endpoint was verified on 2026-11-02 for Rajshahi coordinates and returned the expected variables and units. Persistence against a real database and a full historical ingestion remain environment-dependent; fixture tests do not prove those paths.
 
+## Grid cells (field-level association)
+
+`ClimateGridCell` records one cell of a provider's grid, and `DatasetRun.gridCellId` says which cell a run
+describes. `src/geo/climateGrid.js` computes the cell for any point.
+
+**Grid (verified 2026-11-04):** the POWER meteorology grid is 0.5 degrees of latitude by 0.625 degrees of longitude with cell
+centres at latitude `k * 0.5` and longitude `-180 + j * 0.625`. POWER echoes back the coordinates you ask for, so they cannot
+identify the cell; the **data** are the evidence. Two checks agreed with the grid:
+
+- `npm run check:grid-consistency` (offline, read-only): the 12 stored district series group exactly as the cells predict
+  (Jashore and Khulna share a cell and have identical data; every other district differs).
+- `npm run check:power-grid` (live NASA, a few minutes): walking points 0.05 degrees apart, the returned temperatures change
+  within one step of every expected edge (latitude 24.25 and 24.75, longitude 88.4375 and 89.0625), with no unexpected edge.
+
+Limits of that verification: edge positions are known to about 0.025 degrees (the sampling step), and the live probe covered
+the Rajshahi area; the rest of the country is covered only by the 12-district consistency check. Re-run both checks if the
+constants in `src/geo/climateGrid.js` change. `POWER_GRID.verified` controls whether responses warn that the grid is unconfirmed.
+
+Existing runs get their cell with `npm run db:backfill-cells` (add `-- --dry-run` to preview). New ingestions record
+it automatically. A run is placed in the cell containing its district's reference point, so a district run serves
+every field in that cell and no other cell. Cells without a run are reported as `CLIMATE_CELL_NOT_INGESTED`; ingesting
+arbitrary cells is the next milestone.
+
 ## Ingestion commands and operations
 
 Historical ingestion:
