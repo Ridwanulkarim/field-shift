@@ -8,7 +8,7 @@ A decision-support tool for exploring crop-rotation options in Bangladesh. You p
 
 | Part | Status |
 |---|---|
-| API, rotation engine, validation, database layer | Built and covered by 108 automated tests (all passing against a real PostgreSQL) |
+| API, rotation engine, validation, database layer | Built and covered by 257 automated tests (237 run without a database; the other 20 need `TEST_DATABASE_URL`, and all 257 passed against a PostgreSQL 16 / PostGIS 3.4 test database) |
 | Interface (English and Bangla labels, phone layout) | Built; checked in a real browser at phone width |
 | Synthetic demo data | Works offline; always labelled **SYNTHETIC** |
 | **Live NASA POWER download** | **Written but never run against NASA by its authors.** Your first `npm run ingest:nasa` is the real test |
