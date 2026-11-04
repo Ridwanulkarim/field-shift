@@ -67,8 +67,8 @@ No soil dataset is used. Soil enters only as what the user selects (salinity and
 
 ## Future dataset integration
 
-GPM precipitation, SMAP soil moisture, and HLS vegetation products can share the same district without replacing one another. Each ingestion should use its own `DatasetRun.source` and put variables that do not map to the legacy POWER fields in `ClimateDaily.measurements`, using stable names and units recorded in `DatasetRun.units`.
+NASA GPM IMERG is the planned second source, for satellite precipitation. It is not integrated yet. POWER and IMERG differ in spatial resolution, time coverage and measurement method, so they must be stored as separate sources with their own units and resolution notes and never merged into one series. SMAP, HLS and Sentinel-1 are explicitly out of scope.
 
 ## Not used
 
-Satellite vegetation indices (such as NDVI), market prices, pests, diseases, labour, seed supply and flood timing are not modelled.
+Soil-moisture and vegetation products, satellite vegetation indices (such as NDVI), market prices, pests, diseases, labour, seed supply and flood timing are not modelled.

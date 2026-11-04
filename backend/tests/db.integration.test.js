@@ -102,6 +102,24 @@ describe.skipIf(!url)('database integration', () => {
     expect(climate.provenance.missingCount).toBe(1);
   });
 
+  it('does not let a newer run from another real source shadow NASA POWER', async () => {
+    const days = [{ date: '2001-01-01', precipMm: 999, tMaxC: 50, tMinC: 40 }];
+    const other = await storeRun(prisma, {
+      districtId: district.id,
+      days,
+      run: { source: 'TEST OTHER SOURCE', isSynthetic: false, endpointUrl: 'test://other', requestParams: {}, startDate: '2001-01-01', endDate: '2001-01-01' },
+    });
+    try {
+      const climate = await repo.getClimate(district.id);
+      expect(climate.provenance.source).toBe('NASA POWER');
+      expect(climate.series.every((d) => d.precipMm !== 999)).toBe(true);
+      const asked = await repo.getClimate(district.id, { source: 'TEST OTHER SOURCE' });
+      expect(asked.provenance.source).toBe('TEST OTHER SOURCE');
+    } finally {
+      await prisma.datasetRun.delete({ where: { id: other.id } });
+    }
+  });
+
   it('serves a full evaluation from the database through the API', async () => {
     const app = createApp(loadConfig({}), { repository: repo });
     const res = await request(app).post('/api/evaluate').send({ district: SLUG, existingRotation: ['aman', 'mustard'] });

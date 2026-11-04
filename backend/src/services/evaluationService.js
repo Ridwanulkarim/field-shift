@@ -3,7 +3,10 @@
 
 import { cropClimate, climateIndicators, seriesCoverage } from '../science/climate.js';
 import { evaluateRotations, checkFeasible } from '../science/rotation.js';
+import { plantingWindowAnalysis } from '../science/plantingWindow.js';
+import { buildAdvisory } from '../science/plantingAdvisory.js';
 import { notFound, validationError } from '../utils/errors.js';
+import { boundedSet } from '../utils/boundedCache.js';
 import { freshnessFor, makeDataLabel } from '../utils/dataLabel.js';
 import {
   BASE_WEIGHTS,
@@ -16,6 +19,7 @@ import {
   PRIORITY_MAX,
   MIN_COVERAGE,
   IRRIGATION_ACCESS_FACTOR,
+  PLANTING_SPLIT_YEAR,
 } from '../science/rules.js';
 
 export const METHOD = {
@@ -74,15 +78,10 @@ function salinityFromDsM(value) {
   return 'high';
 }
 
-function boundedSet(cache, key, value, maxEntries) {
-  cache.set(key, value);
-  if (cache.size > maxEntries) cache.delete(cache.keys().next().value);
-  return value;
-}
-
 export function createEvaluationService(repo) {
   const climateViewCache = new Map();
   const cropClimateCache = new Map();
+  const plantingCache = new Map();
 
   async function climateBundle(district) {
     const climate = await repo.getClimate(district.id);
@@ -168,6 +167,65 @@ export function createEvaluationService(repo) {
         },
         dataLabel: makeDataLabel(climate.provenance, { coverageStart: from, coverageEnd: to }),
         ...freshnessFor(climate.provenance),
+      };
+    },
+
+    // Planting-window advisory for one district and crop, computed from the stored REAL NASA POWER series.
+    // Synthetic data is never used for an advisory.
+    async plantingWindow(slug, { crop: cropSlug, splitYear }) {
+      const district = await repo.getDistrictBySlug(slug);
+      if (!district) throw notFound('DISTRICT_NOT_FOUND', `No district with slug "${slug}".`);
+      const crops = await repo.listCrops();
+      const crop = crops.find((c) => c.slug === cropSlug);
+      if (!crop) throw validationError([{ field: 'crop', message: `Unknown crop "${cropSlug}".` }]);
+      const climate = await repo.getClimate(district.id);
+      if (!climate || climate.provenance.isSynthetic) {
+        throw notFound('NO_REAL_CLIMATE_DATA', `No real NASA POWER data is available for district "${slug}".`);
+      }
+      const split = splitYear ?? PLANTING_SPLIT_YEAR;
+      const key = `${climate.provenance.runId}:${crop.slug}:${crop.startMonth}-${crop.endMonth}:${split}`;
+      let analysis = plantingCache.get(key);
+      if (!analysis) {
+        analysis = boundedSet(plantingCache, key, plantingWindowAnalysis(climate.series, crop, { splitYear: split }), 32);
+      }
+
+      const years = (analysis.onset.applies ? analysis.onset.yearly : analysis.gdd.yearly).map((p) => p.year);
+      const periods = {
+        splitYear: split,
+        early: { from: Math.min(...years), to: split - 1, years: analysis.onset.analysis?.earlyYears ?? analysis.gdd.analysis.earlyYears },
+        late: { from: split, to: Math.max(...years), years: analysis.onset.analysis?.lateYears ?? analysis.gdd.analysis.lateYears },
+      };
+      const publicDistrict = districtPublic(district);
+      return {
+        district: publicDistrict,
+        crop: { slug: crop.slug, nameEn: crop.nameEn, nameBn: crop.nameBn, startMonth: crop.startMonth, endMonth: crop.endMonth, basis: crop.basis },
+        periods,
+        onset: analysis.onset,
+        status: 'experimental',
+        statusNote: 'Experimental: the onset definitions are unverified agronomic assumptions and the result rests on one modelled rainfall source. Growing degree days are computed internally but not reported.',
+        recommendation: analysis.recommendation,
+        advisory: buildAdvisory({
+          districtEn: publicDistrict.nameEn,
+          districtBn: publicDistrict.nameBn,
+          cropEn: crop.nameEn,
+          cropBn: crop.nameBn,
+          recommendation: analysis.recommendation,
+          periods,
+        }),
+        provenance: {
+          runId: climate.provenance.runId,
+          source: climate.provenance.source,
+          dataStatus: climate.provenance.dataStatus ?? 'cached',
+          retrievedAt: climate.provenance.retrievedAt,
+          isSynthetic: climate.provenance.isSynthetic,
+          units: climate.provenance.units,
+          startDate: climate.provenance.startDate,
+          endDate: climate.provenance.endDate,
+        },
+        dataLabel: makeDataLabel(climate.provenance, { coverageStart: climate.provenance.startDate, coverageEnd: climate.provenance.endDate }),
+        ...freshnessFor(climate.provenance),
+        limitations: analysis.limitations,
+        disclaimer: DISCLAIMER,
       };
     },
 

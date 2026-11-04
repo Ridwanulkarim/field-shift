@@ -82,6 +82,11 @@ export async function storeMergedRun(prisma, { districtId, previousRunId, run, d
     orderBy: { date: 'asc' },
     select: { date: true, precipMm: true, tMaxC: true, tMinC: true, measurements: true },
   });
+  // Safety net: merging against an empty or missing previous run would replace the stored history
+  // with only the few new days. Refuse instead of silently losing data.
+  if (previous.length === 0) {
+    throw new Error(`Previous run ${previousRunId} has no stored rows (it may have been replaced). Refresh not stored.`);
+  }
   const merged = new Map(previous.map((row) => [row.date.toISOString().slice(0, 10), {
     date: row.date.toISOString().slice(0, 10),
     precipMm: row.precipMm,

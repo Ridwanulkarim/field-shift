@@ -2,6 +2,7 @@
 // code never touches the database and tests can swap in a fake repository.
 
 import { FieldDistrictError, FieldGeometryError, FieldSessionConflictError } from '../utils/fieldErrors.js';
+import { boundedSet } from '../utils/boundedCache.js';
 
 const NASA_NOTE =
   'NASA POWER meteorological data come on a grid of roughly 0.5 degrees (tens of km). Values describe the grid cell around the district point, not a single field.';
@@ -59,8 +60,10 @@ export function isSessionUniqueViolation(error) {
   return isUnique && (text.includes('Field_sessionId_key') || JSON.stringify(cause ?? {}).includes('sessionId'));
 }
 
+const SERIES_CACHE_MAX = 16; // about 9,000 daily rows each
+
 export function createRepository(prisma) {
-  const seriesCache = new Map(); // runId -> series (runs never change once stored)
+  const seriesCache = new Map(); // runId -> series (runs never change once stored); bounded, see boundedSet
 
   const fieldFromRow = (row) => ({
     id: row.id,
@@ -280,10 +283,12 @@ export function createRepository(prisma) {
       return result.count > 0;
     },
 
-    // Real NASA data wins over synthetic; otherwise the newest successful run.
-    async getClimate(districtId) {
+    // Daily climate for one district, from ONE source. Real data wins over synthetic demo data;
+    // otherwise the newest successful run. A run from another real source (for example a future GPM IMERG
+    // run) is never returned here: sources are not interchangeable and must not be mixed.
+    async getClimate(districtId, { source = 'NASA POWER' } = {}) {
       const run = await prisma.datasetRun.findFirst({
-        where: { districtId, status: 'SUCCESS' },
+        where: { districtId, status: 'SUCCESS', OR: [{ source }, { isSynthetic: true }] },
         orderBy: [{ isSynthetic: 'asc' }, { retrievedAt: 'desc' }],
       });
       if (!run) return null;
@@ -301,7 +306,7 @@ export function createRepository(prisma) {
           tMinC: r.tMinC,
           measurements: r.measurements,
         }));
-        seriesCache.set(run.id, series);
+        boundedSet(seriesCache, run.id, series, SERIES_CACHE_MAX);
       }
       return { provenance: toProvenance(run), series };
     },

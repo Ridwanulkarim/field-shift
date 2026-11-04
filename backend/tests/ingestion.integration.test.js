@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { createPrismaClient } from '../src/data/prisma.js';
 import { ingestDistrict, refreshDistrict } from '../src/integrations/nasa/ingest.js';
-import { storeRun, withIngestionLock } from '../src/data/climateStore.js';
+import { storeRun, storeMergedRun, withIngestionLock } from '../src/data/climateStore.js';
 
 const url = process.env.TEST_DATABASE_URL;
 const SLUG = 'zz-ingest-test';
@@ -194,6 +194,55 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
     ]);
     expect(results.filter((r) => r.skipped)).toHaveLength(1);
     expect(await successRuns()).toHaveLength(1);
+  });
+
+  it('refresh while the lock is held is skipped and leaves the stored run untouched', async () => {
+    const today = iso(new Date());
+    const oldEnd = addDays(today, -30);
+    const stored = await storeRun(prisma, {
+      districtId: district.id, days: days(addDays(oldEnd, -9), oldEnd),
+      run: { source: 'NASA POWER', isSynthetic: false, endpointUrl: 'fake://', requestParams: {}, startDate: addDays(oldEnd, -9), endDate: oldEnd },
+    });
+    const fetchPower = fakeFetch();
+    const held = await withIngestionLock(prisma, `NASA POWER:${district.id}`, async () => refreshDistrict({ prisma, district, fetchPower }));
+    expect(held.locked).toBe(true);
+    expect(held.value.skipped).toBe(true); // the refresh could not take the same district lock
+    expect(fetchPower.calls).toHaveLength(0);
+    expect((await successRuns()).map((r) => r.id)).toEqual([stored.id]);
+  });
+
+  it('refresh after a full ingest extends the NEW full history instead of replacing it', async () => {
+    const today = iso(new Date());
+    const oldEnd = addDays(today, -30);
+    await storeRun(prisma, {
+      districtId: district.id, days: days(addDays(oldEnd, -9), oldEnd),
+      run: { source: 'NASA POWER', isSynthetic: false, endpointUrl: 'fake://', requestParams: {}, startDate: addDays(oldEnd, -9), endDate: oldEnd },
+    });
+    const full = await ingestDistrict({ prisma, district, startYear: 2020, endYear: 2020, fetchPower: fakeFetch() });
+    expect(full.ok).toBe(true);
+    const result = await refreshDistrict({ prisma, district, fetchPower: fakeFetch() });
+    expect(result.ok).toBe(true);
+    const runs = await successRuns();
+    expect(runs).toHaveLength(1);
+    expect(iso(runs[0].startDate)).toBe('2020-01-01'); // the full 2020 history survived the refresh
+    expect(runs[0].rowCount).toBeGreaterThan(366);
+  });
+
+  it('refuses to store a merge when the previous run has vanished, and keeps the existing data', async () => {
+    const today = iso(new Date());
+    const oldEnd = addDays(today, -30);
+    const stored = await storeRun(prisma, {
+      districtId: district.id, days: days(addDays(oldEnd, -9), oldEnd),
+      run: { source: 'NASA POWER', isSynthetic: false, endpointUrl: 'fake://', requestParams: {}, startDate: addDays(oldEnd, -9), endDate: oldEnd },
+    });
+    const ghostRunId = stored.id + 1_000_000;
+    await expect(storeMergedRun(prisma, {
+      districtId: district.id, previousRunId: ghostRunId, days: days(addDays(oldEnd, 1), addDays(oldEnd, 3)),
+      run: { source: 'NASA POWER', isSynthetic: false, endpointUrl: 'fake://', requestParams: {}, startDate: addDays(oldEnd, 1), endDate: addDays(oldEnd, 3) },
+    })).rejects.toThrow(/no stored rows/);
+    const runs = await successRuns();
+    expect(runs.map((r) => r.id)).toEqual([stored.id]);
+    expect(runs[0].rowCount).toBe(10);
   });
 
   it('only the lock owner releases the lock, and a stale lock can be taken over', async () => {
