@@ -50,7 +50,10 @@ jobs:
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
 
+      # Migrations are applied only when someone starts this workflow by hand (Run workflow),
+      # never by the daily schedule, so a merged migration cannot reach production unnoticed.
       - name: Apply pending migrations
+        if: github.event_name == 'workflow_dispatch'
         run: npm run db:deploy
 
       - name: Initial NASA POWER download
