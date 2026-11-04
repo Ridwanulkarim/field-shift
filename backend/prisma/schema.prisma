@@ -57,6 +57,8 @@ model Field {
   updatedAt DateTime @updatedAt
 
   @@index([districtId])
+  // Spatial index created by the add_field_boundaries migration (PostGIS GiST).
+  @@index([boundary], type: Gist)
 }
 
 // Crop traits used by the rotation engine.
@@ -118,10 +120,19 @@ model ClimateDaily {
   precipMm     Float?
   tMaxC        Float?
   tMinC        Float?
-  // Dataset-specific measurements, keyed by a stable variable name.
-  // Examples: { "soilMoistureM3M3": 0.24 } or { "ndvi": 0.61, "evi": 0.32 }.
+  // RESERVED, currently unused: nothing writes this column. It will be dropped or reshaped when
+  // the next dataset (GPM IMERG) is added and its real structure is known.
   measurements Json?
 
   @@unique([runId, date])
   @@index([districtId, date])
+}
+
+// Coordinates ingestion jobs so overlapping workers cannot replace one another.
+// Used through raw SQL in src/data/climateStore.js (withIngestionLock); modelled here so that
+// `prisma migrate dev` does not try to drop the table.
+model DatasetIngestionLock {
+  key        String   @id
+  owner      String   @db.Uuid
+  acquiredAt DateTime @default(now())
 }

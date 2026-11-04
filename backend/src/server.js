@@ -12,6 +12,10 @@ if (config.databaseUrl) {
   console.warn('WARNING: No database URL is set for the selected NODE_ENV. The API will start, but data routes will answer 503. See docs/SETUP.md.');
 }
 
+if (config.sessionSecretIsEphemeral) {
+  console.warn('NOTE: ANONYMOUS_SESSION_SECRET is not set, so a random secret is used for this run. Browser session cookies stop working when the server restarts. Set it in .env to keep them.');
+}
+
 const app = createApp(config, { repository });
 
 const server = app.listen(config.port, () => {

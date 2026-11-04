@@ -10,7 +10,7 @@ export function toBnDigits(value) {
   return String(value).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
 }
 
-// 'delay' | 'advance' | 'weak' | 'no_change' | 'insufficient_data' | 'not_applicable'
+// 'delay' | 'advance' | 'weak' | 'saturated' | 'no_change' | 'insufficient_data' | 'not_applicable'
 export function advisoryKind(recommendation) {
   if (recommendation.action === 'delay') return 'delay';
   if (recommendation.action === 'advance') return 'advance';
@@ -18,6 +18,7 @@ export function advisoryKind(recommendation) {
     case 'onset_not_applicable': return 'not_applicable';
     case 'insufficient_data': return 'insufficient_data';
     case 'sensitive_to_definition': return 'weak';
+    case 'start_boundary_saturated': return 'saturated';
     case 'no_distinguishable_shift': return 'no_change';
     default: throw new Error(`Unknown recommendation reason "${recommendation.reason}".`);
   }
@@ -33,15 +34,17 @@ export function buildAdvisory({ districtEn, districtBn, cropEn, cropBn, recommen
   const nBn = toBnDigits(n);
   const headEn = `${cropEn} in ${districtEn}:`;
   const headBn = `${districtBn} জেলায় ${cropBn}:`;
+  const sourceEn = ' This rests on one modelled rainfall source (NASA POWER) that has not been checked against another dataset.';
+  const sourceBn = ' এটি একটি মডেলভিত্তিক বৃষ্টির উৎসের (NASA POWER) ওপর নির্ভরশীল, যা অন্য কোনো তথ্যভাণ্ডারের সঙ্গে যাচাই করা হয়নি।';
 
   const text = {
     delay: {
-      en: `${headEn} usable rain has started about ${n} days later in ${late} than in ${early}. Consider moving transplanting about ${n} days later, and check with your local agricultural extension officer.`,
-      bn: `${headBn} ${earlyBn} সালের তুলনায় ${lateBn} সালে কার্যকর বৃষ্টি প্রায় ${nBn} দিন দেরিতে শুরু হয়েছে। রোপণের সময় প্রায় ${nBn} দিন পিছিয়ে নেওয়ার কথা ভাবুন এবং স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।`,
+      en: `${headEn} usable rain has started about ${n} days later in ${late} than in ${early}. Consider moving transplanting about ${n} days later, and check with your local agricultural extension officer.${sourceEn}`,
+      bn: `${headBn} ${earlyBn} সালের তুলনায় ${lateBn} সালে কার্যকর বৃষ্টি প্রায় ${nBn} দিন দেরিতে শুরু হয়েছে। রোপণের সময় প্রায় ${nBn} দিন পিছিয়ে নেওয়ার কথা ভাবুন এবং স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।${sourceBn}`,
     },
     advance: {
-      en: `${headEn} usable rain has started about ${n} days earlier in ${late} than in ${early}. Consider preparing the field and sowing about ${n} days earlier, and check with your local agricultural extension officer.`,
-      bn: `${headBn} ${earlyBn} সালের তুলনায় ${lateBn} সালে কার্যকর বৃষ্টি প্রায় ${nBn} দিন আগে শুরু হয়েছে। জমি প্রস্তুত ও বপন প্রায় ${nBn} দিন আগে করার কথা ভাবুন এবং স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।`,
+      en: `${headEn} usable rain has started about ${n} days earlier in ${late} than in ${early}. Consider preparing the field and sowing about ${n} days earlier, and check with your local agricultural extension officer.${sourceEn}`,
+      bn: `${headBn} ${earlyBn} সালের তুলনায় ${lateBn} সালে কার্যকর বৃষ্টি প্রায় ${nBn} দিন আগে শুরু হয়েছে। জমি প্রস্তুত ও বপন প্রায় ${nBn} দিন আগে করার কথা ভাবুন এবং স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।${sourceBn}`,
     },
     no_change: {
       en: `${headEn} no clear change in when usable rain starts was found between ${early} and ${late}. Nothing here suggests changing your usual planting time.`,
@@ -50,6 +53,10 @@ export function buildAdvisory({ districtEn, districtBn, cropEn, cropBn, recommen
     weak: {
       en: `${headEn} some change in the start of the rains was seen, but it depends on how the start of rain is defined, so rainfall data alone does not support changing your planting time.`,
       bn: `${headBn} বৃষ্টি শুরুর সময়ে কিছু পরিবর্তন দেখা গেলেও তা "কার্যকর বৃষ্টি"র সংজ্ঞার ওপর নির্ভরশীল। তাই শুধু বৃষ্টির তথ্যের ভিত্তিতে রোপণের সময় বদলানোর পরামর্শ দেওয়া হচ্ছে না।`,
+    },
+    saturated: {
+      en: `${headEn} in many years the rains had already begun by the first day this analysis can examine, so an earlier change cannot be measured and a finding of "no change" is not reliable. No planting advice is given.`,
+      bn: `${headBn} অনেক বছরেই বিশ্লেষণে পরীক্ষা করা প্রথম দিনেই বৃষ্টি শুরু হয়ে গিয়েছিল, তাই আগের দিকের কোনো পরিবর্তন মাপা যায় না এবং "পরিবর্তন নেই" সিদ্ধান্ত নির্ভরযোগ্য নয়। কোনো রোপণ পরামর্শ দেওয়া হচ্ছে না।`,
     },
     insufficient_data: {
       en: `${headEn} there are not enough years of usable data to compare two periods, so no planting advice can be given.`,

@@ -8,11 +8,12 @@
 
 import { monsoonOnsetByYear } from './climate.js';
 import { analyzeOnsetShift } from './onsetAnalysis.js';
-import { indexSeries, cycleDates, valueOn } from './series.js';
+import { indexSeries, cycleDates, valueOn, dayOfYearFixed365 } from './series.js';
 import { cycleYearOf } from './calendar.js';
 import { round } from './stats.js';
 import { onsetSensitivity, DEFAULT_GRID } from './onsetSensitivity.js';
 import {
+  BOUNDARY_SATURATED_SHARE,
   GDD,
   GDD_MIN_COVERAGE,
   ONSET_BY_CROP,
@@ -89,11 +90,36 @@ function sensitivitySummary(series, definition, splitYear, mainVerdict) {
   };
 }
 
+// Left-censoring check. The onset search starts on the crop's first allowed day. A year whose onset IS
+// that day may really have had earlier rain, so its value is only an upper bound. When many years sit on
+// that day, "no shift" says nothing, and a measured shift can be over- or under-stated:
+//   advance + early period saturated, or delay + late period saturated  -> size may be overstated
+//   advance + late period saturated, or delay + early period saturated  -> size may be understated
+export function boundaryReport(yearly, startMonth, splitYear, verdict = null) {
+  const startDay = dayOfYearFixed365(`2001-${String(startMonth).padStart(2, '0')}-01`);
+  const count = (inPeriod) => {
+    const ys = yearly.filter((y) => y.status === 'onset' && !y.earlierWindowsUnobserved && inPeriod(y.year));
+    const atStart = ys.filter((y) => y.value === startDay).length;
+    return { years: ys.length, atStart, share: ys.length ? round(atStart / ys.length, 3) : null };
+  };
+  const early = count((y) => y < splitYear);
+  const late = count((y) => y >= splitYear);
+  const earlySat = early.share !== null && early.share >= BOUNDARY_SATURATED_SHARE;
+  const lateSat = late.share !== null && late.share >= BOUNDARY_SATURATED_SHARE;
+  let magnitudeBias = null;
+  if (verdict === 'earlier_onset') magnitudeBias = earlySat ? 'may_be_overstated' : lateSat ? 'may_be_understated' : null;
+  if (verdict === 'later_onset') magnitudeBias = lateSat ? 'may_be_overstated' : earlySat ? 'may_be_understated' : null;
+  return { startDay, saturatedShare: BOUNDARY_SATURATED_SHARE, early, late, saturated: earlySat || lateSat, magnitudeBias };
+}
+
 // The decision rule, kept separate so it can be tested on its own.
 // Returns { action, shiftDays, confidence, reason }.
-export function decideShift({ applies, verdict, shiftDays, agreeingShare }) {
+export function decideShift({ applies, verdict, shiftDays, agreeingShare, saturated = false }) {
   if (!applies) return { action: 'none', shiftDays: null, confidence: 'not_applicable', reason: 'onset_not_applicable' };
   if (verdict === 'insufficient_data') return { action: 'none', shiftDays: null, confidence: 'none', reason: 'insufficient_data' };
+  if (verdict === 'no_distinguishable_shift' && saturated) {
+    return { action: 'none', shiftDays: null, confidence: 'weak', reason: 'start_boundary_saturated' };
+  }
   if (verdict === 'no_distinguishable_shift') return { action: 'none', shiftDays: 0, confidence: 'none', reason: 'no_distinguishable_shift' };
   if (agreeingShare === null || agreeingShare < SHIFT_ROBUST_SHARE) {
     return { action: 'none', shiftDays: null, confidence: 'weak', reason: 'sensitive_to_definition' };
@@ -118,7 +144,7 @@ export function plantingWindowAnalysis(series, crop, { splitYear = PLANTING_SPLI
   const definition = onsetDefinitionFor(crop);
   const applies = definition !== null;
 
-  let onset = { applies: false, definition: null, yearly: [], analysis: null, sensitivity: null };
+  let onset = { applies: false, definition: null, yearly: [], analysis: null, sensitivity: null, boundary: null };
   if (applies) {
     const byYear = monsoonOnsetByYear(series, definition);
     const yearly = byYear.map((p) => (p.earlierWindowsUnobserved ? { year: p.year, status: 'unknown' } : p));
@@ -129,6 +155,7 @@ export function plantingWindowAnalysis(series, crop, { splitYear = PLANTING_SPLI
       yearly: byYear.map(({ year, status, value, earlierWindowsUnobserved }) => ({ year, status, value, earlierWindowsUnobserved })),
       analysis,
       sensitivity: sensitivitySummary(series, definition, splitYear, analysis.verdict),
+      boundary: boundaryReport(byYear, definition.startMonth, splitYear, analysis.verdict),
     };
   }
 
@@ -148,6 +175,7 @@ export function plantingWindowAnalysis(series, crop, { splitYear = PLANTING_SPLI
     verdict: onset.analysis?.verdict ?? null,
     shiftDays: onset.analysis?.shiftDays ?? null,
     agreeingShare: onset.sensitivity?.agreeingShare ?? null,
+    saturated: onset.boundary?.saturated ?? false,
   });
 
   return {

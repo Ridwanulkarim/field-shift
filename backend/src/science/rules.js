@@ -111,3 +111,7 @@ export const ONSET_BY_CROP = {
   aus: { startMonth: 5, endMonth: 8, windowDays: 7, thresholdMm: 50 },
   aman: { startMonth: 6, endMonth: 8, windowDays: 7, thresholdMm: 50 },
 };
+
+// If at least this share of the years in a period have their onset on the very first day the search
+// allows, the true onset in those years may be earlier than anything the analysis can see.
+export const BOUNDARY_SATURATED_SHARE = 0.5;

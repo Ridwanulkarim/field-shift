@@ -97,20 +97,23 @@ export async function ingestDistrict({ prisma, district, startYear, endYear, fet
       return { ok: false, error: err.message };
     }
   });
-  return result.locked ? result.value : { ok: false, skipped: true, error: 'An ingestion for this district and date range is already running.' };
+  return result.locked ? result.value : { ok: false, skipped: true, error: 'An ingestion for this district is already running.' };
 }
 
+// Extends the stored series for one district. Everything, INCLUDING the lookup of the previous run,
+// happens while holding the district lock. If the lookup happened before the lock, a full ingest that
+// finished in between would delete that run, and the refresh would merge against nothing.
 export async function refreshDistrict({ prisma, district, lagDays = 7, overlapDays = 2, fetchPower = fetchPowerDaily }) {
-  const previous = await prisma.datasetRun.findFirst({
-    where: { districtId: district.id, source: 'NASA POWER', isSynthetic: false, status: 'SUCCESS' },
-    orderBy: { retrievedAt: 'desc' },
-  });
-  if (!previous) return { ok: false, skipped: true, error: 'No stored NASA POWER run exists for this district.' };
-  const endDate = addDays(isoDate(new Date()), -lagDays);
-  const startDate = addDays(isoDate(previous.endDate), -overlapDays);
-  if (startDate > endDate) return { ok: true, skipped: true, reason: 'already_current', through: isoDate(previous.endDate) };
   const key = ingestionLockKey(district);
   const result = await withIngestionLock(prisma, key, async () => {
+    const previous = await prisma.datasetRun.findFirst({
+      where: { districtId: district.id, source: 'NASA POWER', isSynthetic: false, status: 'SUCCESS' },
+      orderBy: { retrievedAt: 'desc' },
+    });
+    if (!previous) return { ok: false, skipped: true, error: 'No stored NASA POWER run exists for this district.' };
+    const endDate = addDays(isoDate(new Date()), -lagDays);
+    const startDate = addDays(isoDate(previous.endDate), -overlapDays);
+    if (startDate > endDate) return { ok: true, skipped: true, reason: 'already_current', through: isoDate(previous.endDate) };
     try {
       return { ok: true, ...(await storeFetched({ prisma, district, fetchPower, startDate, endDate, previousRunId: previous.id })) };
     } catch (err) {
@@ -118,5 +121,5 @@ export async function refreshDistrict({ prisma, district, lagDays = 7, overlapDa
       return { ok: false, error: err.message };
     }
   });
-  return result.locked ? result.value : { ok: false, skipped: true, error: 'An ingestion for this district and date range is already running.' };
+  return result.locked ? result.value : { ok: false, skipped: true, error: 'An ingestion for this district is already running.' };
 }

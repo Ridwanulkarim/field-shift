@@ -97,7 +97,8 @@ Detailed field boundary and anonymous-session API documentation is in [FIELDS_AP
 
 - `District`, `Crop`: reference data (seeded from `src/data/reference/`).
 - `DatasetRun`: one ingestion attempt per district and source with source, endpoint, request parameters, retrieval time, fill value, units, row and missing counts, status (`SUCCESS` or `FAILED`), error message and notes. Successful retention is scoped to the district, source, and synthetic/real category.
-- `ClimateDaily`: legacy POWER-compatible daily precipitation (mm), maximum and minimum temperature (deg C), plus a nullable `measurements` JSON object for dataset-specific variables such as SMAP soil moisture or HLS vegetation indices. `null` means missing.
+- `ClimateDaily`: legacy POWER-compatible daily precipitation (mm), maximum and minimum temperature (deg C), plus a nullable `measurements` JSON column that is reserved and currently unused (it will be dropped or reshaped when GPM IMERG is added). `null` means missing.
+- `DatasetIngestionLock`: one row per running ingestion (`key`, `owner`, `acquiredAt`); a stale lock older than 30 minutes can be taken over. Used through raw SQL in `climateStore.js`.
 - `Field.sessionId`: nullable for backward-compatible migration of pre-existing rows and populated
   for all new API-created fields; it has a unique index and is never exposed in API responses.
 

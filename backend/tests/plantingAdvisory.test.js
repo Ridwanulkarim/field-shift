@@ -29,6 +29,7 @@ describe('advisoryKind', () => {
     expect(advisoryKind(rec({ reason: 'no_distinguishable_shift' }))).toBe('no_change');
     expect(advisoryKind(rec({ reason: 'sensitive_to_definition', confidence: 'weak' }))).toBe('weak');
     expect(advisoryKind(rec({ reason: 'insufficient_data' }))).toBe('insufficient_data');
+    expect(advisoryKind(rec({ reason: 'start_boundary_saturated', confidence: 'weak' }))).toBe('saturated');
     expect(advisoryKind(rec({ reason: 'onset_not_applicable', confidence: 'not_applicable' }))).toBe('not_applicable');
   });
   it('rejects an unknown reason instead of guessing', () => {
@@ -64,6 +65,20 @@ describe('buildAdvisory', () => {
     expect(a.kind).toBe('weak');
     expect(a.en).not.toMatch(/\d/);
     expect(a.en).toMatch(/does not support changing/);
+  });
+  it('states the single-source caveat in delay and advance sentences, in both languages', () => {
+    for (const action of ['delay', 'advance']) {
+      const a = buildAdvisory({ ...base, recommendation: rec({ action, shiftDays: 9, confidence: 'supported', reason: action === 'delay' ? 'later_onset' : 'earlier_onset' }) });
+      expect(a.en).toContain('one modelled rainfall source');
+      expect(a.bn).toContain('NASA POWER');
+    }
+  });
+  it('refuses to call no change reliable when the start boundary is saturated, with no day count', () => {
+    const a = buildAdvisory({ ...base, recommendation: rec({ reason: 'start_boundary_saturated', confidence: 'weak' }) });
+    expect(a.kind).toBe('saturated');
+    expect(a.en).not.toMatch(/\d/);
+    expect(a.en).toMatch(/not reliable/);
+    expect(a.en).toMatch(/No planting advice/);
   });
   it('says so plainly for insufficient data and for crops without a definition', () => {
     const insufficient = buildAdvisory({ ...base, recommendation: rec({ reason: 'insufficient_data' }) });

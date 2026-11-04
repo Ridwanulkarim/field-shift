@@ -9,6 +9,7 @@ import {
   onsetApplies,
   onsetDefinitionFor,
   decideShift,
+  boundaryReport,
   plantingWindowAnalysis,
 } from '../src/science/plantingWindow.js';
 
@@ -113,6 +114,14 @@ describe('decideShift', () => {
   it('treats a missing sensitivity share as weak', () => {
     expect(decideShift({ ...base, agreeingShare: null }).confidence).toBe('weak');
   });
+  it('does not call "no shift" reliable when the start boundary is saturated', () => {
+    expect(decideShift({ ...base, verdict: 'no_distinguishable_shift', saturated: true })).toEqual({
+      action: 'none', shiftDays: null, confidence: 'weak', reason: 'start_boundary_saturated',
+    });
+  });
+  it('still reports a measured shift when the boundary is saturated (the report carries the bias note)', () => {
+    expect(decideShift({ ...base, saturated: true }).action).toBe('delay');
+  });
 });
 
 describe('plantingWindowAnalysis', () => {
@@ -160,7 +169,8 @@ describe('plantingWindowAnalysis', () => {
   });
 
   it('finds no distinguishable shift in a series with no change, and recommends nothing', () => {
-    const flat = seriesWithOnset({ early: (y) => [5, 15 + (y % 4)], late: (y) => [5, 15 + (y % 4)] });
+    // Rain starts 10-13 June in both periods: inside the Aman search window, so not on the boundary.
+    const flat = seriesWithOnset({ early: (y) => [6, 10 + (y % 4)], late: (y) => [6, 10 + (y % 4)] });
     const result = plantingWindowAnalysis(flat, AMAN);
     expect(result.onset.analysis.verdict).toBe('no_distinguishable_shift');
     expect(result.recommendation).toMatchObject({ action: 'none', shiftDays: 0 });
@@ -179,7 +189,8 @@ describe('plantingWindowAnalysis', () => {
     // (median 9 May). By hand the Aus onset is 9 - 26.5 = 17.5 days earlier; the same two-day window
     // offset applies to both periods and cancels.
     // For Aman the search starts on 1 June, when it is already raining in every year, so onset is
-    // the same day in both periods.
+    // the same day (1 June) in both periods. That is the boundary-saturated case: "no shift" is
+    // not reliable, because the true onset may be earlier than the search can see.
     const mayShift = seriesWithOnset({ early: (y) => [5, 25 + (y % 4)], late: (y) => [5, 8 + (y % 4)] });
     const aus = plantingWindowAnalysis(mayShift, AUS);
     expect(aus.onset.definition.startMonth).toBe(5);
@@ -191,7 +202,8 @@ describe('plantingWindowAnalysis', () => {
 
     const aman = plantingWindowAnalysis(mayShift, AMAN);
     expect(aman.onset.analysis.verdict).toBe('no_distinguishable_shift');
-    expect(aman.recommendation).toMatchObject({ action: 'none', shiftDays: 0 });
+    expect(aman.onset.boundary.saturated).toBe(true);
+    expect(aman.recommendation).toMatchObject({ action: 'none', shiftDays: null, confidence: 'weak', reason: 'start_boundary_saturated' });
   });
 
   it('reports insufficient data for a very short series', () => {
@@ -221,5 +233,45 @@ describe('plantingWindowAnalysis', () => {
     const result = plantingWindowAnalysis(shifted, AMAN);
     expect(isoDate(2001, 6, 9)).toBe('2001-06-09');
     expect(result.onset.yearly[0].year).toBe(2001);
+  });
+});
+describe('boundary saturation (onset on the first allowed day)', () => {
+  // Aman search starts 1 June = fixed-365 day 152. Rain from 15 May puts every onset on 1 June.
+  const rainFrom15May = () => [5, 15];
+  const saturatedSeries = seriesWithOnset({ early: rainFrom15May, late: rainFrom15May });
+
+  it('counts years sitting on the start day per period (hand-checked: 12 early years, 13 late years, all on day 152)', () => {
+    const r = plantingWindowAnalysis(saturatedSeries, AMAN);
+    expect(r.onset.boundary.startDay).toBe(152);
+    expect(r.onset.boundary.early).toEqual({ years: 12, atStart: 12, share: 1 });
+    expect(r.onset.boundary.late).toEqual({ years: 13, atStart: 13, share: 1 });
+    expect(r.onset.boundary.saturated).toBe(true);
+  });
+  it('says "no shift" is not reliable instead of recommending nothing confidently', () => {
+    const r = plantingWindowAnalysis(saturatedSeries, AMAN);
+    expect(r.recommendation).toEqual({ action: 'none', shiftDays: null, confidence: 'weak', reason: 'start_boundary_saturated' });
+  });
+  it('is not saturated when onsets are well inside the search window', () => {
+    const inside = seriesWithOnset({ early: (y) => [6, 10 + (y % 4)], late: (y) => [6, 27 + (y % 4)] });
+    const r = plantingWindowAnalysis(inside, AMAN);
+    expect(r.onset.boundary.saturated).toBe(false);
+    expect(r.onset.boundary.magnitudeBias).toBeNull();
+    expect(r.recommendation.action).toBe('delay');
+  });
+  it('flags a delay whose early period is saturated as possibly understated', () => {
+    const r = plantingWindowAnalysis(seriesWithOnset({ early: rainFrom15May, late: (y) => [6, 27 + (y % 4)] }), AMAN);
+    expect(r.recommendation.action).toBe('delay');
+    expect(r.onset.boundary.early.share).toBe(1);
+    expect(r.onset.boundary.magnitudeBias).toBe('may_be_understated');
+  });
+  it('boundaryReport ignores unknown years and uses the crop start month', () => {
+    const yearly = [
+      { year: 2001, status: 'onset', value: 121 },
+      { year: 2002, status: 'unknown' },
+      { year: 2013, status: 'onset', value: 130 },
+    ];
+    const r = boundaryReport(yearly, 5, 2013); // 1 May = day 121
+    expect(r.early).toEqual({ years: 1, atStart: 1, share: 1 });
+    expect(r.late).toEqual({ years: 1, atStart: 0, share: 0 });
   });
 });

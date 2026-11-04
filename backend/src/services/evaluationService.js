@@ -6,6 +6,7 @@ import { evaluateRotations, checkFeasible } from '../science/rotation.js';
 import { plantingWindowAnalysis } from '../science/plantingWindow.js';
 import { buildAdvisory } from '../science/plantingAdvisory.js';
 import { notFound, validationError } from '../utils/errors.js';
+import { boundedSet } from '../utils/boundedCache.js';
 import { freshnessFor, makeDataLabel } from '../utils/dataLabel.js';
 import {
   BASE_WEIGHTS,
@@ -75,12 +76,6 @@ function salinityFromDsM(value) {
   if (value < 4) return 'slight';
   if (value < 8) return 'moderate';
   return 'high';
-}
-
-function boundedSet(cache, key, value, maxEntries) {
-  cache.set(key, value);
-  if (cache.size > maxEntries) cache.delete(cache.keys().next().value);
-  return value;
 }
 
 export function createEvaluationService(repo) {
@@ -206,7 +201,8 @@ export function createEvaluationService(repo) {
         crop: { slug: crop.slug, nameEn: crop.nameEn, nameBn: crop.nameBn, startMonth: crop.startMonth, endMonth: crop.endMonth, basis: crop.basis },
         periods,
         onset: analysis.onset,
-        gdd: analysis.gdd,
+        status: 'experimental',
+        statusNote: 'Experimental: the onset definitions are unverified agronomic assumptions and the result rests on one modelled rainfall source. Growing degree days are computed internally but not reported.',
         recommendation: analysis.recommendation,
         advisory: buildAdvisory({
           districtEn: publicDistrict.nameEn,

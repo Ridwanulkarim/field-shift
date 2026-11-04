@@ -80,7 +80,11 @@ describe('GET /api/districts/:slug/planting-window', () => {
     expect(res.body.dataLabel.kind).toBe('nasa_stored');
     expect(res.body.limitations.length).toBeGreaterThan(0);
     expect(res.body.disclaimer).toMatch(/does not replace/);
-    expect(res.body.gdd.yearly.length).toBeGreaterThan(0);
+    expect(res.body.status).toBe('experimental');
+    expect(res.body.statusNote).toMatch(/Experimental/);
+    expect(res.body).not.toHaveProperty('gdd');
+    expect(res.body.onset.boundary).toMatchObject({ startDay: 152, saturated: false });
+    expect(res.body.advisory.en).toContain('one modelled rainfall source');
   });
 
   it('does not expose internal database ids', async () => {
@@ -105,14 +109,14 @@ describe('GET /api/districts/:slug/planting-window', () => {
     expect(res.body.advisory.en).not.toMatch(/\b\d+ days\b/);
   });
 
-  it('gives Boro no rainfall-onset advice but still reports growing degree days', async () => {
+  it('gives Boro no rainfall-onset advice', async () => {
     const res = await request(app).get(URL('crop=boro'));
     expect(res.status).toBe(200);
     expect(res.body.onset.applies).toBe(false);
     expect(res.body.onset.analysis).toBeNull();
     expect(res.body.recommendation.confidence).toBe('not_applicable');
     expect(res.body.advisory.kind).toBe('not_applicable');
-    expect(res.body.gdd.yearly.length).toBeGreaterThan(0);
+    expect(res.body).not.toHaveProperty('gdd');
   });
 
   it('sets cache headers and answers 304 for the same run, crop and split', async () => {

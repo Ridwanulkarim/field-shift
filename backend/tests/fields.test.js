@@ -135,7 +135,7 @@ describe('field management API', () => {
     expect(malformed.headers['set-cookie'][0]).not.toContain('field_shift_session=bad');
 
     const unsigned = `${'a'.repeat(32)}.${(Date.now() - 1).toString(36)}`;
-    const signature = crypto.createHmac('sha256', 'development-only-session-secret').update(unsigned).digest('base64url').slice(0, 16);
+    const signature = crypto.createHmac('sha256', loadConfig({}).anonymousSessionSecret).update(unsigned).digest('base64url').slice(0, 16);
     const expired = await request(application).get('/api/fields').set('Cookie', `field_shift_session=${unsigned}.${signature}`);
     expect(expired.headers['set-cookie'][0]).not.toContain(`${unsigned}.${signature}`);
     expect(expired.body.fields).toHaveLength(0);
