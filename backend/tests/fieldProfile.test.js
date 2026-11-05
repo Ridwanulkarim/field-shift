@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { monthlyClimatology, cropFieldEvidence } from '../src/science/fieldProfile.js';
-import { buildFieldSummary } from '../src/science/fieldSummary.js';
+import { buildFieldSummary, buildFieldSummaryBn } from '../src/science/fieldSummary.js';
 import { buildSeries } from './helpers/series.js';
 
 // 2 mm of rain every day in July and August, none otherwise; 30 C maximum, 20 C minimum.
@@ -127,5 +127,53 @@ describe('buildFieldSummary', () => {
     const s = buildFieldSummary(args({ monthly: empty, areaHa: null }));
     expect(s).toContain('not enough rainfall data');
     expect(s).not.toContain('the field is');
+  });
+});
+
+describe('buildFieldSummaryBn', () => {
+  const monthly = Array.from({ length: 12 }, (_, i) => ({ month: i + 1, rainMm: { mean: i === 6 ? 300 : i === 0 ? 5 : 100, median: 0, years: 20 } }));
+  const crop = (nameEn, nameBn, atMinNeed, compatibility = 'within_tolerance') => ({
+    nameEn, nameBn, seasonRain: { shortfallMm: { atMinNeed, atMaxNeed: atMinNeed } }, salinity: { compatibility },
+  });
+  const args = (over = {}) => ({
+    monthly, crops: [crop('Boro rice', 'বোরো ধান', 40), crop('Aman rice', 'আমন ধান', 0)], cell: { approxAreaKm2: 3500 }, areaHa: 1.2,
+    soil: { salinityClass: null, salinityDsM: null }, spansMultipleCells: false, ...over,
+  });
+
+  it('uses the same numbers as the English text, in Bangla digits and month names', () => {
+    const s = buildFieldSummaryBn(args());
+    expect(s).toContain('জুলাই সবচেয়ে বৃষ্টিবহুল মাস (৩০০ মিমি)');
+    expect(s).toContain('জানুয়ারি সবচেয়ে শুষ্ক (৫ মিমি)');
+    expect(s).toContain('৩,৫০০ বর্গকিমি');
+    expect(s).toContain('১.২ হেক্টর');
+  });
+  it('names the short crop in Bangla and not the one that is fine', () => {
+    const s = buildFieldSummaryBn(args());
+    expect(s).toContain('২টি ফসলের মধ্যে ১টির');
+    expect(s).toContain('বোরো ধান।');
+    expect(s).not.toContain('আমন ধান');
+  });
+  it('contains no ASCII digit anywhere, whatever the inputs', () => {
+    const variants = [
+      args(),
+      args({ soil: { salinityClass: 'moderate', salinityDsM: 5.5 }, crops: [crop('Aman rice', 'আমন ধান', 0, 'exceeds_tolerance')], spansMultipleCells: true }),
+      args({ crops: Array.from({ length: 9 }, (_, i) => crop('Crop', `ফসল-${'কখগঘঙচছজঝ'[i]}`, 10)) }),
+    ];
+    for (const v of variants) expect(buildFieldSummaryBn(v)).not.toMatch(/[0-9]/);
+  });
+  it('reports salinity above tolerance, missing salinity, truncation and the forecast caveat', () => {
+    expect(buildFieldSummaryBn(args({ soil: { salinityClass: 'moderate', salinityDsM: 5 }, crops: [crop('Aman rice', 'আমন ধান', 0, 'exceeds_tolerance')] })))
+      .toContain('(৫ ডিএস/মি, শ্রেণি "মাঝারি") এই ফসলগুলোর ধরে নেওয়া সহনসীমার বেশি: আমন ধান।');
+    expect(buildFieldSummaryBn(args())).toContain('লবণাক্ততা দেওয়া হয়নি');
+    const many = Array.from({ length: 9 }, (_, i) => crop(`Crop ${i + 1}`, `ফসল ${i + 1}`, 10));
+    expect(buildFieldSummaryBn(args({ crops: many }))).toContain('এবং আরও ৩টি');
+    expect(buildFieldSummaryBn(args())).toContain('পূর্বাভাস নয়');
+  });
+  it('falls back to the English crop name when no Bangla name exists, and handles no rainfall data', () => {
+    const empty = monthly.map((m) => ({ ...m, rainMm: { mean: null, median: null, years: 0 } }));
+    const s = buildFieldSummaryBn(args({ monthly: empty, areaHa: null, crops: [crop('Odd crop', undefined, 40)] }));
+    expect(s).toContain('Odd crop');
+    expect(s).toContain('পর্যাপ্ত তথ্য নেই');
+    expect(s).not.toContain('হেক্টর');
   });
 });

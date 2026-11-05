@@ -84,11 +84,12 @@ model Crop {
   notes                 String
 }
 
-// One attempt to bring a dataset in for one district. Keeps the provenance.
+// One provider dataset ingestion attempt. A district run belongs to a district and is deleted with it.
+// A standalone grid-cell run has districtId = null and is identified by gridCellId; district deletion never touches it.
 model DatasetRun {
   id            Int            @id @default(autoincrement())
-  districtId    Int
-  district      District       @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  districtId    Int?
+  district      District?      @relation(fields: [districtId], references: [id], onDelete: Cascade)
   source        String // e.g. "NASA POWER" or "SYNTHETIC"
   product       String?
   isSynthetic   Boolean        @default(false)
@@ -132,13 +133,13 @@ model ClimateGridCell {
   @@unique([provider, cellKey])
 }
 
-// Daily values. null means "missing", never a guessed number.
+// Daily values. null means "missing", never a guessed number. District linkage is optional for cell-first ingestion.
 model ClimateDaily {
   id           Int        @id @default(autoincrement())
   runId        Int
   run          DatasetRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  districtId   Int
-  district     District   @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  districtId   Int?
+  district     District?  @relation(fields: [districtId], references: [id], onDelete: Cascade)
   date         DateTime   @db.Date
   precipMm     Float?
   tMaxC        Float?

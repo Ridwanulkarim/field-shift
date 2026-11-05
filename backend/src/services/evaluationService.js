@@ -7,7 +7,9 @@ import { plantingWindowAnalysis } from '../science/plantingWindow.js';
 import { buildAdvisory } from '../science/plantingAdvisory.js';
 import { notFound, validationError } from '../utils/errors.js';
 import { boundedSet } from '../utils/boundedCache.js';
+import { salinityClassFromDsM as salinityFromDsM } from '../science/soil.js';
 import { freshnessFor, makeDataLabel } from '../utils/dataLabel.js';
+import { locateField } from '../geo/fieldLocation.js';
 import {
   BASE_WEIGHTS,
   DISCLAIMER,
@@ -70,21 +72,13 @@ function climateNotice(climate) {
   return null;
 }
 
-function salinityFromDsM(value) {
-  if (value === null || value === undefined) return null;
-  if (value < 2) return 'none';
-  if (value < 4) return 'slight';
-  if (value < 8) return 'moderate';
-  return 'high';
-}
-
 export function createEvaluationService(repo) {
   const climateViewCache = new Map();
   const cropClimateCache = new Map();
   const plantingCache = new Map();
 
-  async function climateBundle(district) {
-    const climate = await repo.getClimate(district.id);
+  async function climateBundle(district, climateOverride) {
+    const climate = climateOverride ?? await repo.getClimate(district.id);
     if (!climate) {
       return {
         status: 'unavailable',
@@ -254,7 +248,29 @@ export function createEvaluationService(repo) {
         throw validationError([{ field: 'existingRotation', message: `These crops cannot share one year on the same plot: ${feasible.reason}.` }]);
       }
 
-      const { series, ...climate } = await climateBundle(district);
+      // With a registered field, climate comes from the NASA POWER grid cell that contains the field, not
+      // from the district's reference point. If that cell has not been ingested the request fails: it never
+      // quietly falls back to a different place's data.
+      let fieldLocation = null;
+      let cellClimate = null;
+      if (field) {
+        const ctx = repo.getFieldGeoContext ? await repo.getFieldGeoContext(field.id, sessionId) : null;
+        if (!ctx) {
+          throw validationError([{ field: 'fieldId', message: 'This field has no boundary, so its climate cell cannot be determined.' }]);
+        }
+        fieldLocation = locateField(ctx);
+        cellClimate = repo.getClimateByCell ? await repo.getClimateByCell(fieldLocation.cell) : null;
+        if (!cellClimate) {
+          throw notFound(
+            'CLIMATE_CELL_NOT_INGESTED',
+            `No real NASA POWER data has been stored for grid cell ${fieldLocation.cell.cellKey} (centre ${fieldLocation.cell.centerLat}, ${fieldLocation.cell.centerLon}), which contains this field. The cell has not been ingested yet.`,
+          );
+        }
+      }
+      const { series, ...climateView } = await climateBundle(district, cellClimate);
+      const climate = fieldLocation
+        ? { ...climateView, scope: { basis: 'field_grid_cell', cell: fieldLocation.cellBlock, spansMultipleCells: fieldLocation.spans } }
+        : climateView;
       const cropClimateMap = {};
       if (series) {
         const runId = climate.provenance.runId;
@@ -290,7 +306,7 @@ export function createEvaluationService(repo) {
         strategies: result.strategies,
         alternativesConsidered: result.alternativesConsidered,
         method: METHOD,
-        limitations: LIMITATIONS,
+        limitations: fieldLocation ? [...fieldLocation.limitations, ...LIMITATIONS] : LIMITATIONS,
         disclaimer: DISCLAIMER,
       };
     },

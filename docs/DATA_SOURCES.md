@@ -41,8 +41,22 @@ constants in `src/geo/climateGrid.js` change. `POWER_GRID.verified` controls whe
 
 Existing runs get their cell with `npm run db:backfill-cells` (add `-- --dry-run` to preview). New ingestions record
 it automatically. A run is placed in the cell containing its district's reference point, so a district run serves
-every field in that cell and no other cell. Cells without a run are reported as `CLIMATE_CELL_NOT_INGESTED`; ingesting
-arbitrary cells is the next milestone.
+every field in that cell and no other cell. Cells without a run are reported as `CLIMATE_CELL_NOT_INGESTED`.
+
+### Standalone cell runs (fields outside any district's cell)
+
+A cell that holds a registered field but no district reference point gets its own run: `DatasetRun.districtId` is
+`NULL` and `gridCellId` identifies the cell. The request is made once, at the cell centre, and every field in the cell
+shares the result. A district run and a cell run in the same cell are kept separately; neither replaces the other.
+
+```bash
+npm run ingest:field-cells -- --dry-run     # list cells that hold fields but have no real run; downloads nothing
+npm run ingest:field-cells                  # ingest each missing cell (2001-01-01 to the end of last year)
+npm run ingest:nasa:cell                    # one named cell, see scripts/ingest-nasa-grid-cell.js
+```
+
+`npm run ingest:refresh` also extends standalone cell runs. First verified on 2026-11-05: cell `47:432` stored 9,131
+daily rows (2001 to 2025). A failed cell ingestion is recorded as a FAILED run and the earlier successful run is kept.
 
 ## Ingestion commands and operations
 
@@ -54,8 +68,9 @@ npm run ingest:nasa -- --district=rajshahi --start=2001 --end=2025
 
 The command is repeatable and records each failed attempt. Successful runs retain only
 the latest successful dataset for the same district/source/type, while failed run history
-is preserved. Requests are serialized per district/date range using the
-`DatasetIngestionLock` table; stale locks older than 30 minutes can be recovered.
+is preserved. Requests are serialized per **grid cell** (lock key `NASA POWER:grid:<cellKey>`) using the
+`DatasetIngestionLock` table, so two districts in the same cell cannot download at the same time; stale locks
+older than 30 minutes can be recovered.
 
 Incremental refresh:
 

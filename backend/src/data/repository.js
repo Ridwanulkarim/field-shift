@@ -377,7 +377,28 @@ export function createRepository(prisma) {
                ST_Y(ST_PointOnSurface(f."boundary")) AS "lat",
                ST_X(ST_PointOnSurface(f."boundary")) AS "lon",
                ST_XMin(f."boundary") AS "minLon", ST_XMax(f."boundary") AS "maxLon",
-               ST_YMin(f."boundary") AS "minLat", ST_YMax(f."boundary") AS "maxLat"
+               ST_YMin(f."boundary") AS "minLat", ST_YMax(f."boundary") AS "maxLat",
+               (
+                 SELECT COUNT(*) > 1
+                 FROM generate_series(
+                   FLOOR(ST_YMin(f."boundary") / 0.5 - 0.5)::integer,
+                   CEIL(ST_YMax(f."boundary") / 0.5 + 0.5)::integer
+                 ) AS lat(lat_idx)
+                 CROSS JOIN generate_series(
+                   FLOOR((ST_XMin(f."boundary") + 180) / 0.625 - 0.5)::integer,
+                   CEIL((ST_XMax(f."boundary") + 180) / 0.625 + 0.5)::integer
+                 ) AS lon(lon_idx)
+                 WHERE ST_Area(ST_Intersection(
+                   f."boundary",
+                   ST_MakeEnvelope(
+                     -180 + lon_idx * 0.625 - 0.3125,
+                     lat_idx * 0.5 - 0.25,
+                     -180 + lon_idx * 0.625 + 0.3125,
+                     lat_idx * 0.5 + 0.25,
+                     4326
+                   )
+                 )) > 0
+               ) AS "spansMultipleCells"
         FROM "Field" f
         JOIN "District" d ON d."id" = f."districtId"
         WHERE f."id" = ${id}::uuid AND f."sessionId" = ${sessionId} AND f."boundary" IS NOT NULL
@@ -391,6 +412,7 @@ export function createRepository(prisma) {
         district: { id: r.districtId, slug: r.districtSlug, nameEn: r.districtNameEn, nameBn: r.districtNameBn },
         point: { lat: Number(r.lat), lon: Number(r.lon) },
         bbox: { minLon: Number(r.minLon), maxLon: Number(r.maxLon), minLat: Number(r.minLat), maxLat: Number(r.maxLat) },
+        spansMultipleCells: r.spansMultipleCells,
       };
     },
 
@@ -400,10 +422,11 @@ export function createRepository(prisma) {
         where: { status: 'FAILED' },
         orderBy: { retrievedAt: 'desc' },
         take: limit,
-        include: { district: { select: { slug: true } } },
+        include: { district: { select: { slug: true } }, gridCell: { select: { cellKey: true } } },
       });
       return runs.map((r) => ({
-        district: r.district.slug,
+        district: r.district?.slug ?? null,
+        cellKey: r.gridCell?.cellKey ?? null,
         source: r.source,
         retrievedAt: r.retrievedAt.toISOString(),
         errorMessage: r.errorMessage,

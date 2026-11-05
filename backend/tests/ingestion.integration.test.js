@@ -2,7 +2,7 @@
 // is never labelled as live NASA data. Skipped unless TEST_DATABASE_URL points at a throw-away test database.
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { createPrismaClient } from '../src/data/prisma.js';
-import { ingestDistrict, refreshDistrict } from '../src/integrations/nasa/ingest.js';
+import { ingestDistrict, refreshDistrict, ingestionLockKey } from '../src/integrations/nasa/ingest.js';
 import { storeRun, storeMergedRun, withIngestionLock } from '../src/data/climateStore.js';
 import { powerCellFor } from '../src/geo/climateGrid.js';
 
@@ -54,19 +54,19 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
     prisma = createPrismaClient(url);
     await prisma.district.deleteMany({ where: { slug: SLUG } });
     district = await prisma.district.create({
-      data: { slug: SLUG, nameEn: 'Ingest', nameBn: 'ইনজেস্ট', division: 'Test', latitude: 24.37, longitude: 88.6, coordNote: 'test' },
+      data: { slug: SLUG, nameEn: 'Ingest', nameBn: 'ইনজেস্ট', division: 'Test', latitude: 23.0, longitude: 90.0, coordNote: 'test' },
     });
   });
 
   beforeEach(async () => {
     await prisma.datasetRun.deleteMany({ where: { districtId: district.id } });
-    await prisma.$executeRaw`DELETE FROM "DatasetIngestionLock" WHERE "key" LIKE ${`NASA POWER:${district.id}%`}`;
+    await prisma.$executeRaw`DELETE FROM "DatasetIngestionLock" WHERE "key" LIKE ${`${ingestionLockKey(district)}%`}`;
   });
 
   afterAll(async () => {
     await prisma.datasetRun.deleteMany({ where: { districtId: district.id } });
     await prisma.district.deleteMany({ where: { slug: SLUG } });
-    const { cellKey } = powerCellFor(24.37, 88.6); // the test district's cell; removed only if no run uses it
+    const { cellKey } = powerCellFor(23.0, 90.0); // the test district's cell; removed only if no run uses it
     await prisma.$executeRaw`DELETE FROM "ClimateGridCell" c WHERE c."cellKey" = ${cellKey} AND c."provider" = 'NASA POWER' AND NOT EXISTS (SELECT 1 FROM "DatasetRun" r WHERE r."gridCellId" = c."id")`;
     await prisma.$disconnect();
   });
@@ -79,7 +79,7 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
     expect(run.source).toBe('NASA POWER');
     expect(run.isSynthetic).toBe(false);
     expect(run.rowCount).toBe(731);
-    expect(run.requestParams.latitude).toBe(24.37);
+    expect(run.requestParams.latitude).toBe(23.0);
     expect(await prisma.climateDaily.count({ where: { runId: run.id } })).toBe(731);
   });
 
@@ -221,7 +221,7 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
       run: { source: 'NASA POWER', isSynthetic: false, endpointUrl: 'fake://', requestParams: {}, startDate: addDays(oldEnd, -9), endDate: oldEnd },
     });
     const fetchPower = fakeFetch();
-    const held = await withIngestionLock(prisma, `NASA POWER:${district.id}`, async () => refreshDistrict({ prisma, district, fetchPower }));
+    const held = await withIngestionLock(prisma, ingestionLockKey(district), async () => refreshDistrict({ prisma, district, fetchPower }));
     expect(held.locked).toBe(true);
     expect(held.value.skipped).toBe(true); // the refresh could not take the same district lock
     expect(fetchPower.calls).toHaveLength(0);
@@ -263,7 +263,7 @@ describe.skipIf(!url)('NASA POWER ingestion against the database (fake fetcher)'
   });
 
   it('only the lock owner releases the lock, and a stale lock can be taken over', async () => {
-    const key = `NASA POWER:${district.id}:locktest`;
+    const key = `${ingestionLockKey(district)}:locktest`;
     const inner = await withIngestionLock(prisma, key, async () => withIngestionLock(prisma, key, async () => 'never'));
     expect(inner.locked).toBe(true);
     expect(inner.value.locked).toBe(false); // second attempt while held is refused

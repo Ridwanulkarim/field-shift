@@ -55,10 +55,18 @@ describe('GET /api/fields/:id/climate', () => {
   });
 
   it('warns when the field crosses a cell edge', async () => {
-    const ctx = { ...baseCtx, bbox: { minLon: 88.6, maxLon: 88.61, minLat: 24.7, maxLat: 24.8 }, point: { lat: 24.72, lon: 88.6 } };
+    // The service trusts the exact polygon test done in the database (ctx.spansMultipleCells), not the bbox.
+    const ctx = { ...baseCtx, spansMultipleCells: true };
     const res = await request(appWith({ ctx, climate: { provenance, series } })).get(`/api/fields/${FIELD_ID}/climate${range}`);
     expect(res.body.spatialContext.spansMultipleCells).toBe(true);
-    expect(res.body.limitations.join(' ')).toMatch(/crosses a grid-cell edge/);
+    expect(res.body.limitations.join(' ')).toMatch(/intersects more than one provider grid cell/);
+  });
+
+  it('does not flag a cell crossing from the bounding box alone (a bbox corner can cross an edge that the polygon does not)', async () => {
+    const ctx = { ...baseCtx, spansMultipleCells: false, bbox: { minLon: 88.6, maxLon: 88.61, minLat: 24.7, maxLat: 24.8 } };
+    const res = await request(appWith({ ctx, climate: { provenance, series } })).get(`/api/fields/${FIELD_ID}/climate${range}`);
+    expect(res.body.spatialContext.spansMultipleCells).toBe(false);
+    expect(res.body.limitations.join(' ')).not.toMatch(/intersects more than one/);
   });
 
   it('answers 404 CLIMATE_CELL_NOT_INGESTED when the cell has no stored data', async () => {

@@ -95,9 +95,8 @@ export function isInsideBangladeshBox(bbox) {
     && bbox.minLat >= BANGLADESH_BBOX.minLat && bbox.maxLat <= BANGLADESH_BBOX.maxLat;
 }
 
-// Does the field's bounding box cross a cell edge? If its smallest and largest longitude (or latitude) fall
-// in different cells, the polygon has points in more than one cell. Only the representative point's cell is
-// reported, and this flag tells the reader that the field is not wholly inside it.
+// Legacy bbox-only estimate retained for callers that need a cheap coarse pre-check. Field climate
+// responses must use the exact PostGIS polygon/grid intersection in repository.getFieldGeoContext.
 export function spansMultipleCells(bbox) {
   return latIndex(bbox.minLat) !== latIndex(bbox.maxLat) || lonIndex(bbox.minLon) !== lonIndex(bbox.maxLon);
 }

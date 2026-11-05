@@ -83,10 +83,19 @@ Response fields:
 - `climate`: `firstDate`, `lastDate`, `missing` (counts of null values), `absentDays`, and `monthly`, twelve entries with `rainMm {mean, median, years}`, `tMaxC {mean, years}` and `tMinC {mean, years}`. A month of a given year is used only when enough days were observed (98% for rainfall, 90% for temperature). Gaps are never counted as zero. `years` shows how many years each figure rests on, and `mean` is `null` when no year qualified.
 - `soil`: `entered` (exactly what the farmer provided, `null` when not), `salinityClass` (derived from `salinityDsM`, class boundaries 2, 4 and 8 dS/m are general-purpose cut points, not a Bangladeshi standard), `usedInThisVersion` (only `salinityDsM`), `enteredButNotUsed` and `notEntered`.
 - `crops`: one entry per crop with `season`, `traitBasis` (currently `UNVERIFIED_GENERAL_KNOWLEDGE`), `seasonRain` (mean rainfall in the crop's months, the assumed water need, and the arithmetic shortfall, which is not an irrigation requirement), `heat` (assumed threshold and the mean share of days at or above it), `salinity` (`within_tolerance`, `exceeds_tolerance` or `unknown`), and machine-readable `flags`.
-- `summary.en`: one plain-English paragraph built only from the numbers above. A Bangla version is not provided yet.
+- `summary`: `en` is one plain-English paragraph built only from the numbers above. `bn` is the same paragraph in Bangla with Bangla digits, a first draft marked `reviewStatus: BANGLA_DRAFT_NOT_NATIVE_REVIEWED`. It must be reviewed by a native speaker before farmers see it.
 - `provenance`, `dataLabel`, `limitations`.
 
 Errors: `404 FIELD_NOT_FOUND`; `404 CLIMATE_CELL_NOT_INGESTED` (no real NASA POWER data stored for the field's cell, never an empty success); `422` for a bad id; `503` when no database is configured.
 
 Tests: `backend/tests/fieldProfile.test.js` (hand-checked arithmetic, missing-data and boundary cases) and `backend/tests/fieldIntelligence.test.js` (API contract, fake repository).
+
+## Rotation evaluation for a field: `POST /api/evaluate` with `fieldId`
+
+When the body includes `fieldId`, the evaluation uses the registered field instead of only the district:
+- **Climate** comes from the NASA POWER grid cell that contains the field's representative point, not from the district's reference point. The response says so in `climate.scope` (`basis: "field_grid_cell"`, the `cell`, and `spansMultipleCells`), and `limitations` gains the cell caveats.
+- **Salinity** comes from the field's `salinityDsM` when one was entered.
+- If the field's cell has no stored real data, the request fails with `404 CLIMATE_CELL_NOT_INGESTED`. It never falls back to the district's data, because that would be a different place.
+- If the field has no boundary, so its cell cannot be determined: `422` on `fieldId`.
+- Without `fieldId` the behaviour is unchanged: district climate, and no `climate.scope`.
 

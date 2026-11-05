@@ -1,46 +1,12 @@
 import { conflict, notFound, validationError } from '../utils/errors.js';
 import { FieldDistrictError, FieldGeometryError, FieldSessionConflictError } from '../utils/fieldErrors.js';
-import { approxCellAreaKm2, powerCellFor, POWER_GRID, spansMultipleCells } from '../geo/climateGrid.js';
+import { locateField as locate } from '../geo/fieldLocation.js';
 import { sliceDaily } from '../utils/dailySlice.js';
 import { makeDataLabel } from '../utils/dataLabel.js';
 import { monthlyClimatology, cropFieldEvidence } from '../science/fieldProfile.js';
-import { buildFieldSummary } from '../science/fieldSummary.js';
+import { buildFieldSummary, buildFieldSummaryBn } from '../science/fieldSummary.js';
 import { salinityClassFromDsM } from '../science/soil.js';
 import { seriesCoverage } from '../science/climate.js';
-
-// Where a field sits on the climate grid. Shared by the climate and intelligence endpoints so both
-// describe the cell in exactly the same way.
-function locate(ctx) {
-  const cell = powerCellFor(ctx.point.lat, ctx.point.lon);
-  const cellAreaKm2 = approxCellAreaKm2(cell);
-  const spans = spansMultipleCells(ctx.bbox);
-  const limitations = [
-    `Values describe the whole NASA POWER grid cell (${cell.resLatDeg} x ${cell.resLonDeg} degrees, about ${Math.round(cellAreaKm2).toLocaleString('en-US')} km2) that contains the field's representative point. They are not measurements taken at the field, and the field boundary adds no spatial detail.`,
-  ];
-  if (spans) limitations.push("The field's bounding box crosses a grid-cell edge, so part of the field lies in a neighbouring cell. Only the cell containing the representative point is reported.");
-  if (!POWER_GRID.verified) limitations.push('The cell geometry follows the assumed POWER grid (0.5 x 0.625 degrees) and has not yet been confirmed against the live service (npm run check:power-grid).');
-  return {
-    cell,
-    cellAreaKm2,
-    spans,
-    limitations,
-    location: { representativePoint: { lat: ctx.point.lat, lon: ctx.point.lon, method: 'ST_PointOnSurface' } },
-    cellBlock: {
-      provider: cell.provider,
-      cellKey: cell.cellKey,
-      centerLat: cell.centerLat,
-      centerLon: cell.centerLon,
-      resolutionDeg: { lat: cell.resLatDeg, lon: cell.resLonDeg },
-      approxAreaKm2: Math.round(cellAreaKm2),
-      gridVerified: POWER_GRID.verified,
-    },
-    spatialContext: {
-      fieldAreaHa: ctx.areaHa,
-      fieldToCellAreaRatio: ctx.areaHa === null ? null : Number((ctx.areaHa / 100 / cellAreaKm2).toExponential(2)),
-      spansMultipleCells: spans,
-    },
-  };
-}
 
 const SOIL_FIELDS = ['soilType', 'soilPh', 'organicMatterPct', 'salinityDsM', 'irrigationSource'];
 // Of the soil inputs, only salinity is used by this version. The others are echoed, not analysed.
@@ -105,6 +71,13 @@ export function createFieldService(repo) {
         );
       }
       const { daily, missing } = sliceDaily(climate.series, from, to);
+      const requestedDays = Math.max(0, Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000) + 1);
+      const coveredStart = Math.max(Date.parse(`${from}T00:00:00Z`), Date.parse(`${climate.provenance.startDate}T00:00:00Z`));
+      const coveredEnd = Math.min(Date.parse(`${to}T00:00:00Z`), Date.parse(`${climate.provenance.endDate}T00:00:00Z`));
+      const expectedWithinObservationPeriod = coveredStart <= coveredEnd
+        ? Math.round((coveredEnd - coveredStart) / 86400000) + 1
+        : 0;
+      const availableDays = climate.series.filter((row) => row.date >= from && row.date <= to).length;
       return {
         field: { id: ctx.id, name: ctx.name, areaHa: ctx.areaHa, district: ctx.district },
         location: where.location,
@@ -113,6 +86,18 @@ export function createFieldService(repo) {
         from,
         to,
         daily,
+        provider: climate.provenance.source,
+        dataset: climate.provenance.product,
+        spatialResolution: { latDeg: where.cellBlock.resolutionDeg.lat, lonDeg: where.cellBlock.resolutionDeg.lon, approximateAreaKm2: where.cellBlock.approxAreaKm2 },
+        observationPeriod: { startDate: climate.provenance.startDate, endDate: climate.provenance.endDate },
+        coverage: {
+          requestedDays,
+          returnedDays: daily.length,
+          availableDays,
+          absentDaysWithinObservationPeriod: Math.max(0, expectedWithinObservationPeriod - availableDays),
+          outsideObservationPeriodDays: Math.max(0, requestedDays - expectedWithinObservationPeriod),
+          missing,
+        },
         provenance: {
           runId: climate.provenance.runId,
           source: climate.provenance.source,
@@ -121,6 +106,9 @@ export function createFieldService(repo) {
           retrievedAt: climate.provenance.retrievedAt,
           isSynthetic: climate.provenance.isSynthetic,
           units: climate.provenance.units,
+          rowCount: climate.provenance.rowCount,
+          missingCount: climate.provenance.missingCount,
+          requestParams: climate.provenance.requestParams,
           missing,
         },
         dataLabel: makeDataLabel(climate.provenance, { coverageStart: from, coverageEnd: to }),
@@ -147,6 +135,14 @@ export function createFieldService(repo) {
       const monthly = monthlyClimatology(climate.series);
       const crops = allCrops.map((c) => cropFieldEvidence(climate.series, c, { salinityClass }));
       const coverage = seriesCoverage(climate.series);
+      const summaryInput = {
+        monthly,
+        crops,
+        cell: where.cellBlock,
+        areaHa: ctx.areaHa,
+        soil: { salinityClass, salinityDsM: entered.salinityDsM },
+        spansMultipleCells: where.spans,
+      };
 
       return {
         status: 'preliminary',
@@ -171,14 +167,9 @@ export function createFieldService(repo) {
         },
         crops,
         summary: {
-          en: buildFieldSummary({
-            monthly,
-            crops,
-            cell: where.cellBlock,
-            areaHa: ctx.areaHa,
-            soil: { salinityClass, salinityDsM: entered.salinityDsM },
-            spansMultipleCells: where.spans,
-          }),
+          en: buildFieldSummary(summaryInput),
+          bn: buildFieldSummaryBn(summaryInput),
+          reviewStatus: 'BANGLA_DRAFT_NOT_NATIVE_REVIEWED',
         },
         provenance: {
           runId: climate.provenance.runId,

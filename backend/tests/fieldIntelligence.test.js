@@ -50,6 +50,9 @@ describe('GET /api/fields/:id/intelligence', () => {
     expect(res.body.dataLabel.kind).toBe('nasa_stored');
     expect(res.body.summary.en).toContain('NASA POWER grid cell');
     expect(res.body.summary.en).toMatch(/not a forecast/);
+    expect(res.body.summary.bn).toContain('পূর্বাভাস নয়');
+    expect(res.body.summary.bn).not.toMatch(/[0-9]/);
+    expect(res.body.summary.reviewStatus).toBe('BANGLA_DRAFT_NOT_NATIVE_REVIEWED');
     expect(res.body.limitations.join(' ')).toMatch(/unverified/);
   });
 
@@ -84,10 +87,10 @@ describe('GET /api/fields/:id/intelligence', () => {
   });
 
   it('warns when the field crosses a grid-cell edge', async () => {
-    const ctx = { ...baseCtx, bbox: { minLon: 88.6, maxLon: 88.61, minLat: 24.7, maxLat: 24.8 }, point: { lat: 24.72, lon: 88.6 } };
+    const ctx = { ...baseCtx, spansMultipleCells: true };
     const res = await request(appWith({ ctx })).get(URL);
     expect(res.body.spatialContext.spansMultipleCells).toBe(true);
-    expect(res.body.limitations.join(' ')).toMatch(/crosses a grid-cell edge/);
+    expect(res.body.limitations.join(' ')).toMatch(/intersects more than one provider grid cell/);
   });
 
   it('is deterministic', async () => {

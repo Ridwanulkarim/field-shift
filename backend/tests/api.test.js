@@ -191,6 +191,8 @@ describe('POST /api/evaluate', () => {
       salinityDsM: 5,
       irrigationSource: 'Canal',
     });
+    repository.getFieldGeoContext = async () => FIELD_CTX;
+    repository.getClimateByCell = async () => CELL_CLIMATE;
     const res = await request(createApp(loadConfig({}), { repository })).post('/api/evaluate').send({
       ...body,
       fieldId: '550e8400-e29b-41d4-a716-446655440000',
@@ -218,5 +220,68 @@ describe('POST /api/evaluate', () => {
     const res = await request(appWith()).post('/api/evaluate').set('Content-Type', 'application/json').send('{"district": ');
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('BAD_JSON');
+  });
+});
+
+// ---- Field-aware evaluation: climate comes from the field's grid cell, not the district point ----
+
+const FIELD_ID = '550e8400-e29b-41d4-a716-446655440000';
+const FIELD_CTX = {
+  id: FIELD_ID, name: 'Test Field', areaHa: 2,
+  district: { id: 1, slug: 'rajshahi', nameEn: 'Rajshahi', nameBn: 'রাজশাহী' },
+  point: { lat: 24.37, lon: 88.6 },
+  bbox: { minLon: 88.6, maxLon: 88.61, minLat: 24.37, maxLat: 24.38 },
+};
+const CELL_CLIMATE = {
+  provenance: { runId: 9, source: 'NASA POWER', isSynthetic: false, dataStatus: 'cached', retrievedAt: '2026-11-01T00:00:00.000Z', startDate: '2001-01-01', endDate: '2025-12-31' },
+  series: buildSeries(2001, 2020, (y, m) => ({ precipMm: m >= 6 && m <= 10 ? 10 : 0.2, tMaxC: 30 })),
+};
+
+describe('POST /api/evaluate with a registered field', () => {
+  function appWithField({ cellClimate = CELL_CLIMATE, ctx = FIELD_CTX } = {}) {
+    const repository = fakeRepository();
+    repository.getField = async () => ({
+      id: FIELD_ID, name: 'Test Field', districtId: 1, district: { id: 1, slug: 'rajshahi' },
+      areaHa: 2, soilType: null, soilPh: null, salinityDsM: null, irrigationSource: null,
+    });
+    repository.getFieldGeoContext = async () => ctx;
+    repository.getClimateByCell = async () => cellClimate;
+    return createApp(loadConfig({}), { repository });
+  }
+  const withField = { ...body, fieldId: FIELD_ID };
+
+  it('uses the climate of the field\'s grid cell (run 9), not the district reference run (run 1)', async () => {
+    const res = await request(appWithField()).post('/api/evaluate').send(withField);
+    expect(res.status).toBe(200);
+    expect(res.body.climate.provenance.runId).toBe(9);
+    expect(res.body.climate.scope).toMatchObject({ basis: 'field_grid_cell', spansMultipleCells: false });
+    expect(res.body.climate.scope.cell).toMatchObject({ provider: 'NASA POWER', cellKey: '49:430' });
+    expect(res.body.limitations.join(' ')).toMatch(/whole NASA POWER grid cell/);
+  });
+
+  it('without a field still uses the district run and carries no cell scope', async () => {
+    const res = await request(appWith()).post('/api/evaluate').send(body);
+    expect(res.status).toBe(200);
+    expect(res.body.climate.provenance.runId).toBe(1);
+    expect(res.body.climate).not.toHaveProperty('scope');
+  });
+
+  it('fails with 404 CLIMATE_CELL_NOT_INGESTED instead of silently using district data', async () => {
+    const res = await request(appWithField({ cellClimate: null })).post('/api/evaluate').send(withField);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('CLIMATE_CELL_NOT_INGESTED');
+  });
+
+  it('refuses a field whose location cannot be determined', async () => {
+    const res = await request(appWithField({ ctx: null })).post('/api/evaluate').send(withField);
+    expect(res.status).toBe(422);
+    expect(res.body.error.details[0].field).toBe('fieldId');
+  });
+
+  it('warns when the field crosses a grid-cell edge', async () => {
+    const ctx = { ...FIELD_CTX, spansMultipleCells: true };
+    const res = await request(appWithField({ ctx })).post('/api/evaluate').send(withField);
+    expect(res.body.climate.scope.spansMultipleCells).toBe(true);
+    expect(res.body.limitations.join(' ')).toMatch(/intersects more than one provider grid cell/);
   });
 });
