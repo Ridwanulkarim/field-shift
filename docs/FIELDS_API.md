@@ -21,6 +21,7 @@ session. A field belonging to another session is returned as `FIELD_NOT_FOUND`.
 | PATCH | `/api/fields/:id` | Update metadata or boundary |
 | DELETE | `/api/fields/:id` | Delete the current session's field |
 | GET | `/api/fields/:id/climate?from=YYYY-MM-DD&to=YYYY-MM-DD` | Climate of the NASA POWER grid cell that contains the field |
+| GET | `/api/fields/:id/intelligence` | Evidence for one field: monthly climate of its grid cell, per-crop context, soil as entered, a summary sentence (version 1, no ranking) |
 
 `POST` and `PATCH` accept the field name, district ID, GeoJSON `Polygon` or
 `MultiPolygon`, and optional soil/irrigation fields. The backend validates the
@@ -71,3 +72,21 @@ Errors: `404 FIELD_NOT_FOUND` (unknown or another session's field); `404 CLIMATE
 POWER run is stored for that cell; the message names the cell); `422` for a bad id or date range.
 
 Two fields in the same cell receive the same observations. That is correct, and the shared `cellKey` shows it.
+
+## Field intelligence: `GET /api/fields/:id/intelligence`
+
+No query parameters. Status: **preliminary**. Version 1 reports **evidence only**. It does not rank crops, give a
+score, or predict anything. The response says so in `status` and `statusNote`.
+
+Response fields:
+- `field`, `location`, `cell`, `spatialContext`: the same as the climate endpoint (the field is described by the grid cell that contains its representative point).
+- `climate`: `firstDate`, `lastDate`, `missing` (counts of null values), `absentDays`, and `monthly`, twelve entries with `rainMm {mean, median, years}`, `tMaxC {mean, years}` and `tMinC {mean, years}`. A month of a given year is used only when enough days were observed (98% for rainfall, 90% for temperature). Gaps are never counted as zero. `years` shows how many years each figure rests on, and `mean` is `null` when no year qualified.
+- `soil`: `entered` (exactly what the farmer provided, `null` when not), `salinityClass` (derived from `salinityDsM`, class boundaries 2, 4 and 8 dS/m are general-purpose cut points, not a Bangladeshi standard), `usedInThisVersion` (only `salinityDsM`), `enteredButNotUsed` and `notEntered`.
+- `crops`: one entry per crop with `season`, `traitBasis` (currently `UNVERIFIED_GENERAL_KNOWLEDGE`), `seasonRain` (mean rainfall in the crop's months, the assumed water need, and the arithmetic shortfall, which is not an irrigation requirement), `heat` (assumed threshold and the mean share of days at or above it), `salinity` (`within_tolerance`, `exceeds_tolerance` or `unknown`), and machine-readable `flags`.
+- `summary.en`: one plain-English paragraph built only from the numbers above. A Bangla version is not provided yet.
+- `provenance`, `dataLabel`, `limitations`.
+
+Errors: `404 FIELD_NOT_FOUND`; `404 CLIMATE_CELL_NOT_INGESTED` (no real NASA POWER data stored for the field's cell, never an empty success); `422` for a bad id; `503` when no database is configured.
+
+Tests: `backend/tests/fieldProfile.test.js` (hand-checked arithmetic, missing-data and boundary cases) and `backend/tests/fieldIntelligence.test.js` (API contract, fake repository).
+

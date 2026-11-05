@@ -30,6 +30,13 @@ export function createFieldRouter(service) {
     res.json(await need().getFieldClimate(id, req.anonymousSessionId, range));
   });
 
+  // GET /api/fields/:id/intelligence : evidence for one field (climate of its grid cell, per-crop context, soil as entered)
+  router.get('/fields/:id/intelligence', async (req, res) => {
+    const id = parseFieldId(req.params.id);
+    res.set('Cache-Control', 'private, no-store');
+    res.json(await need().getFieldIntelligence(id, req.anonymousSessionId));
+  });
+
   router.patch('/fields/:id', async (req, res) => {
     res.json({ field: await need().updateField(parseFieldId(req.params.id), parseFieldRequest(req.body, { partial: true }), req.anonymousSessionId) });
   });
