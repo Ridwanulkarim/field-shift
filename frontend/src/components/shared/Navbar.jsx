@@ -276,17 +276,8 @@ const Navbar = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1">
-                  <span>
-                    {language === "bn"
-                      ? "ব্যাকগ্রাউন্ড ব্লার:"
-                      : "Background Blur:"}
-                  </span>
-                  <button
-                    onClick={() => setIsBlurMode((prev) => !prev)}
-                    className="px-2 py-0.5 rounded-lg text-[10px] font-bold border border-emerald-400/50 text-emerald-300"
-                  >
-                    {isBlurMode ? "ON 🌫️" : "OFF 👁️"}
-                  </button>
+                  
+                  <button className="px-2 py-0.5 rounded-lg text-[10px] font-bold border border-emerald-400/50 text-emerald-300"></button>
                 </div>
               </div>
 

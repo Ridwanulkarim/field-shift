@@ -9,11 +9,6 @@ import {
   translateCondition,
 } from "../utils/i18n";
 
-/**
- * Leaflet & GeoJSON Agro-Ecological Map Component (Spec Section 46, 51)
- * Renders real Leaflet instance with satellite imagery, street map,
- * field marker pins, and boundary_geojson polygon highlighting.
- */
 export default function Map({
   fields = [],
   selectedFieldId,

@@ -20,6 +20,7 @@ export const router = createBrowserRouter([
       {
         path: "advisory",
         Component: PlantingWindowAdvisory,
+        
       },
       {
         path: "planner",
