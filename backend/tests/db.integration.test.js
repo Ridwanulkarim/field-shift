@@ -8,6 +8,7 @@ import { createPrismaClient } from '../src/data/prisma.js';
 import { createRepository } from '../src/data/repository.js';
 import { ingestDistrict } from '../src/integrations/nasa/ingest.js';
 import { storeRun } from '../src/data/climateStore.js';
+import { powerCellFor } from '../src/geo/climateGrid.js';
 import { generateSyntheticSeries } from '../src/integrations/fixture/synthetic.js';
 import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config/env.js';
@@ -36,6 +37,8 @@ describe.skipIf(!url)('database integration', () => {
 
   afterAll(async () => {
     await prisma.district.deleteMany({ where: { slug: SLUG } });
+    const { cellKey } = powerCellFor(24.37, 88.6); // the test district's cell; removed only if no run uses it
+    await prisma.$executeRaw`DELETE FROM "ClimateGridCell" c WHERE c."cellKey" = ${cellKey} AND c."provider" = 'NASA POWER' AND NOT EXISTS (SELECT 1 FROM "DatasetRun" r WHERE r."gridCellId" = c."id")`;
     await prisma.$disconnect();
   });
 
@@ -100,6 +103,24 @@ describe.skipIf(!url)('database integration', () => {
     expect(climate.provenance.product).toMatch(/TEST FIXTURE/);
     expect(climate.series[3].precipMm).toBeNull();
     expect(climate.provenance.missingCount).toBe(1);
+  });
+
+  it('does not let a newer run from another real source shadow NASA POWER', async () => {
+    const days = [{ date: '2001-01-01', precipMm: 999, tMaxC: 50, tMinC: 40 }];
+    const other = await storeRun(prisma, {
+      districtId: district.id,
+      days,
+      run: { source: 'TEST OTHER SOURCE', isSynthetic: false, endpointUrl: 'test://other', requestParams: {}, startDate: '2001-01-01', endDate: '2001-01-01' },
+    });
+    try {
+      const climate = await repo.getClimate(district.id);
+      expect(climate.provenance.source).toBe('NASA POWER');
+      expect(climate.series.every((d) => d.precipMm !== 999)).toBe(true);
+      const asked = await repo.getClimate(district.id, { source: 'TEST OTHER SOURCE' });
+      expect(asked.provenance.source).toBe('TEST OTHER SOURCE');
+    } finally {
+      await prisma.datasetRun.delete({ where: { id: other.id } });
+    }
   });
 
   it('serves a full evaluation from the database through the API', async () => {

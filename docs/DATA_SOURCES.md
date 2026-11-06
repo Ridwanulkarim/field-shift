@@ -21,6 +21,43 @@ Checks applied before storing: coordinates and dates are validated, required par
 
 **Verification status.** A live three-day request to the official endpoint was verified on 2026-11-02 for Rajshahi coordinates and returned the expected variables and units. Persistence against a real database and a full historical ingestion remain environment-dependent; fixture tests do not prove those paths.
 
+## Grid cells (field-level association)
+
+`ClimateGridCell` records one cell of a provider's grid, and `DatasetRun.gridCellId` says which cell a run
+describes. `src/geo/climateGrid.js` computes the cell for any point.
+
+**Grid (verified 2026-11-04):** the POWER meteorology grid is 0.5 degrees of latitude by 0.625 degrees of longitude with cell
+centres at latitude `k * 0.5` and longitude `-180 + j * 0.625`. POWER echoes back the coordinates you ask for, so they cannot
+identify the cell; the **data** are the evidence. Two checks agreed with the grid:
+
+- `npm run check:grid-consistency` (offline, read-only): the 12 stored district series group exactly as the cells predict
+  (Jashore and Khulna share a cell and have identical data; every other district differs).
+- `npm run check:power-grid` (live NASA, a few minutes): walking points 0.05 degrees apart, the returned temperatures change
+  within one step of every expected edge (latitude 24.25 and 24.75, longitude 88.4375 and 89.0625), with no unexpected edge.
+
+Limits of that verification: edge positions are known to about 0.025 degrees (the sampling step), and the live probe covered
+the Rajshahi area; the rest of the country is covered only by the 12-district consistency check. Re-run both checks if the
+constants in `src/geo/climateGrid.js` change. `POWER_GRID.verified` controls whether responses warn that the grid is unconfirmed.
+
+Existing runs get their cell with `npm run db:backfill-cells` (add `-- --dry-run` to preview). New ingestions record
+it automatically. A run is placed in the cell containing its district's reference point, so a district run serves
+every field in that cell and no other cell. Cells without a run are reported as `CLIMATE_CELL_NOT_INGESTED`.
+
+### Standalone cell runs (fields outside any district's cell)
+
+A cell that holds a registered field but no district reference point gets its own run: `DatasetRun.districtId` is
+`NULL` and `gridCellId` identifies the cell. The request is made once, at the cell centre, and every field in the cell
+shares the result. A district run and a cell run in the same cell are kept separately; neither replaces the other.
+
+```bash
+npm run ingest:field-cells -- --dry-run     # list cells that hold fields but have no real run; downloads nothing
+npm run ingest:field-cells                  # ingest each missing cell (2001-01-01 to the end of last year)
+npm run ingest:nasa:cell                    # one named cell, see scripts/ingest-nasa-grid-cell.js
+```
+
+`npm run ingest:refresh` also extends standalone cell runs. First verified on 2026-11-05: cell `47:432` stored 9,131
+daily rows (2001 to 2025). A failed cell ingestion is recorded as a FAILED run and the earlier successful run is kept.
+
 ## Ingestion commands and operations
 
 Historical ingestion:
@@ -31,8 +68,9 @@ npm run ingest:nasa -- --district=rajshahi --start=2001 --end=2025
 
 The command is repeatable and records each failed attempt. Successful runs retain only
 the latest successful dataset for the same district/source/type, while failed run history
-is preserved. Requests are serialized per district/date range using the
-`DatasetIngestionLock` table; stale locks older than 30 minutes can be recovered.
+is preserved. Requests are serialized per **grid cell** (lock key `NASA POWER:grid:<cellKey>`) using the
+`DatasetIngestionLock` table, so two districts in the same cell cannot download at the same time; stale locks
+older than 30 minutes can be recovered.
 
 Incremental refresh:
 
@@ -67,8 +105,8 @@ No soil dataset is used. Soil enters only as what the user selects (salinity and
 
 ## Future dataset integration
 
-GPM precipitation, SMAP soil moisture, and HLS vegetation products can share the same district without replacing one another. Each ingestion should use its own `DatasetRun.source` and put variables that do not map to the legacy POWER fields in `ClimateDaily.measurements`, using stable names and units recorded in `DatasetRun.units`.
+NASA GPM IMERG is the planned second source, for satellite precipitation. It is not integrated yet. POWER and IMERG differ in spatial resolution, time coverage and measurement method, so they must be stored as separate sources with their own units and resolution notes and never merged into one series. SMAP, HLS and Sentinel-1 are explicitly out of scope.
 
 ## Not used
 
-Satellite vegetation indices (such as NDVI), market prices, pests, diseases, labour, seed supply and flood timing are not modelled.
+Soil-moisture and vegetation products, satellite vegetation indices (such as NDVI), market prices, pests, diseases, labour, seed supply and flood timing are not modelled.

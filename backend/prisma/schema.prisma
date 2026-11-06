@@ -57,6 +57,8 @@ model Field {
   updatedAt DateTime @updatedAt
 
   @@index([districtId])
+  // Spatial index created by the add_field_boundaries migration (PostGIS GiST).
+  @@index([boundary], type: Gist)
 }
 
 // Crop traits used by the rotation engine.
@@ -82,11 +84,12 @@ model Crop {
   notes                 String
 }
 
-// One attempt to bring a dataset in for one district. Keeps the provenance.
+// One provider dataset ingestion attempt. A district run belongs to a district and is deleted with it.
+// A standalone grid-cell run has districtId = null and is identified by gridCellId; district deletion never touches it.
 model DatasetRun {
   id            Int            @id @default(autoincrement())
-  districtId    Int
-  district      District       @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  districtId    Int?
+  district      District?      @relation(fields: [districtId], references: [id], onDelete: Cascade)
   source        String // e.g. "NASA POWER" or "SYNTHETIC"
   product       String?
   isSynthetic   Boolean        @default(false)
@@ -102,26 +105,58 @@ model DatasetRun {
   missingCount  Int            @default(0)
   errorMessage  String?
   notes         String?
+  // The provider grid cell this run describes (null for synthetic runs and for runs stored before
+  // cells were recorded; `npm run db:backfill-cells` fills those in).
+  gridCellId    Int?
+  gridCell      ClimateGridCell? @relation(fields: [gridCellId], references: [id], onDelete: SetNull)
   climateDaily  ClimateDaily[]
 
   @@index([districtId, source, isSynthetic, status, retrievedAt])
+  @@index([gridCellId, status, isSynthetic, retrievedAt])
 }
 
-// Daily values. null means "missing", never a guessed number.
+// One cell of a data provider's grid. Climate values describe the whole cell, never a single point,
+// so fields and districts that fall in the same cell share the same observations.
+model ClimateGridCell {
+  id        Int      @id @default(autoincrement())
+  provider  String // e.g. "NASA POWER"; a future GPM IMERG cell has its own provider and grid
+  cellKey   String // "<latIndex>:<lonIndex>" on that provider's grid
+  gridName  String
+  centerLat Float
+  centerLon Float
+  resLatDeg Float
+  resLonDeg Float
+  createdAt DateTime @default(now())
+
+  runs DatasetRun[]
+
+  @@unique([provider, cellKey])
+}
+
+// Daily values. null means "missing", never a guessed number. District linkage is optional for cell-first ingestion.
 model ClimateDaily {
   id           Int        @id @default(autoincrement())
   runId        Int
   run          DatasetRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  districtId   Int
-  district     District   @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  districtId   Int?
+  district     District?  @relation(fields: [districtId], references: [id], onDelete: Cascade)
   date         DateTime   @db.Date
   precipMm     Float?
   tMaxC        Float?
   tMinC        Float?
-  // Dataset-specific measurements, keyed by a stable variable name.
-  // Examples: { "soilMoistureM3M3": 0.24 } or { "ndvi": 0.61, "evi": 0.32 }.
+  // RESERVED, currently unused: nothing writes this column. It will be dropped or reshaped when
+  // the next dataset (GPM IMERG) is added and its real structure is known.
   measurements Json?
 
   @@unique([runId, date])
   @@index([districtId, date])
+}
+
+// Coordinates ingestion jobs so overlapping workers cannot replace one another.
+// Used through raw SQL in src/data/climateStore.js (withIngestionLock); modelled here so that
+// `prisma migrate dev` does not try to drop the table.
+model DatasetIngestionLock {
+  key        String   @id
+  owner      String   @db.Uuid
+  acquiredAt DateTime @default(now())
 }

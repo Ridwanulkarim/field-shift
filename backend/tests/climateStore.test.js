@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { storeRun } from '../src/data/climateStore.js';
+import { storeRun, runScope } from '../src/data/climateStore.js';
 
 function fakePrisma() {
   const calls = {
@@ -66,5 +66,31 @@ describe('storeRun', () => {
       tMaxC: undefined,
       tMinC: undefined,
     });
+  });
+});
+
+describe('runScope (which older runs a new run may replace)', () => {
+  it('scopes a district run to that district', () => {
+    expect(runScope({ districtId: 4 })).toEqual({ districtId: 4 });
+  });
+  it('scopes a standalone cell run to its cell, with no district', () => {
+    expect(runScope({ gridCellId: 9 })).toEqual({ districtId: null, gridCellId: 9 });
+  });
+  it('lets the district win if both are given', () => {
+    expect(runScope({ districtId: 4, gridCellId: 9 })).toEqual({ districtId: 4 });
+  });
+  it('refuses a run with neither, so a delete can never match unrelated runs', () => {
+    expect(() => runScope({})).toThrow(/districtId or/);
+    expect(() => runScope({ districtId: null, gridCellId: null })).toThrow();
+  });
+  it('refuses a non-integer id', () => {
+    expect(() => runScope({ districtId: '4' })).toThrow(/integer/);
+    expect(() => runScope({ gridCellId: '9' })).toThrow();
+  });
+  it('storeRun refuses to write or delete anything when no scope is given', async () => {
+    const prisma = fakePrisma();
+    await expect(storeRun(prisma, { run: {}, days: [] })).rejects.toThrow(/districtId or/);
+    expect(prisma.calls.deleteWhere).toBeNull();
+    expect(prisma.calls.createdRun).toBeNull();
   });
 });

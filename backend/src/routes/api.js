@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { parseEvaluateRequest } from '../validation/evaluateRequest.js';
 import { unavailable } from '../utils/errors.js';
 import { parseDailyClimateRequest } from '../validation/dailyClimateRequest.js';
+import { parsePlantingWindowRequest } from '../validation/plantingWindowRequest.js';
 import crypto from 'node:crypto';
 import {
   PRIORITIES,
@@ -46,6 +47,17 @@ export function createApiRouter(service) {
   router.get('/districts/:slug/climate/daily', async (req, res) => {
     const result = await need().dailyClimate(req.params.slug, parseDailyClimateRequest(req.query));
     const etag = `"${crypto.createHash('sha256').update(`${result.provenance.runId}:${result.from}:${result.to}`).digest('hex')}"`;
+    res.set('Cache-Control', 'public, max-age=300');
+    res.set('ETag', etag);
+    if (req.get('If-None-Match') === etag) return res.status(304).end();
+    return res.json(result);
+  });
+
+  // GET /api/districts/:slug/planting-window?crop=aman[&split=2013]
+  router.get('/districts/:slug/planting-window', async (req, res) => {
+    const input = parsePlantingWindowRequest(req.query);
+    const result = await need().plantingWindow(req.params.slug, input);
+    const etag = `"${crypto.createHash('sha256').update(`${result.provenance.runId}:${result.crop.slug}:${result.periods.splitYear}`).digest('hex')}"`;
     res.set('Cache-Control', 'public, max-age=300');
     res.set('ETag', etag);
     if (req.get('If-None-Match') === etag) return res.status(304).end();

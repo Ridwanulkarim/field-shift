@@ -11,6 +11,7 @@ import { createEvaluationService } from './services/evaluationService.js';
 import { createFieldService } from './services/fieldService.js';
 import { createFieldRouter } from './routes/fields.js';
 import { HttpError } from './utils/errors.js';
+import { createRateLimiter } from './utils/rateLimiter.js';
 
 // Builds the Express app WITHOUT starting a server, so tests can call it directly.
 // `repository` is optional: without it the data routes answer 503 instead of pretending.
@@ -19,24 +20,17 @@ export function createApp(config, { repository, fieldService } = {}) {
   const service = repository ? createEvaluationService(repository) : null;
   const fields = fieldService ?? (repository ? createFieldService(repository) : null);
 
-  const rateLimits = new Map();
+  // Behind a reverse proxy (Render, Fly, nginx) req.ip is the proxy unless Express is told how many
+  // proxy hops to trust. 0 (default) means: use the socket address and ignore X-Forwarded-For.
+  app.set('trust proxy', config.trustProxy ?? 0);
+
+  const limiter = createRateLimiter({ windowMs: 60_000, maxKeys: 10_000 });
   const rateLimit = (req, res, next) => {
-    const now = Date.now();
-    const windowMs = 60_000;
     const mutating = ['POST', 'PATCH', 'DELETE'].includes(req.method);
-    const limit = mutating ? 60 : 300;
-    const key = `${req.ip}:${mutating ? 'write' : 'read'}`;
-    const current = rateLimits.get(key);
-    if (!current || now - current.startedAt >= windowMs) {
-      rateLimits.set(key, { startedAt: now, count: 1 });
-      return next();
-    }
-    if (current.count >= limit) {
-      res.set('Retry-After', String(Math.ceil((windowMs - (now - current.startedAt)) / 1000)));
-      return res.status(429).json({ error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } });
-    }
-    current.count += 1;
-    return next();
+    const result = limiter.hit(`${req.ip}:${mutating ? 'write' : 'read'}`, mutating ? 60 : 300);
+    if (result.allowed) return next();
+    res.set('Retry-After', String(result.retryAfterSeconds));
+    return res.status(429).json({ error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } });
   };
 
   app.use(helmet());
