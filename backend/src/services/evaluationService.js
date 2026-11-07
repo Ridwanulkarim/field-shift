@@ -192,7 +192,7 @@ export function createEvaluationService(repo) {
       const publicDistrict = districtPublic(district);
       return {
         district: publicDistrict,
-        crop: { slug: crop.slug, nameEn: crop.nameEn, nameBn: crop.nameBn, startMonth: crop.startMonth, endMonth: crop.endMonth, basis: crop.basis },
+        crop: { slug: crop.slug, nameEn: crop.nameEn, nameBn: crop.nameBn, startMonth: crop.startMonth, endMonth: crop.endMonth, basis: crop.basis, traitSources: crop.traitSources ?? null },
         periods,
         onset: analysis.onset,
         status: 'experimental',

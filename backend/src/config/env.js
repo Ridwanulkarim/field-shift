@@ -57,6 +57,10 @@ export function loadConfig(env = process.env) {
     anonymousSessionMaxAgeMs: 1000 * 60 * 60 * 24 * 365,
     nasaPowerTimeoutMs: parseBoundedInteger(env.NASA_POWER_TIMEOUT_MS, 120000, 'NASA_POWER_TIMEOUT_MS', 1000, 300000),
     nasaPowerRetries: parseBoundedInteger(env.NASA_POWER_RETRIES, 3, 'NASA_POWER_RETRIES', 0, 5),
+    // NASA Earthdata token for GPM IMERG (ingestion scripts only; the web API never needs it). Never logged.
+    earthdataToken: env.EARTHDATA_TOKEN || '',
+    imergConcurrency: parseBoundedInteger(env.IMERG_CONCURRENCY, 4, 'IMERG_CONCURRENCY', 1, 16),
+    imergTimeoutMs: parseBoundedInteger(env.IMERG_TIMEOUT_MS, 60000, 'IMERG_TIMEOUT_MS', 1000, 300000),
     // Neon (or local PostgreSQL) connection string used by the running API. Empty = no database.
     databaseUrl,
     // Optional: folder with the built frontend, served by this same server (demo mode).

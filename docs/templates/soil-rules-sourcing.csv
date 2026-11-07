@@ -1,0 +1,8 @@
+rule,where_in_code,current_value_UNVERIFIED,meaning,verified_value,status,source_title,source_organisation,source_year_or_edition,source_url,page_or_table,region_or_variety_it_applies_to,reviewer,review_date,notes
+salinity_none_below_dsm,backend/src/science/soil.js salinityClassFromDsM,2,"EC (dS/m) below this is class 'none'",,unverified,,,,,,,,,
+salinity_slight_below_dsm,backend/src/science/soil.js salinityClassFromDsM,4,"EC (dS/m) below this is class 'slight'",,unverified,,,,,,,,,
+salinity_moderate_below_dsm,backend/src/science/soil.js salinityClassFromDsM,8,"EC (dS/m) below this is class 'moderate'; at or above is 'high'",,unverified,,,,,,,,,
+salinity_level_none,backend/src/science/rules.js SALINITY_LEVEL,1,Tolerance a crop needs for class 'none' (1 to 5 scale),,unverified,,,,,,,,,
+salinity_level_slight,backend/src/science/rules.js SALINITY_LEVEL,2,Tolerance needed for class 'slight',,unverified,,,,,,,,,
+salinity_level_moderate,backend/src/science/rules.js SALINITY_LEVEL,3,Tolerance needed for class 'moderate',,unverified,,,,,,,,,
+salinity_level_high,backend/src/science/rules.js SALINITY_LEVEL,4,Tolerance needed for class 'high',,unverified,,,,,,,,,

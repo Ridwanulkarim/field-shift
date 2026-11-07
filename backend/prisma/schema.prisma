@@ -80,7 +80,8 @@ model Crop {
   salinityTolerance     Int // 1 (sensitive) to 5 (tolerant)
   waterloggingTolerance Int // 1 (sensitive) to 5 (tolerant)
   inputIntensity        Int // 1 (low input) to 5 (high input)
-  basis                 String
+  basis                 String // UNVERIFIED_GENERAL_KNOWLEDGE, PARTIALLY_VERIFIED or VERIFIED
+  traitSources          Json? // per-trait { basis, citation }; null on rows seeded before Phase 4
   notes                 String
 }
 

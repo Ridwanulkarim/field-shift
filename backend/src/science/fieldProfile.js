@@ -69,6 +69,7 @@ export function cropFieldEvidence(series, crop, soil) {
     nameBn: crop.nameBn,
     season: { startMonth: crop.startMonth, endMonth: crop.endMonth },
     traitBasis: crop.basis ?? 'UNVERIFIED_GENERAL_KNOWLEDGE',
+    traitSources: crop.traitSources ?? null, // per-trait basis and citation; null when the crop object carries none
     seasonRain: {
       meanMm: rain,
       years: c.rainYears,

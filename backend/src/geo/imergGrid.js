@@ -11,9 +11,12 @@
 
 import { POWER_GRID } from './climateGrid.js';
 
+export const IMERG_PROVIDER = 'NASA GPM IMERG';
+export const IMERG_GRID_NAME = 'GPM IMERG 0.1 degree grid (3600 x 1800, pixel centres at -179.95 / -89.95 + k * 0.1)';
+
 export const IMERG_GRID = Object.freeze({
   product: 'GPM_3IMERGDF',
-  version: '07',
+  version: '07', // COLLECTION version (GPM_3IMERGDF.07). The file/algorithm release letter (V07A, V07B, ...) is separate.
   resolutionDeg: 0.1,
   columns: 3600,
   rows: 1800,
@@ -69,4 +72,51 @@ export function imergPixelsInCell(cell) {
       minLon: cell.centerLon - halfLon, maxLon: cell.centerLon + halfLon,
     },
   };
+}
+
+
+// ---- Native IMERG pixels as grid cells of their own ---------------------------------------------------------------
+// Each 0.1 degree pixel is stored as its own ClimateGridCell (provider "NASA GPM IMERG", key "<row>:<col>"), independent
+// of the NASA POWER grid. A POWER cell is only ever used to CHOOSE which pixels to read, and later to aggregate them
+// for a comparison.
+
+export const imergCellKey = (row, col) => `${row}:${col}`;
+
+export function imergCellFor(row, col) {
+  if (!Number.isInteger(row) || !Number.isInteger(col) || row < 0 || row >= IMERG_GRID.rows || col < 0 || col >= IMERG_GRID.columns) {
+    throw new Error('Pixel row must be 0..1799 and column 0..3599 (whole numbers).');
+  }
+  return {
+    provider: IMERG_PROVIDER,
+    gridName: IMERG_GRID_NAME,
+    cellKey: imergCellKey(row, col),
+    centerLat: Math.round((IMERG_GRID.firstCentreLat + row * IMERG_GRID.resolutionDeg) * 1e6) / 1e6,
+    centerLon: Math.round((IMERG_GRID.firstCentreLon + col * IMERG_GRID.resolutionDeg) * 1e6) / 1e6,
+    resLatDeg: IMERG_GRID.resolutionDeg,
+    resLonDeg: IMERG_GRID.resolutionDeg,
+    row,
+    col,
+  };
+}
+
+// The block (same shape as imergPixelsInCell) holding exactly the one pixel that contains a point.
+export function imergBlockForPoint(lat, lon) {
+  const { row, col } = imergPixelFor(lat, lon);
+  const c = imergCellFor(row, col);
+  const r6 = (v) => Math.round(v * 1e6) / 1e6;
+  return {
+    rows: { first: row, last: row, count: 1 },
+    cols: { first: col, last: col, count: 1 },
+    pixelCount: 1,
+    bounds: { minLat: r6(c.centerLat - 0.05), maxLat: r6(c.centerLat + 0.05), minLon: r6(c.centerLon - 0.05), maxLon: r6(c.centerLon + 0.05) },
+  };
+}
+
+// Every pixel of a block as a native cell, ordered by row then column.
+export function imergPixelList(block) {
+  const out = [];
+  for (let row = block.rows.first; row <= block.rows.last; row += 1) {
+    for (let col = block.cols.first; col <= block.cols.last; col += 1) out.push(imergCellFor(row, col));
+  }
+  return out;
 }

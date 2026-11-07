@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { imergPixelFor, imergPixelsInCell, IMERG_GRID } from '../src/geo/imergGrid.js';
+import { imergPixelFor, imergPixelsInCell, IMERG_GRID, imergCellFor, imergBlockForPoint, imergPixelList, IMERG_PROVIDER } from '../src/geo/imergGrid.js';
 import { powerCellFor } from '../src/geo/climateGrid.js';
 
 describe('imergPixelFor', () => {
@@ -48,5 +48,33 @@ describe('imergPixelsInCell', () => {
     const north = imergPixelsInCell(powerCellFor(24.9, 88.6));
     expect(north.rows.first).toBe(a.rows.last + 1);
     expect(north.cols).toEqual(a.cols);
+  });
+});
+
+describe('native IMERG pixels as grid cells of their own', () => {
+  it('describes a pixel as a cell of provider "NASA GPM IMERG", independent of the POWER grid', () => {
+    expect(imergCellFor(1143, 2686)).toMatchObject({ provider: IMERG_PROVIDER, cellKey: '1143:2686', centerLat: 24.35, centerLon: 88.65, resLatDeg: 0.1, resLonDeg: 0.1 });
+    expect(IMERG_PROVIDER).toBe('NASA GPM IMERG');
+  });
+  it('rejects pixels outside the grid', () => {
+    expect(() => imergCellFor(-1, 0)).toThrow();
+    expect(() => imergCellFor(1800, 0)).toThrow();
+    expect(() => imergCellFor(0, 3600)).toThrow();
+    expect(() => imergCellFor(1.5, 0)).toThrow();
+  });
+  it('names the collection version separately from any file version', () => {
+    expect(IMERG_GRID.version).toBe('07');
+  });
+  it('a point maps to a one-pixel block', () => {
+    const b = imergBlockForPoint(24.37, 88.6);
+    expect(b).toMatchObject({ pixelCount: 1, rows: { first: 1143, last: 1143, count: 1 }, cols: { first: 2686, last: 2686, count: 1 } });
+    expect(b.bounds).toEqual({ minLat: 24.3, maxLat: 24.4, minLon: 88.6, maxLon: 88.7 });
+  });
+  it('lists every pixel of a block, row by row, once each', () => {
+    const list = imergPixelList(imergPixelsInCell(powerCellFor(24.37, 88.6)));
+    expect(list).toHaveLength(35);
+    expect(new Set(list.map((p) => p.cellKey)).size).toBe(35);
+    expect(list[0].cellKey).toBe('1142:2684');
+    expect(list[34].cellKey).toBe('1146:2690');
   });
 });

@@ -37,6 +37,21 @@ export function createFieldRouter(service) {
     res.json(await need().getFieldIntelligence(id, req.anonymousSessionId));
   });
 
+  // GET /api/fields/:id/imerg-native?from=&to= : native 0.1 degree IMERG pixel containing the field, with quality count
+  router.get('/fields/:id/imerg-native', async (req, res) => {
+    const id = parseFieldId(req.params.id);
+    const range = parseDailyClimateRequest(req.query);
+    res.set('Cache-Control', 'private, no-store');
+    res.json(await need().getFieldImergNative(id, req.anonymousSessionId, range));
+  });
+
+  // GET /api/fields/:id/rain-evidence : NASA POWER vs GPM IMERG rainfall for the field's grid cell
+  router.get('/fields/:id/rain-evidence', async (req, res) => {
+    const id = parseFieldId(req.params.id);
+    res.set('Cache-Control', 'private, no-store');
+    res.json(await need().getFieldRainEvidence(id, req.anonymousSessionId));
+  });
+
   router.patch('/fields/:id', async (req, res) => {
     res.json({ field: await need().updateField(parseFieldId(req.params.id), parseFieldRequest(req.body, { partial: true }), req.anonymousSessionId) });
   });

@@ -1,20 +1,23 @@
-// Smallest possible check that GPM IMERG daily data can be reached, BEFORE any pipeline is built on it.
-// It makes three small requests for ONE day and ONE POWER cell, and prints what NASA actually returns so that
-// the real response format can be confirmed. It stores nothing and changes nothing.
+// Smallest possible check that GPM IMERG daily data can be reached, BEFORE (and whenever) the ingestion is run.
+// It makes a few small requests for ONE day and ONE POWER cell and prints what NASA actually returns so the real response
+// format can be confirmed. It stores nothing and changes nothing.
 //
 //   npm run probe:imerg                                      (defaults: 2020-07-01, Rajshahi)
 //   npm run probe:imerg -- --date=2021-08-15 --lat=23.6 --lon=89.84
 //
-// Needs a free NASA Earthdata account and a token in the environment variable EARTHDATA_TOKEN (see .env.example).
-// The token is sent only to NASA hosts and is never printed. Do not commit it.
+// Needs a free NASA Earthdata account and a token in EARTHDATA_TOKEN (see .env.example) for steps C and D. The token is
+// sent only to NASA hosts and is never printed. Do not commit it.
 //
-// Step A: NASA CMR granule search. Public, no login. Finds the real file for that day.
-// Step B: OPeNDAP DAP4 metadata (.dmr) of that file, with the token. Shows the precipitation variable's units and fill value.
-// Step C: a tiny DAP4 subset (.dap.csv) covering the IMERG pixels inside the POWER cell, with the token.
+// Step 0: what NASA CMR says the collection covers (first and last available day, with file versions). No login.
+// Step A: CMR granule search for the chosen day. No login. Finds the real file and its file version.
+// Step C: OPeNDAP DAP4 metadata (.dmr): units, fill value and attributes of `precipitation` and `precipitation_cnt`.
+// Step D: a tiny DAP4 subset (.dap.csv) of BOTH variables for the pixels inside the POWER cell, parsed with the same
+//         code the ingestion uses. This is what proves the quality count can be stored.
 
 import { parseArgs } from 'node:util';
 import { powerCellFor } from '../src/geo/climateGrid.js';
 import { imergPixelsInCell } from '../src/geo/imergGrid.js';
+import { buildGranuleSearchUrl, getImergCoverage, parseGranuleSearch, parseSubsetCsv, pixelDaysFromSubset, buildSubsetUrl, IMERG_COLLECTION } from '../src/integrations/nasa/imerg.js';
 
 const { values } = parseArgs({ options: { date: { type: 'string' }, lat: { type: 'string' }, lon: { type: 'string' } } });
 const date = values.date ?? '2020-07-01';
@@ -31,11 +34,12 @@ if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
 
 const token = process.env.EARTHDATA_TOKEN;
 const cell = powerCellFor(lat, lon);
-const pixels = imergPixelsInCell(cell);
-console.log(`Point ${lat}, ${lon} -> POWER cell ${cell.cellKey}, ${pixels.pixelCount} IMERG pixels (${pixels.rows.count} rows x ${pixels.cols.count} columns)`);
-console.log(`Token present: ${token ? 'yes' : 'NO (steps B and C need it)'}\n`);
+const block = imergPixelsInCell(cell);
+console.log(`Point ${lat}, ${lon} -> POWER cell ${cell.cellKey}, ${block.pixelCount} IMERG pixels (${block.rows.count} rows x ${block.cols.count} columns)`);
+console.log(`Collection ${IMERG_COLLECTION.shortName}, collection version ${IMERG_COLLECTION.collectionVersion}`);
+console.log(`Token present: ${token ? 'yes' : 'NO (steps C and D need it)'}\n`);
 
-const show = (text) => console.log(String(text).slice(0, 1500));
+const show = (text, n = 1800) => console.log(String(text).slice(0, n));
 
 async function get(url, { auth = false } = {}) {
   const headers = auth && token ? { Authorization: `Bearer ${token}` } : {};
@@ -47,55 +51,67 @@ async function get(url, { auth = false } = {}) {
   }
 }
 
+// ---- Step 0 ----
+console.log('STEP 0  CMR coverage of the collection');
+try {
+  const cov = await getImergCoverage();
+  console.log(`first available day: ${cov.firstDate} (file version ${cov.firstFileVersion})`);
+  console.log(`last available day:  ${cov.lastDate} (file version ${cov.lastFileVersion})`);
+} catch (err) {
+  console.log(`could not read the coverage: ${err.message}`);
+}
+
 // ---- Step A ----
-const start = `${date}T00:00:00Z`;
-const end = `${date}T23:59:59Z`;
-const cmr = `https://cmr.earthdata.nasa.gov/search/granules.json?short_name=GPM_3IMERGDF&version=07&temporal=${start},${end}&page_size=1`;
-console.log('STEP A  CMR granule search');
-const a = await get(cmr);
+console.log('\nSTEP A  CMR granule search');
+const a = await get(buildGranuleSearchUrl({ startDate: date, endDate: date, pageSize: 1 }));
 console.log(`status ${a.status}`);
 let granule = null;
 try {
-  granule = JSON.parse(a.text).feed.entry[0] ?? null;
+  granule = parseGranuleSearch(JSON.parse(a.text)).granules[0] ?? null;
 } catch {
   show(a.text);
 }
 if (!granule) {
-  console.log('No granule found for that date. IMERG Final runs about 4 months behind, so recent dates have no file yet.');
+  console.log('No granule found for that date. IMERG Final runs up to about 4 months behind, so recent dates have no file yet.');
   process.exit(1);
 }
 console.log(`granule: ${granule.title}`);
-const links = (granule.links ?? []).map((l) => l.href).filter((h) => /\.nc4$/.test(h) || /opendap/i.test(h));
-for (const h of links) console.log(`  link: ${h}`);
-
-const dataUrl = links.find((h) => /\.nc4$/.test(h) && !/opendap/i.test(h));
-const opendap = links.find((h) => /opendap/i.test(h))
-  ?? (dataUrl ? dataUrl.replace(/^https:\/\/data\.gesdisc\.earthdata\.nasa\.gov\/data\//, 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/') : null);
-if (!opendap) {
-  console.log('Could not work out an OPeNDAP URL from the granule links.');
-  process.exit(1);
-}
-const base = opendap.replace(/\.(html|dds|das|ascii)$/, '');
-console.log(`OPeNDAP base (a guess if no opendap link was listed): ${base}\n`);
+console.log(`file version (algorithm release, from the file name): ${granule.fileVersion}`);
+console.log(`collection version: ${IMERG_COLLECTION.collectionVersion}`);
+console.log(`OPeNDAP link: ${granule.opendapUrl}\n`);
 if (!token) {
-  console.log('Stopping here: set EARTHDATA_TOKEN to continue with steps B and C.');
+  console.log('Stopping here: set EARTHDATA_TOKEN to continue with steps C and D.');
   process.exit(0);
 }
-
-// ---- Step B ----
-// The service refuses the older DAP2 model for this file (it has Int8 variables), so DAP4 is used: ".dmr" is the
-// DAP4 metadata. The dimension order was already confirmed by the service itself as [time][lon][lat].
-console.log('STEP B  OPeNDAP DAP4 metadata (.dmr)');
-const b = await get(`${base}.dmr`, { auth: true });
-console.log(`status ${b.status}  final host: ${new URL(b.finalUrl).host}`);
-const precipBlock = b.text.match(/<Float32 name="precipitation">[\s\S]*?<\/Float32>/);
-show(precipBlock ? precipBlock[0] : b.text);
+const base = granule.opendapUrl.replace(/\.(html|dds|dmr|das|ascii)$/, '');
 
 // ---- Step C ----
-// DAP4 constraint: /precipitation[time][lon][lat] with inclusive index ranges. Brackets must be percent-encoded.
-const ce = `/precipitation[0][${pixels.cols.first}:${pixels.cols.last}][${pixels.rows.first}:${pixels.rows.last}]`;
-console.log(`\nSTEP C  subset: ${ce}`);
-const c = await get(`${base}.dap.csv?dap4.ce=${encodeURIComponent(ce)}`, { auth: true });
-console.log(`status ${c.status}`);
-show(c.text);
+console.log('STEP C  OPeNDAP DAP4 metadata (.dmr)');
+const c = await get(`${base}.dmr`, { auth: true });
+console.log(`status ${c.status}  final host: ${new URL(c.finalUrl).host}`);
+for (const name of ['precipitation', 'precipitation_cnt']) {
+  const m = new RegExp(`<(\\w+) name="${name}">[\\s\\S]*?</\\1>`).exec(c.text);
+  console.log(`\n-- ${name} --`);
+  console.log(m ? m[0] : '(not found in the metadata)');
+}
+
+// ---- Step D ----
+console.log('\nSTEP D  subset of precipitation AND precipitation_cnt');
+const url = buildSubsetUrl(granule.opendapUrl, block);
+console.log(`constraint (decoded): ${decodeURIComponent(url.split('dap4.ce=')[1])}`);
+const d = await get(url, { auth: true });
+console.log(`status ${d.status}`);
+show(d.text, 3000);
+if (d.status === 200) {
+  try {
+    const parsed = parseSubsetCsv(d.text, block);
+    const days = pixelDaysFromSubset(parsed, block, { fileVersion: granule.fileVersion });
+    console.log(`\nParsed OK: ${days.length} pixel-days. First three:`);
+    for (const px of days.slice(0, 3)) console.log(JSON.stringify(px));
+    const withCount = days.filter((p) => p.precipitationCnt !== null).length;
+    console.log(`pixel-days with a valid half-hourly count: ${withCount} of ${days.length}`);
+  } catch (err) {
+    console.log(`\nThe response could not be parsed: ${err.message}`);
+  }
+}
 console.log('\nDone. Nothing was stored. Paste the output above (it contains no secrets).');

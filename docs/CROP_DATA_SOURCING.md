@@ -53,3 +53,17 @@ These change what the columns should contain, so settle them as a team first.
 ## After the sheet is filled
 
 The next code step is a small import check that reads the CSV, rejects any row marked `verified` without a source, page and reviewer, and updates `crops.js` and each row's `basis`. Values that stay `unverified` keep the label in every API response.
+
+## From sheet to app (how verified values get used)
+
+1. Teammates fill the sheet (rules above).
+2. `cd backend && npm run check:crops` lists every rejected row. A row marked `verified` without a source, page, region or variety, and reviewer is rejected, as is an out-of-range value or an AI assistant named as source or reviewer.
+3. `npm run build:crop-sources` is a dry run that lists the values that would become verified. `npm run build:crop-sources -- --write` writes `backend/src/data/reference/cropSources.json` and refuses if any row is rejected.
+4. Review the git diff of `cropSources.json` like code, commit it, then run `npm run db:seed` to update the database.
+5. `crops.js` merges that file at start-up. Each crop then has `traitSources`: for every trait either `{ basis: "UNVERIFIED_GENERAL_KNOWLEDGE" }` or `{ basis: "VERIFIED", citation: {...} }`. `crop.basis` is `UNVERIFIED_GENERAL_KNOWLEDGE`, `PARTIALLY_VERIFIED` or `VERIFIED`. The original typed-in values stay in `BASE_CROPS` so the sheet's `current_value_UNVERIFIED` column keeps matching.
+
+Never edit `cropSources.json` by hand: it is re-validated on load and the app refuses to start on an invalid entry.
+
+## Soil rules
+
+`docs/templates/soil-rules-sourcing.csv` lists the soil rules the code uses (salinity class cut points and the class-to-tolerance mapping). They are general-purpose assumptions, not an SRDI standard. Source them with the same rules as above. No code reads this sheet yet: when values are verified we will decide with the team how to apply them.

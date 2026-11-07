@@ -254,7 +254,7 @@ export async function refreshGridCell({ prisma, latitude, longitude, cellKey, la
   return result.locked ? result.value : { ok: false, skipped: true, error: 'An ingestion for this grid cell is already running.', cellKey: cell.cellKey };
 }
 
-async function resolvePowerCell(prisma, cellKey) {
+export async function resolvePowerCell(prisma, cellKey) {
   if (typeof cellKey !== 'string' || !/^-?\d+:-?\d+$/.test(cellKey)) throw new Error('cellKey must use the POWER <latIndex>:<lonIndex> format.');
   const [latIndex, lonIndex] = cellKey.split(':').map(Number);
   const latitude = latIndex * POWER_GRID.resLatDeg;

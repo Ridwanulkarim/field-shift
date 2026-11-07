@@ -17,9 +17,14 @@
 //   waterloggingTolerance     1 sensitive ... 5 tolerant
 //   inputIntensity            1 low input ... 5 high input (fertiliser, irrigation, labour)
 
-export const UNVERIFIED = 'UNVERIFIED_GENERAL_KNOWLEDGE';
+import { applyCropSources, UNVERIFIED } from '../../science/cropSources.js';
+import cropSources from './cropSources.json' with { type: 'json' };
 
-export const CROPS = [
+export { UNVERIFIED };
+
+// The typed-in, UNVERIFIED values. Do not edit these to "fix" a number: verified values come from cropSources.json,
+// which is generated from the reviewed sheet (npm run build:crop-sources) and merged below with a citation per trait.
+const BASE_CROPS = [
   {
     slug: 'aman', nameEn: 'Aman rice', nameBn: 'আমন ধান', family: 'Poaceae', isLegume: false,
     startMonth: 7, endMonth: 11, waterNeedMmMin: 800, waterNeedMmMax: 1200,
@@ -152,4 +157,7 @@ export const CROPS = [
     heatThresholdC: 35, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 2,
     notes: 'Tuber crop commonly grown after the monsoon and into the cooler dry season.',
   },
-].map((c) => ({ ...c, basis: UNVERIFIED }));
+];
+
+export { BASE_CROPS };
+export const CROPS = applyCropSources(BASE_CROPS, cropSources);

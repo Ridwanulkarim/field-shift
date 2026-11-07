@@ -277,6 +277,7 @@ function evidenceFor(crops, scored) {
       shareOfDaysAtOrAboveThreshold: m.heatFraction,
       heatYearsUsed: m.heatYears,
       cropParameterBasis: crop.basis,
+      cropTraitSources: crop.traitSources ?? null,
     };
   });
 }
