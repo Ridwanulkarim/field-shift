@@ -10,18 +10,17 @@ TEST_DATABASE_URL="postgresql://..." npm test   # also run the database tests
 
 Expected: the database-free suite skips only real database tests; with `TEST_DATABASE_URL`, all database tests run.
 
-| File | Kind | What it checks |
+The suite is in `backend/tests/`. Run `ls tests` for the full list; the groups are:
+
+| Group | Kind | What it checks |
 |---|---|---|
-| `health.test.js` | integration | `/api/health`, JSON 404, config parsing (valid and invalid `PORT`) |
-| `api.test.js` | integration | All routes with a fake repository: 503 without a database, `/api/meta`, districts, crops, climate, calendar-complete daily climate with missing dates, ETag/304 and cache headers, `/api/evaluate` success, unknown district (404), invalid input (422), bad JSON (400), synthetic and missing-data notices |
-| `validation.test.js` | unit | Request validation: defaults, ranges, unknown fields, path-like input, all problems reported at once |
-| `stats.test.js` | unit | mean, rounding, linear regression, trend summary |
-| `climate.test.js` | unit | Yearly rainfall, heat days, dry spell, usable-rain onset, coverage, with hand-built series and missing values |
-| `calendar.test.js` | unit | Month windows that wrap around December |
-| `rotation.test.js` | unit | Feasibility, candidate generation, scoring, explanations, determinism, single-crop and sparse rotations |
-| `power.test.js` | unit | NASA POWER URL, response parser (fill values, wrong units, out-of-range values) and retry logic, using a clearly labelled **hand-built sample**, not NASA data |
-| `validation-synthetic.test.js` | scientific | Trend detection on trend-free synthetic data stays near the chance rate |
-| `db.integration.test.js` | integration | Real PostgreSQL: health check, ingestion storage, API end to end. Skipped without `TEST_DATABASE_URL` |
+| `health`, `api`, `hardening`, `validation*`, `sessionConflict` | integration, unit | Routes with a fake repository, request validation, error shapes, rate limit and proxy trust, 422/404/503 behaviour |
+| `climate`, `series`, `stats`, `calendar`, `power`, `climateGrid`, `gridProbe` | unit | Yearly indicators, onset, calendar windows, the NASA POWER parser (hand-built sample, not NASA data), grid-cell arithmetic |
+| `onsetAnalysis`, `onsetEdgeCases`, `onsetSensitivity`, `plantingWindow*`, `plantingAdvisory`, `advisoryApi`, `screening` | unit, integration | Mann-Whitney, censoring, partial years, boundary dates, the decision rule, the advisory endpoint, multiple-testing screening |
+| `rotation`, `soilNotEntered`, `fieldProfile`, `field*` | unit, integration | Rotation scoring and explanations, missing soil input, field records and field intelligence |
+| `imerg*`, `rainComparison`, `fieldRainEvidence` | unit, integration | GPM IMERG request/parse code, pixel aggregation, POWER versus IMERG comparison |
+| `cropSheet`, `cropSources` | unit | Crop sourcing sheet checker and verified-value overlay |
+| `*.integration.test.js` | integration | Real PostgreSQL with PostGIS: ingestion, locks, field climate. Skipped without `TEST_DATABASE_URL` |
 
 **Unit vs integration:** unit tests call one function with known inputs. Integration tests start the whole API (and optionally a real database) and call it over HTTP.
 

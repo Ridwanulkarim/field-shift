@@ -28,9 +28,6 @@
     "check:grid-consistency": "node --env-file-if-exists=.env scripts/check-grid-consistency.js",
     "check:power-grid": "node --env-file-if-exists=.env scripts/check-power-grid.js",
     "verify:live": "node --env-file-if-exists=.env scripts/verify-live-data.js",
-    "analyze:onset": "node --env-file-if-exists=.env scripts/analyze-onset.js",
-    "analyze:sensitivity": "node --env-file-if-exists=.env scripts/onset-sensitivity.js",
-    "analyze:planting": "node --env-file-if-exists=.env scripts/planting-overview.js",
     "screen:advisory": "node --env-file-if-exists=.env scripts/screen-advisory.js",
     "ingest:nasa:cell:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa-grid-cell.js"
   },

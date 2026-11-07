@@ -159,14 +159,14 @@ Working directory: `field-shift/backend`
 ```bash
 npm test
 ```
-Expected without a database: `Tests  272 passed | 30 skipped (302)`.
+Expected without a database: every test file passes and the tests that need a real database are reported as skipped (the totals change as tests are added, so compare passed against failed, not a fixed number).
 
-To also run the 30 database tests, point them at a **throw-away** database (a Neon dev branch or a local database that has been migrated). They create and delete one district called `zz-test-district`:
+To also run the database tests, point them at a **throw-away** database (a Neon dev branch or a local database that has been migrated). They create and delete one district called `zz-test-district`:
 
 ```bash
 TEST_DATABASE_URL="postgresql://..." npm test
 ```
-Expected: `Tests  302 passed (302)`.
+Expected: no failed tests and nothing skipped.
 
 ## 9. Single-server demo mode (one command on the demo laptop)
 

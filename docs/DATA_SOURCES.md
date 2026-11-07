@@ -105,7 +105,7 @@ No soil dataset is used. Soil enters only as what the user selects (salinity and
 
 ## Future dataset integration
 
-NASA GPM IMERG is the planned second source, for satellite precipitation. It is not integrated yet. POWER and IMERG differ in spatial resolution, time coverage and measurement method, so they must be stored as separate sources with their own units and resolution notes and never merged into one series. SMAP, HLS and Sentinel-1 are explicitly out of scope.
+NASA GPM IMERG (daily product GPM_3IMERGDF, collection version 07, 0.1 degree, mm per day) is integrated as an independent cross-check of POWER rainfall. Each 0.1 degree pixel is stored on its own with a quality count and the file version, and is compared with POWER only at read time (`/api/fields/:id/rain-evidence` and `/imerg-native`). It is not used in the planting-window decision. The download path has been tested against labelled fixtures; confirm it against NASA with `npm run probe:imerg` before relying on it. POWER and IMERG differ in spatial resolution, time coverage and measurement method, so they must be stored as separate sources with their own units and resolution notes and never merged into one series. SMAP, HLS and Sentinel-1 are explicitly out of scope.
 
 ## Not used
 

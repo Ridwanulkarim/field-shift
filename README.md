@@ -2,30 +2,36 @@
 
 NASA Space Apps Challenge 2026: **Field Shift: Adapting Farms with NASA Data**.
 
-A decision-support tool for exploring crop-rotation options in Bangladesh. You pick a district, your current crops, your soil and your priorities. Field Shift compares your rotation with alternatives using NASA POWER climate data and simple, documented rules, and explains each option: the reasons, the evidence, the benefits, the risks and what it does not know. It supports farmer judgment and does not replace local agricultural expertise.
+A decision-support tool for Bangladesh built on NASA data. Two things work on the backend:
+
+- **Planting-window advisory.** For a district and a crop (Aus or Aman), it compares the start of usable rain in 2001 to 2012 with 2013 onwards from NASA POWER, and returns a decision (move planting earlier, later, or no clear change), the evidence behind it, the shifts the data cannot rule out, and a sentence in English and Bangla.
+- **Crop-rotation comparison.** For a district, current crops, soil and priorities it compares rotations with simple documented rules and explains each option.
+
+It supports farmer judgment and does not replace local agricultural expertise. It does not predict yield or profit.
 
 ## What works and how far it has been verified
 
 | Part | Status |
 |---|---|
-| API, rotation engine, validation, database layer | Built and covered by 302 automated tests (272 run without a database; the other 30 need `TEST_DATABASE_URL`, and all 302 passed against a PostgreSQL 16 / PostGIS 3.4 test database) |
-| Interface (English and Bangla labels, phone layout) | Built; checked in a real browser at phone width |
-| Synthetic demo data | Works offline; always labelled **SYNTHETIC** |
-| **Live NASA POWER download** | **Written but never run against NASA by its authors.** Your first `npm run ingest:nasa` is the real test |
-| Crop traits and district coordinates | **Unverified assumptions.** Must be reviewed before submission (see `docs/DATA_SOURCES.md`) |
-| Explanations text | English only (interface labels are bilingual) |
+| API, advisory engine, rotation engine, validation, database layer | Built and covered by automated tests (run `npm test` in `backend/`; the database tests need `TEST_DATABASE_URL`) |
+| NASA POWER data | Downloaded live and stored for 12 districts; every response carries its source, run id and retrieval date |
+| Advisory result so far | For Rajshahi Aman the data show **no supported shift** (p = 0.87; a shift of about 8 days either way cannot be ruled out). After correcting for testing 22 district and crop pairs, no pair shows a supported shift. See `docs/SCIENTIFIC_METHOD.md` and run `npm run screen:advisory` |
+| GPM IMERG cross-check | Code and tests with labelled fixtures; **live download not yet confirmed** (`npm run probe:imerg`) |
+| Crop traits and district coordinates | **Unverified assumptions.** Sourcing sheet and checker exist (`docs/CROP_DATA_SOURCING.md`); no value is verified yet |
+| Bangla text | Draft, **not reviewed by a native speaker** |
+| Frontend | Owned by a teammate. It is **not yet connected to the advisory endpoints** (see `docs/ADVISORY_API.md` for the contract) |
 
 ## Quick start
 
-Full guide with Neon steps and troubleshooting: **[docs/SETUP.md](docs/SETUP.md)**.
+Full guide with troubleshooting: **[docs/SETUP.md](docs/SETUP.md)**.
 
 ```bash
 cd backend
-cp .env.example .env        # then paste your Neon connection strings into .env
+cp .env.example .env        # then fill in your database connection strings
 npm install
 npm run db:deploy           # create tables
 npm run db:seed             # districts and crops
-npm run ingest:nasa         # real NASA data (or: npm run db:seed:synthetic for demo data)
+npm run ingest:nasa         # real NASA POWER data (or: npm run db:seed:synthetic for labelled demo data)
 npm run dev                 # API on http://localhost:4000
 
 # second terminal
@@ -41,7 +47,7 @@ Requires Node.js 22.18 or newer.
 ```
 backend/    Express API, science, Prisma schema, scripts, tests
 frontend/   React + Vite + Tailwind CSS single-page app
-docs/       SETUP, ARCHITECTURE, DATA_SOURCES, SCIENTIFIC_METHOD, TESTING
+docs/       SETUP, ARCHITECTURE, DATA_SOURCES, SCIENTIFIC_METHOD, TESTING, ADVISORY_API, FIELDS_API, CROP_DATA_SOURCING
 ```
 
 ## Commands (in `backend/`)
@@ -50,15 +56,17 @@ docs/       SETUP, ARCHITECTURE, DATA_SOURCES, SCIENTIFIC_METHOD, TESTING
 |---|---|
 | `npm run dev` / `npm start` | Start the API (dev restarts on change) |
 | `npm test` | Run the automated tests |
-| `npm run db:deploy` | Apply database migrations |
-| `npm run db:seed` | Load districts and crops (safe to repeat) |
+| `npm run db:deploy` / `db:seed` | Apply migrations / load districts and crops (safe to repeat) |
 | `npm run ingest:nasa` | Download NASA POWER data (`-- --district=rajshahi` for one) |
-| `npm run db:seed:synthetic` | Load labelled synthetic demo data |
-| `npm run analyze:onset` | Compare early and late usable-rain onset dates (`-- --district=rajshahi --split=2013`) |
+| `npm run ingest:refresh` | Extend stored POWER data to about a week before today |
+| `npm run screen:advisory` | Table of the advisory for every district and crop, with multiple-testing correction |
+| `npm run check:crops` / `build:crop-sources` | Check the crop sourcing sheet / write verified values (dry run unless `-- --write`) |
+| `npm run verify:live` | Confirm every district serves real, recent NASA data |
+| `npm run probe:imerg` | Check that GPM IMERG can be reached (stores nothing) |
 
 ## Team rules
 
-- Never commit `.env` files, keys or passwords.
+- Never commit `.env` files, keys, passwords or cookie files.
 - Never present synthetic or fixture data as a NASA observation.
 - Never present a heuristic score as a yield or profit forecast.
 - Work on branches and open pull requests.
