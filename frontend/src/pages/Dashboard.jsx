@@ -4,18 +4,24 @@ import Map from "../components/Map";
 import FieldCard from "../components/FieldCard";
 import DataQuality from "../components/DataQuality";
 import Charts from "../components/Charts";
+import { useOutletContext } from "react-router";
 
 const Dashboard = ({
-  fields = [],
-  selectedField,
   cropHistory = [],
   isLoadingHistory = false,
   onSelectField,
   onSelectTab,
-  language = "en",
 }) => {
-  const isBn = language === "bn";
+  const {
+    fields,
+    selectedField,
+    selectedFieldId,
+    setSelectedFieldId,
+    language,
+  } = useOutletContext();
 
+  const isBn = language === "bn";
+  
   return (
     <div className="space-y-4 sm:space-y-5 md:space-y-6">
       <div className="bg-gradient-to-r from-emerald-950 via-[#062417] to-cyan-950 border border-emerald-500/50 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
@@ -85,12 +91,12 @@ const Dashboard = ({
           />
         </div>
 
-        {/* Right: Bangladesh Map with Pins */}
+        {/*Bangladesh Map with Pins */}
         <div className="lg:col-span-5">
           <Map
             fields={fields}
-            selectedFieldId={selectedField?.id}
-            onSelectField={onSelectField}
+            selectedFieldId={selectedFieldId}
+            onSelectField={setSelectedFieldId}
             language={language}
           />
         </div>
