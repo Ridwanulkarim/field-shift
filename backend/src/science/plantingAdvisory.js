@@ -6,6 +6,9 @@
 
 const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
+export const SOURCE_CAVEAT_EN = ' This rests on one modelled rainfall source (NASA POWER) that has not been checked against another dataset.';
+export const SOURCE_CAVEAT_BN = ' এটি একটি মডেলভিত্তিক বৃষ্টির উৎসের (NASA POWER) ওপর নির্ভরশীল, যা অন্য কোনো তথ্যভাণ্ডারের সঙ্গে যাচাই করা হয়নি।';
+
 export function toBnDigits(value) {
   return String(value).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
 }
@@ -34,8 +37,8 @@ export function buildAdvisory({ districtEn, districtBn, cropEn, cropBn, recommen
   const nBn = toBnDigits(n);
   const headEn = `${cropEn} in ${districtEn}:`;
   const headBn = `${districtBn} জেলায় ${cropBn}:`;
-  const sourceEn = ' This rests on one modelled rainfall source (NASA POWER) that has not been checked against another dataset.';
-  const sourceBn = ' এটি একটি মডেলভিত্তিক বৃষ্টির উৎসের (NASA POWER) ওপর নির্ভরশীল, যা অন্য কোনো তথ্যভাণ্ডারের সঙ্গে যাচাই করা হয়নি।';
+  const sourceEn = SOURCE_CAVEAT_EN;
+  const sourceBn = SOURCE_CAVEAT_BN;
 
   const text = {
     delay: {
