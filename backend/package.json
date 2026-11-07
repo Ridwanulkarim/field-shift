@@ -19,6 +19,7 @@
     "ingest:nasa": "node --env-file-if-exists=.env scripts/ingest-nasa.js",
     "ingest:nasa:cell": "node --env-file-if-exists=.env scripts/ingest-nasa-grid-cell.js",
     "ingest:field-cells": "node --env-file-if-exists=.env scripts/ingest-field-cells.js",
+    "probe:imerg": "node --env-file-if-exists=.env scripts/probe-imerg.js",
     "ingest:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa.js",
     "db:backfill-cells": "node --env-file-if-exists=.env scripts/backfill-grid-cells.js",
     "check:grid-consistency": "node --env-file-if-exists=.env scripts/check-grid-consistency.js",
