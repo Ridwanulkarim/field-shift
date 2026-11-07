@@ -52,6 +52,8 @@ describe('GET /api/districts/:slug/advisory', () => {
     expect(late.summary.median).toBeGreaterThan(early.summary.median);
     expect(res.body.evidence.strength.pValue).toBeLessThan(0.05);
     expect(res.body.evidence.strength.pValueText).toBe('less than 0.0001');
+    expect(res.body.evidence.strength.startBoundary).toMatchObject({ saturated: false, saturatedShareThreshold: 0.5 });
+    expect(res.body.evidence.strength.startBoundary.earlyShareAtFirstDay).toEqual(expect.any(Number));
     expect(res.body.evidence.onsetDates.earlyMedian).toMatch(/^06-\d{2}$/);
     expect(res.body.evidence.onsetDates.lateMedian).toMatch(/^(06|07)-\d{2}$/);
     expect(res.body.sentence.en).toMatch(/about 17 days later/);

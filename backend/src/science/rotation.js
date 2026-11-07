@@ -114,9 +114,12 @@ function perCropMetrics(crop, ctx) {
     heatFit = 1 - Math.min(1, cc.heatFraction * (crop.heatSensitivity / 5) * HEAT_SCALE);
   }
 
-  const salinityPenalty = Math.max(0, SALINITY_LEVEL[ctx.soil.salinity] - crop.salinityTolerance) / 3;
-  const drainagePenalty = Math.max(0, DRAINAGE_LEVEL[ctx.soil.drainage] - crop.waterloggingTolerance) / 3;
-  const soilFit = 1 - Math.min(1, salinityPenalty + drainagePenalty);
+  // A soil value that was not entered is not scored (null), never assumed to be good.
+  const salinityIn = ctx.soil?.salinity ?? null;
+  const drainageIn = ctx.soil?.drainage ?? null;
+  const salinityPenalty = salinityIn === null ? null : Math.max(0, SALINITY_LEVEL[salinityIn] - crop.salinityTolerance) / 3;
+  const drainagePenalty = drainageIn === null ? null : Math.max(0, DRAINAGE_LEVEL[drainageIn] - crop.waterloggingTolerance) / 3;
+  const soilFit = salinityPenalty === null && drainagePenalty === null ? null : 1 - Math.min(1, (salinityPenalty ?? 0) + (drainagePenalty ?? 0));
 
   const metrics = {
     slug: crop.slug,
@@ -151,7 +154,7 @@ export function scoreRotation(crops, ctx) {
   const values = {
     waterFit: meanOrNull(metrics.map((m) => m.waterFit)),
     heatFit: meanOrNull(metrics.map((m) => m.heatFit)),
-    soilFit: mean(metrics.map((m) => m.soilFit)),
+    soilFit: meanOrNull(metrics.map((m) => m.soilFit)),
     waterSaving: null,
     soilHealth: 0.5 * (legumes.length > 0 ? 1 : 0) + 0.5 * familyVariety,
     diversification: Math.min(1, crops.length / 3),
@@ -217,7 +220,7 @@ function narrate(crops, scored, ctx, monthsInField) {
     .map(({ crop }) => crop.nameEn);
   const poorSoil = scored.metrics
     .map((m, i) => ({ m, crop: crops[i] }))
-    .filter(({ m }) => m.soilFit < 0.6)
+    .filter(({ m }) => m.soilFit !== null && m.soilFit < 0.6)
     .map(({ crop }) => crop.nameEn);
 
   if (val.waterFit !== null) {
@@ -232,7 +235,7 @@ function narrate(crops, scored, ctx, monthsInField) {
     if (val.heatFit >= 0.75) benefits.push('Few days in the growing months reach the heat-stress thresholds used for these crops.');
     else if (val.heatFit <= 0.55) risks.push(`A notable share of growing-season days reach the heat-stress threshold${hotCrops.length ? ` (${hotCrops.join(', ')})` : ''}.`);
   }
-  if (val.soilFit >= 0.85) benefits.push('The crops match the soil salinity and drainage you entered.');
+  if (val.soilFit !== null && val.soilFit >= 0.85) benefits.push('The crops match the soil salinity and drainage you entered.');
   if (poorSoil.length) risks.push(`${poorSoil.join(', ')} ${poorSoil.length > 1 ? 'are' : 'is'} poorly matched to the soil salinity or drainage you entered.`);
 
   const legumes = crops.filter((c) => c.isLegume);
@@ -257,7 +260,13 @@ function narrate(crops, scored, ctx, monthsInField) {
   }
   gaps.push('Crop traits (water need, heat threshold, tolerances, typical months) are general-knowledge assumptions that have not been verified against BRRI, BARI or FAO tables.');
   gaps.push('Climate values describe a grid cell of roughly 0.5 degrees, not your field. Local rain, soil and canal/pump access can differ.');
-  gaps.push(`Soil information is only what you entered (salinity: ${ctx.soil.salinity}, drainage: ${ctx.soil.drainage}); no soil survey data is used.`);
+  const soilIn = { salinity: ctx.soil?.salinity ?? null, drainage: ctx.soil?.drainage ?? null };
+  const missingSoil = Object.entries(soilIn).filter(([, v]) => v === null).map(([k]) => k);
+  if (missingSoil.length === 2) {
+    gaps.push('No soil salinity or drainage was entered, so the soil match was left out of the score. It was not assumed to be good.');
+  } else {
+    gaps.push(`Soil information is only what you entered (salinity: ${soilIn.salinity ?? 'not entered'}, drainage: ${soilIn.drainage ?? 'not entered'}); no soil survey data is used.${missingSoil.length ? ` The ${missingSoil[0]} match was left out of the score because it was not entered.` : ''}`);
+  }
   gaps.push('Seed availability, prices, labour, pests, diseases and flood timing are not modelled.');
   gaps.push('Typical month windows are used; real sowing and harvest dates vary with variety and the season.');
   return { benefits, risks, gaps };

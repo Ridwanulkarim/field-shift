@@ -56,3 +56,11 @@ The action comes from fixed rules in `rules.js`, decided before looking at any d
 
 ## Partial years
 A year is used only if its onset search was fully observed. An onset found before the data end is kept; a year with no rain seen when the data end before the season is over is excluded (`excludedYears`), never counted as "no onset". The period years shown in the sentence are the years actually used. Growing degree days are reported only when at least 98% of the crop's days are observed, so a year with data ending in October is left out of the Aman (July–November) heat figures.
+
+## Other contract change: soil in `POST /api/evaluate`
+
+Soil that is not entered is no longer filled in as `none` / `good`. `soil.salinity` and `soil.drainage` are now `null` when missing; the soil-match component (`soilFit`) is `null` and left out of the score; and `soilBasis` reports each as `entered`, `field_record` or `not_entered`. The strategy `informationGaps` says the soil match was not used. The frontend should show "soil not entered" instead of "good soil" when it sees `null`.
+
+## Screening many districts
+
+`npm run screen:advisory` (read-only) prints one table of every district and onset crop with a Holm correction for testing many pairs. It is for choosing what to examine, not a result: a few rows will look significant by chance, and districts that share a NASA grid cell count once.

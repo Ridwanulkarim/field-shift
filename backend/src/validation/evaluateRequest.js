@@ -50,7 +50,9 @@ export function parseEvaluateRequest(body) {
   }
 
   const soilIn = body.soil ?? {};
-  const soil = { salinity: 'none', drainage: 'good' };
+  // Soil values that are not given stay null ("not entered"). They are never filled in with a good-soil default:
+  // the soil match is then left out of the score and the response says so.
+  const soil = { salinity: null, drainage: null };
   if (!isPlainObject(soilIn)) {
     errors.push({ field: 'soil', message: 'Must be an object.' });
   } else {

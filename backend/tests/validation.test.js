@@ -18,7 +18,7 @@ function errorsOf(body) {
 describe('parseEvaluateRequest', () => {
   it('fills in defaults', () => {
     const r = parseEvaluateRequest(valid);
-    expect(r.soil).toEqual({ salinity: 'none', drainage: 'good' });
+    expect(r.soil).toEqual({ salinity: null, drainage: null }); // not entered is not "good"
     expect(r.irrigation).toBe('limited');
     expect(r.priorities).toEqual({ waterSaving: 1, heatResilience: 1, soilHealth: 1, diversification: 1, lowInput: 1 });
   });

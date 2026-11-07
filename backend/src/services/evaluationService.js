@@ -32,7 +32,7 @@ export const METHOD = {
   components: [
     { id: 'waterFit', weight: `${BASE_WEIGHTS.waterFit} (fixed)`, description: 'Share of each crop\'s approximate water need that rainfall during its months covers, softened by your irrigation access.' },
     { id: 'heatFit', weight: `${BASE_WEIGHTS.heatFit} + your heat priority`, description: 'Share of days in each crop\'s months at or above its heat-stress threshold, scaled by how heat-sensitive the crop is.' },
-    { id: 'soilFit', weight: `${BASE_WEIGHTS.soilFit} (fixed)`, description: 'Match between the soil salinity and drainage you entered and each crop\'s tolerance.' },
+    { id: 'soilFit', weight: `${BASE_WEIGHTS.soilFit} (fixed)`, description: 'Match between the soil salinity and drainage you entered and each crop\'s tolerance. Left out of the score (never assumed good) when neither was entered.' },
     { id: 'waterSaving', weight: 'your water priority', description: 'Estimated extra irrigation volume (needs minus rain) summed over the crops; less is better.' },
     { id: 'soilHealth', weight: 'your soil priority', description: 'Half for including a legume, half for variety of plant families.' },
     { id: 'diversification', weight: 'your diversification priority', description: 'Number of different crops, up to three (a proxy for spreading weather and market risk).' },
@@ -302,6 +302,11 @@ export function createEvaluationService(repo) {
           ? { salinity: salinityFromDsM(field.salinityDsM) }
           : {}),
       };
+      const fromField = field?.salinityDsM !== null && field?.salinityDsM !== undefined;
+      const soilBasis = {
+        salinity: fromField ? 'field_record' : input.soil.salinity === null ? 'not_entered' : 'entered',
+        drainage: input.soil.drainage === null ? 'not_entered' : 'entered',
+      };
       const result = evaluateRotations({
         crops,
         existingSlugs: input.existingRotation,
@@ -311,6 +316,7 @@ export function createEvaluationService(repo) {
       return {
         district: districtPublic(district),
         input: { ...input, soil },
+        soilBasis,
         field: field
           ? { id: field.id, name: field.name, districtId: field.districtId, areaHa: field.areaHa, soilType: field.soilType, soilPh: field.soilPh, salinityDsM: field.salinityDsM, irrigationSource: field.irrigationSource }
           : null,

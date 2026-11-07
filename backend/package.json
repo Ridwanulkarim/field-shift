@@ -31,6 +31,7 @@
     "analyze:onset": "node --env-file-if-exists=.env scripts/analyze-onset.js",
     "analyze:sensitivity": "node --env-file-if-exists=.env scripts/onset-sensitivity.js",
     "analyze:planting": "node --env-file-if-exists=.env scripts/planting-overview.js",
+    "screen:advisory": "node --env-file-if-exists=.env scripts/screen-advisory.js",
     "ingest:nasa:cell:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa-grid-cell.js"
   },
   "engines": {
