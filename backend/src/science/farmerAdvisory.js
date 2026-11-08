@@ -178,6 +178,19 @@ const CONFIDENCE_MEANING = {
   not_applicable: 'No rainfall-onset rule is defined for this crop.',
 };
 
+// NASA POWER's May rainfall has not been corroborated by an independent source. A cross-check for Rajshahi (stored POWER
+// against ERA5 reanalysis, which is NOT NASA data and not ground truth) found POWER's May mean rose by 81% from
+// 2001-2015 to 2016-2025 while ERA5's rose by 15%. It applies to every crop whose onset search starts in May (Aus).
+// See docs/SCIENTIFIC_METHOD.md. The cause is not established.
+export const MAY_SOURCE_CHECK = {
+  en: "For crops whose onset is searched from May, NASA POWER's May rainfall has not been corroborated by an independent source: in a cross-check for Rajshahi it rose far more than ERA5 reanalysis over the same years, so an earlier onset may partly reflect the data source rather than the weather.",
+  bn: 'যেসব ফসলের বৃষ্টি শুরুর সময় মে মাস থেকে খোঁজা হয়, তাদের ক্ষেত্রে NASA POWER-এর মে মাসের বৃষ্টি কোনো স্বাধীন উৎসে যাচাই হয়নি: রাজশাহীর একটি পরীক্ষায় একই বছরগুলোতে ERA5-এর তুলনায় তা অনেক বেশি বেড়েছে, তাই আগে বৃষ্টি শুরুর ফলাফল আংশিকভাবে আবহাওয়ার বদলে তথ্যের উৎসের প্রভাব হতে পারে।',
+};
+const NOTE_SHORT = {
+  en: " Note: this rests on May rainfall from NASA POWER that an independent source did not confirm, so the change may partly reflect the data.",
+  bn: ' লক্ষ্য করুন: এটি মে মাসের NASA POWER বৃষ্টির ওপর নির্ভরশীল, যা একটি স্বাধীন উৎস নিশ্চিত করেনি, তাই পরিবর্তনটি আংশিকভাবে তথ্যের প্রভাব হতে পারে।',
+};
+
 const rangeText = (p) => `${p.from}–${p.to}`;
 
 function headline({ kind, n, periods, dates, district, crop, window }) {
@@ -246,6 +259,8 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
     : { en: '', bn: '' };
 
   const a = result.onset.analysis;
+  const mayOnset = result.onset.applies && result.onset.definition.startMonth <= 5;
+  const mayNote = mayOnset && supported ? NOTE_SHORT : { en: '', bn: '' };
   return {
     district: result.district,
     crop: result.crop,
@@ -258,7 +273,7 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
       confidenceMeaning: CONFIDENCE_MEANING[rec.confidence] ?? null,
       reason: rec.reason,
     },
-    sentence: { text: (sentence[lang] ?? sentence.en) + (unchangedNote[lang] ?? ''), lang: sentence[lang] ? lang : 'en', en: sentence.en + unchangedNote.en, bn: sentence.bn + unchangedNote.bn, reviewStatus: result.advisory.reviewStatus },
+    sentence: { text: (sentence[lang] ?? sentence.en) + (mayNote[lang] ?? '') + (unchangedNote[lang] ?? ''), lang: sentence[lang] ? lang : 'en', en: sentence.en + mayNote.en + unchangedNote.en, bn: sentence.bn + mayNote.bn + unchangedNote.bn, reviewStatus: result.advisory.reviewStatus },
     window,
     windowHint: window ? null : 'Add usualFrom and usualTo (MM-DD) to see your own usual transplanting window moved by this shift.',
     evidence: {
@@ -285,6 +300,7 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
             shiftEstimate: estimate,
           }
         : null,
+      sourceCheck: mayOnset ? { applies: true, status: 'not_corroborated', note: MAY_SOURCE_CHECK.en, reference: 'docs/SCIENTIFIC_METHOD.md' } : { applies: false },
       heat: includeHeat ? gddEvidence(analysis) : null,
       heatNote: includeHeat ? null : 'Growing degree days are not part of this advisory. Add includeHeat=true to see them as experimental evidence; they never affect the decision.',
     },
@@ -294,7 +310,7 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
     dataLabel: result.dataLabel,
     latestObservationDate: result.latestObservationDate ?? null,
     daysSinceLatest: result.daysSinceLatest ?? null,
-    limitations: window ? [...result.limitations, window.note] : result.limitations,
+    limitations: [...result.limitations, ...(mayOnset ? [MAY_SOURCE_CHECK.en] : []), ...(window ? [window.note] : [])],
     disclaimer: result.disclaimer,
   };
 }

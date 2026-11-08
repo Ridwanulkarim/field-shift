@@ -246,3 +246,36 @@ describe('sentence formatting', () => {
     expect(res.body.sentence.en).toContain('Your usual window stays');
   });
 });
+
+describe('May rainfall source check (Aus)', () => {
+  // Early period: rain from 8-11 May; late period: from 22-25 May. FIXTURE, not NASA data.
+  const aus = () => buildSeries(2001, 2025, (y, m, d) => {
+    const startDay = y < 2013 ? 8 + (y % 4) : 22 + (y % 4);
+    return { precipMm: m >= 6 || (m === 5 && d >= startDay) ? (m <= 8 ? 10 : 0) : 0, tMaxC: 32, tMinC: 22 };
+  });
+  it('adds the uncorroborated-May caveat to the limitations, evidence and sentence of a supported Aus shift', async () => {
+    const res = await request(app({ series: aus() })).get(URL('crop=aus'));
+    expect(res.status).toBe(200);
+    expect(['delay', 'advance']).toContain(res.body.decision.action);
+    expect(res.body.evidence.sourceCheck).toMatchObject({ applies: true, status: 'not_corroborated' });
+    expect(res.body.limitations.join(' ')).toMatch(/not been corroborated by an independent source/);
+    expect(res.body.sentence.en).toMatch(/independent source did not confirm/);
+    expect(res.body.sentence.bn).toMatch(/স্বাধীন উৎস/);
+  });
+  it('keeps the caveat in the limitations but out of a no-change sentence', async () => {
+    const flat = buildSeries(2001, 2025, (y, m, d) => ({ precipMm: m >= 6 || (m === 5 && d >= 8 + (y % 4)) ? (m <= 8 ? 10 : 0) : 0, tMaxC: 32, tMinC: 22 }));
+    const res = await request(app({ series: flat })).get(URL('crop=aus'));
+    expect(res.body.decision.action).toBe('none');
+    expect(res.body.evidence.sourceCheck.applies).toBe(true);
+    expect(res.body.sentence.en).not.toMatch(/independent source did not confirm/);
+  });
+  it('does not mention it for Aman, whose onset search starts in June', async () => {
+    const res = await request(app()).get(URL('crop=aman'));
+    expect(res.body.evidence.sourceCheck).toEqual({ applies: false });
+    expect(res.body.limitations.join(' ')).not.toMatch(/corroborated/);
+  });
+  it('leaves /planting-window limitations unchanged for Aus', async () => {
+    const res = await request(app({ series: aus() })).get('/api/districts/rajshahi/planting-window?crop=aus');
+    expect(JSON.stringify(res.body)).not.toMatch(/corroborated/);
+  });
+});

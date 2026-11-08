@@ -75,3 +75,23 @@ Still needed: review of crop parameters by an agronomist, a first live NASA run,
 Reproduced before the change (hand-built series, not NASA data): with 8 date rows absent, the old onset code returned day 128 for a season whose first real qualifying window starts later; a dry spell of 108 days was reported as 142 when a wet day sat inside a gap; a series with 10% of days null reported a 10% smaller rainfall total. After the change the same inputs yield `unknown` onset, a dropped dry-spell year (bounds differ by more than 7 days) and a dropped rainfall year. See `backend/tests/climate.test.js`, `series.test.js`.
 
 NASA POWER parsing now refuses a response in which any requested calendar date is absent (previously a warning). Not yet done: the first live POWER run, which is still the real test of the parser.
+
+## NASA POWER May rainfall cross-check (Rajshahi, diagnostic)
+
+**Why it was run.** Aus onset is searched from 1 May, so an earlier onset in later years could come from early-May rainfall. The strongest result of `npm run screen:advisory` was an earlier Aus onset in Rajshahi (uncorrected p = 0.003; Holm-corrected p about 0.06 across 22 tests, so it does not pass).
+
+**What was done.** `scripts/crosscheck-may-rain.js --district=rajshahi` compared stored NASA POWER daily rainfall (run for Rajshahi, 2001 to 2025) with ERA5 reanalysis rainfall from Open-Meteo for the district coordinates. ERA5 is a model product from ECMWF. **It is not NASA data and not ground truth;** it is used only as an independent reference. Run by the team on 2026-11-08.
+
+| | POWER | ERA5 (not NASA) |
+|---|---|---|
+| May mean, 2001-2015 | 132 mm | 172 mm |
+| May mean, 2016-2025 | 239 mm | 197 mm |
+| 1-7 May mean, 2001-2015 | 22 mm | 38 mm |
+| 1-7 May mean, 2016-2025 | 48 mm | 40 mm |
+| Correlation across years | May total 0.47, 1-7 May 0.36 | |
+
+**Reading.** POWER's May rainfall rose about 81% (1-7 May: about 118%) between the two periods; ERA5's rose about 15% (about 5%). POWER was below ERA5 in the first period and above it in the second.
+
+**What this does and does not show.** The Aus "earlier onset" is not corroborated by an independent source. It does not prove an error in POWER: ERA5 is also a model, it is sampled at one point while a POWER cell is about 0.5 by 0.625 degrees, only 15 and 10 years are compared, and May rainfall varies strongly between years. The cause is not established. The check covers Rajshahi only.
+
+**What the software does about it.** For every crop whose onset search starts in May (Aus), `/api/districts/:slug/advisory` adds this caveat to `limitations` and `evidence.sourceCheck`, and appends a short note to the sentence when a shift is reported. `/planting-window` is unchanged. Aman, which is searched from 1 June, is not flagged.
