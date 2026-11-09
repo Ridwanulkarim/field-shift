@@ -4,8 +4,11 @@
   "license": "Apache-2.0",
   "private": true,
   "description": "Field Shift: Adapting Farms with NASA Earth Observations (NASA Space Apps Challenge)",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "npm --prefix frontend run build",
     "start": "node backend/src/server.js",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev"
