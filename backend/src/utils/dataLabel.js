@@ -14,6 +14,7 @@ export function makeDataLabel(provenance, { coverageStart = null, coverageEnd = 
     coverageStart,
     coverageEnd,
     isSynthetic,
+    servedFrom: provenance?.servedFrom ?? 'database',
   };
 }
 

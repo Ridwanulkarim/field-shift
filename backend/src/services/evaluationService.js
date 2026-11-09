@@ -23,6 +23,7 @@ import {
   MIN_COVERAGE,
   IRRIGATION_ACCESS_FACTOR,
   PLANTING_SPLIT_YEAR,
+  NOT_MODELED,
 } from '../science/rules.js';
 
 export const METHOD = {
@@ -37,7 +38,14 @@ export const METHOD = {
     { id: 'soilHealth', weight: 'your soil priority', description: 'Half for including a legume, half for variety of plant families.' },
     { id: 'diversification', weight: 'your diversification priority', description: 'Number of different crops, up to three (a proxy for spreading weather and market risk).' },
     { id: 'lowInput', weight: 'your cost priority', description: 'Lower typical input intensity (fertiliser, irrigation, labour) scores higher.' },
+    { id: 'croppingIntensity', weight: `${BASE_WEIGHTS.croppingIntensity} (fixed)`, description: 'Months of the year the plot is in crop, divided by 12. Income is not estimated; this is only a land-use proxy.' },
+    { id: 'stapleSecurity', weight: `${BASE_WEIGHTS.stapleSecurity} (fixed)`, description: 'Number of staple cereal crops (rice, wheat, maize) in the rotation divided by 2, capped at 1.' },
   ],
+  filters: [
+    { id: 'requireStapleCereal', default: true, description: 'Alternatives must include a staple cereal. Set constraints.requireStapleCereal to false to allow others.' },
+    { id: 'onlyDocumentedPatterns', default: true, description: 'Alternatives must be a subset of a cropping pattern reported in a BRRI/BARI survey or trial (data/reference/croppingPatterns.json, not yet agronomist-verified). Set constraints.onlyDocumentedPatterns to false to allow any feasible combination.' },
+  ],
+  stability: 'Each weight is halved and doubled one at a time and the alternatives re-ranked; the response reports how often the top pick stays first.',
   parameters: {
     minCoverage: MIN_COVERAGE,
     heatScale: HEAT_SCALE,
@@ -53,7 +61,8 @@ export const LIMITATIONS = [
   'Climate values are NASA POWER grid-cell values (about 0.5 degrees), not measurements on your field.',
   'Crop traits in this version are unverified general-knowledge assumptions and must be reviewed by an agronomist.',
   'The score ranks options under simple rules. It does not predict yield, profit, or soil improvement.',
-  'Only the information you enter and the loaded climate data are considered: no prices, pests, diseases, seed supply, labour or flood timing.',
+  'Only the information you enter and the loaded climate data are considered: no prices, pests, diseases, seed supply, labour or flood timing. Erosion, organic matter, forage value and market suitability are not modelled (see notModeled).',
+  'The "documented pattern" filter uses a secondary reading of BRRI/BARI papers that an agronomist has not yet confirmed. It does not mean a pattern is recommended for your farm.',
   'Trend statements are indicative: the series are short and a rough statistical hint is not proof of climate change.',
   'Missing days are never treated as zero rain. Rainfall windows use consecutive calendar days; years with too many unobserved days are left out and, for onset and dry spells, the response says which years were unknown.',
 ];
@@ -61,6 +70,13 @@ export const LIMITATIONS = [
 function districtPublic(d) {
   const { id, ...rest } = d;
   return { ...rest, sharedGridCellWith: d.sharedGridCellWith ?? [] };
+}
+
+// Where the series was read from: 'database', or 'offline-file' (a committed snapshot) with the snapshot's export time and a note.
+function offlineMarks(p) {
+  return p.servedFrom === 'offline-file'
+    ? { servedFrom: 'offline-file', offlineExportedAt: p.offlineExportedAt ?? null, offlineNote: p.offlineNote ?? null }
+    : { servedFrom: 'database' };
 }
 
 function climateNotice(climate) {
@@ -160,6 +176,7 @@ export function createEvaluationService(repo) {
         units: climate.provenance.units,
         startDate: climate.provenance.startDate,
         endDate: climate.provenance.endDate,
+        ...offlineMarks(climate.provenance),
       },
       dataLabel: makeDataLabel(climate.provenance, { coverageStart: climate.provenance.startDate, coverageEnd: climate.provenance.endDate }),
       ...freshnessFor(climate.provenance),
@@ -311,6 +328,7 @@ export function createEvaluationService(repo) {
         crops,
         existingSlugs: input.existingRotation,
         ctx: { cropClimate: cropClimateMap, soil, irrigation: input.irrigation, priorities: input.priorities },
+        constraints: input.constraints,
       });
 
       return {
@@ -323,6 +341,9 @@ export function createEvaluationService(repo) {
         climate,
         strategies: result.strategies,
         alternativesConsidered: result.alternativesConsidered,
+        constraints: result.constraints,
+        stability: result.stability,
+        notModeled: NOT_MODELED,
         method: METHOD,
         limitations: fieldLocation ? [...fieldLocation.limitations, ...LIMITATIONS] : LIMITATIONS,
         disclaimer: DISCLAIMER,

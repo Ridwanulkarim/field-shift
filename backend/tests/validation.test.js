@@ -71,3 +71,17 @@ describe('parseEvaluateRequest', () => {
     expect(errorsOf({ district: 5, existingRotation: 'aman', irrigation: 'x' })).toEqual(['district', 'existingRotation', 'irrigation']);
   });
 });
+
+describe('evaluate request: constraints', async () => {
+  const { parseEvaluateRequest } = await import('../src/validation/evaluateRequest.js');
+  const base = { district: 'rajshahi', existingRotation: ['boro', 'aman'] };
+  it('defaults both filters to on', () => {
+    expect(parseEvaluateRequest(base).constraints).toEqual({ requireStapleCereal: true, onlyDocumentedPatterns: true });
+  });
+  it('accepts booleans, rejects unknown keys and non-booleans', () => {
+    expect(parseEvaluateRequest({ ...base, constraints: { onlyDocumentedPatterns: false } }).constraints.onlyDocumentedPatterns).toBe(false);
+    expect(() => parseEvaluateRequest({ ...base, constraints: { nope: true } })).toThrow();
+    expect(() => parseEvaluateRequest({ ...base, constraints: { requireStapleCereal: 'yes' } })).toThrow();
+    expect(() => parseEvaluateRequest({ ...base, constraints: [] })).toThrow();
+  });
+});

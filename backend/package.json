@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/server.js",
     "start": "node --env-file-if-exists=.env src/server.js",
+    "start:offline": "node --env-file-if-exists=.env scripts/start-offline.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "prisma generate",
@@ -29,7 +30,12 @@
     "check:power-grid": "node --env-file-if-exists=.env scripts/check-power-grid.js",
     "verify:live": "node --env-file-if-exists=.env scripts/verify-live-data.js",
     "screen:advisory": "node --env-file-if-exists=.env scripts/screen-advisory.js",
-    "ingest:nasa:cell:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa-grid-cell.js"
+    "screen:indicators": "node --env-file-if-exists=.env scripts/screen-indicators.js",
+    "export:bangla": "node scripts/export-bangla-review.js",
+    "ingest:nasa:cell:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa-grid-cell.js",
+    "export:offline": "node --env-file-if-exists=.env scripts/export-offline.js",
+    "check:offline": "node --env-file-if-exists=.env scripts/check-offline.js",
+    "check:rotation": "node --env-file-if-exists=.env scripts/check-rotation-ranking.js"
   },
   "engines": {
     "node": ">=22.18"

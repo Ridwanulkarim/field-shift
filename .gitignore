@@ -31,3 +31,5 @@ Thumbs.db
 .idea/
 cookies.txt
 *.zip
+.postman/
+postman/

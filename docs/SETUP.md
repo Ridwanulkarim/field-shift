@@ -177,6 +177,10 @@ FRONTEND_DIST=../frontend/dist npm start
 ```
 Open http://localhost:4000. The API and the page come from one process.
 
+**Ports, once:** API `4000` (`PORT`), Vite dev server `5173` (it proxies `/api` to 4000), `CORS_ORIGIN=http://localhost:5173`. If you change `PORT`, change the proxy target in `frontend/vite.config.js` and `getApiBase` in `frontend/src/services/api.js`.
+
+**No database, or wifi off:** see `docs/OFFLINE.md` (`npm run export:offline` once, then `npm run start:offline`, or `OFFLINE=1`).
+
 Before a demo: open the app once a few minutes early. Neon free projects can pause when idle, and the first request after a pause is slow.
 
 ## 10. Using a local PostgreSQL instead of Neon
@@ -210,5 +214,5 @@ DATABASE_URL=postgresql://fieldshift:choose-a-password@localhost:5432/fieldshift
 | Page shows "Cannot reach the Field Shift server" | Backend not running, or not on port 4000. |
 | Banner says **SYNTHETIC DEMO DATA** | Expected until NASA ingestion has succeeded for that district. |
 | `No climate data is loaded for this district` | Run step 5 for that district. |
-| `EADDRINUSE` port 4000 | Another process uses it. Set `PORT=4001` in `.env` and change the proxy target in `frontend/vite.config.js`. |
+| `EADDRINUSE` port 4000 | Another process uses it. Set `PORT=4001` in `.env`, change the proxy target in `frontend/vite.config.js` and the port in `frontend/src/services/api.js`. |
 | `npm run ingest:nasa` prints `FAILED` | Check internet and `https://power.larc.nasa.gov` is reachable. Send the exact message to the team. |

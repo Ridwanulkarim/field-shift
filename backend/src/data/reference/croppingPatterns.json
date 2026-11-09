@@ -1,0 +1,80 @@
+{
+  "status": "SECONDARY_READING_NOT_AGRONOMIST_VERIFIED",
+  "statusNote": "Pattern names, regions and area shares were read from the publication pages on 2026-11-08 through an automated page summary, not from the full text. They are real, citable papers, but a person must confirm each row against the original paper (and an agronomist should confirm the crop mapping) before anyone says 'BRRI-documented' in public. 'Documented' here means: reported in a BRRI/BARI field survey or trial. It does not mean recommended for a given farm, and it says nothing about yield or profit.",
+  "mapping": "Each pattern is stored as the set of crops it contains. A rotation is 'documented' if its crops are a subset of one pattern (leaving a season fallow is always possible). Crops in a paper that Field Shift has no crop row for (blackgram, garden pea, B. Aman, Sesbania, felon, vegetables in general) are left out of that pattern's crop set. Field Shift allows at most 3 crops a year, so the 4-crop pattern is used through its 3-crop subsets.",
+  "sources": {
+    "rashid2017": {
+      "citation": "Rashid, M.H.A.R., Islam, A.B.M.J., Shirazy, B.J. and Shahidullah, S.M. (2017). Cropping Systems and Land Use Pattern in Rajshahi Region. Bangladesh Rice Journal 21(2): 237-254.",
+      "institution": "BRRI",
+      "region": "Rajshahi region (survey of cropping patterns by area)",
+      "url": "https://banglajol.info/index.php/BRJ/article/view/38209"
+    },
+    "khan2022": {
+      "citation": "Khan, M.A.H., Naher, Q., Hossain, M.A., Rahman, M.M. and Tasmima, T. (2022). Increasing cropping intensity, productivity and diversity of crops through rice based cropping pattern in Tangail. Bangladesh Journal of Agricultural Research 47(4): 463-472. doi:10.3329/bjar.v47i4.91447",
+      "institution": "BARI (Farming Systems Research and Development site, Tangail)",
+      "region": "Tangail (on-farm trial; Fallow-Boro-T. Aman was the check)",
+      "url": "https://banglajol.info/index.php/BJAR/article/view/91447"
+    },
+    "kabir2012": {
+      "citation": "Kabir, M.J. and Islam, M.M. (2012). Study on Agronomically and Economically Dominant Cropping Patterns in Some Selected Areas of Barisal District. Bangladesh Journal of Agricultural Research 37(1): 55-65. doi:10.3329/bjar.v37i1.11177",
+      "institution": "BRRI",
+      "region": "Babugonj Upazila, Barisal district (farm-level comparison)",
+      "url": "https://banglajol.info/index.php/BJAR/article/view/11177"
+    },
+    "hossain2018": {
+      "citation": "Hossain, M.S., Alam, S.M.M., Abida, M.Y., Hasan, M.K. and Khan, A.S.M.M.R. (2018). Productivity and Nutrient Balance of Lentil-Mungbean-T. Aus-T. Aman Rice Cropping Pattern in High Barind Tract. Bangladesh Agronomy Journal 21(1): 105-115. doi:10.3329/baj.v21i1.39367",
+      "institution": "Bangladesh Agronomy Journal (High Barind Tract, Godagari, Rajshahi)",
+      "region": "High Barind Tract, Godagari, Rajshahi (on-farm; Boro-Fallow-T. Aman was the farmers' practice)",
+      "url": "https://banglajol.info/index.php/BAJ/article/view/39367"
+    }
+  },
+  "patterns": [
+    { "id": "boro-fallow-aman", "label": "Boro - Fallow - T. Aman", "crops": ["boro", "aman"],
+      "sources": [
+        { "id": "rashid2017", "note": "most dominant pattern in the Rajshahi region (about 22.8% of net cropped area)" },
+        { "id": "hossain2018", "note": "farmers' practice in the High Barind Tract" },
+        { "id": "khan2022", "note": "used as the check treatment" },
+        { "id": "kabir2012", "note": "compared at farm level" }
+      ] },
+    { "id": "mustard-boro-aman", "label": "Mustard - Boro - T. Aman", "crops": ["mustard", "boro", "aman"],
+      "sources": [
+        { "id": "rashid2017", "note": "about 3.7% of net cropped area in the Rajshahi region" },
+        { "id": "khan2022", "note": "profitable and viable pattern in the Tangail trial" }
+      ] },
+    { "id": "mustard-boro-fallow", "label": "Mustard - Boro - Fallow", "crops": ["mustard", "boro"],
+      "sources": [{ "id": "rashid2017", "note": "about 1.9% of net cropped area in the Rajshahi region" }] },
+    { "id": "wheat-fallow-aman", "label": "Wheat - Fallow - T. Aman", "crops": ["wheat", "aman"],
+      "sources": [{ "id": "rashid2017", "note": "about 4.3% of net cropped area in the Rajshahi region" }] },
+    { "id": "wheat-aus-aman", "label": "Wheat - Aus - T. Aman", "crops": ["wheat", "aus", "aman"],
+      "sources": [
+        { "id": "rashid2017", "note": "about 2.3% of net cropped area in the Rajshahi region" },
+        { "id": "kabir2012", "note": "highest gross return and gross margin among the patterns compared in Barisal" }
+      ] },
+    { "id": "potato-boro-aman", "label": "Potato - Boro - T. Aman", "crops": ["potato", "boro", "aman"],
+      "sources": [
+        { "id": "rashid2017", "note": "about 2.3% of net cropped area; the largest vegetable/spice pattern in the Rajshahi region" },
+        { "id": "khan2022", "note": "profitable and viable pattern in the Tangail trial" }
+      ] },
+    { "id": "wheat-mungbean-aman", "label": "Wheat - Mungbean - T. Aman", "crops": ["wheat", "mungbean", "aman"],
+      "sources": [{ "id": "rashid2017", "note": "about 1.8% of net cropped area in the Rajshahi region" }] },
+    { "id": "wheat-jute-aman", "label": "Wheat - Jute - T. Aman", "crops": ["wheat", "jute", "aman"],
+      "sources": [
+        { "id": "rashid2017", "note": "about 1.5% of net cropped area in the Rajshahi region" },
+        { "id": "khan2022", "note": "tested in the Tangail trial" }
+      ] },
+    { "id": "lentil-jute-aman", "label": "Lentil - Jute - T. Aman", "crops": ["lentil", "jute", "aman"],
+      "sources": [{ "id": "khan2022", "note": "tested in the Tangail trial" }] },
+    { "id": "wheat-sesame-aman", "label": "Wheat - Sesame - T. Aman", "crops": ["wheat", "sesame", "aman"],
+      "sources": [{ "id": "khan2022", "note": "tested in the Tangail trial" }] },
+    { "id": "mustard-aus-aman", "label": "Mustard - T. Aus - T. Aman", "crops": ["mustard", "aus", "aman"],
+      "sources": [{ "id": "khan2022", "note": "tested in the Tangail trial" }] },
+    { "id": "boro-aus-aman", "label": "Boro - Aus - T. Aman", "crops": ["boro", "aus", "aman"],
+      "sources": [{ "id": "rashid2017", "note": "about 3.7% of net cropped area in the Rajshahi region" }] },
+    { "id": "mustard-boro-aus", "label": "Mustard - Boro - Aus", "crops": ["mustard", "boro", "aus"],
+      "sources": [{ "id": "rashid2017", "note": "about 1.5% of net cropped area in the Rajshahi region" }] },
+    { "id": "mungbean-aus-aman", "label": "Mungbean - Aus - T. Aman", "crops": ["mungbean", "aus", "aman"],
+      "sources": [{ "id": "kabir2012", "note": "suggested as an alternative for sustaining soil health and productivity in Barisal" }] },
+    { "id": "lentil-mungbean-aus-aman", "label": "Lentil - Mungbean - T. Aus - T. Aman (4 crops)", "crops": ["lentil", "mungbean", "aus", "aman"],
+      "sources": [{ "id": "hossain2018", "note": "improved pattern tested against Boro-Fallow-T. Aman in the High Barind Tract (Godagari, Rajshahi)" }] }
+  ]
+}

@@ -12,6 +12,10 @@ export function createHealthRouter(repository) {
       status: 'ok',
       service: 'field-shift-backend',
       timestamp: new Date().toISOString(),
+      // 'database' | 'offline-files' | 'database-with-offline-fallback' | 'none'
+      dataMode: repository ? repository.mode ?? 'database' : 'none',
+      // true while a database outage is being answered from the offline files
+      degraded: Boolean(repository?.isDegraded?.()),
     });
   });
 
@@ -19,8 +23,11 @@ export function createHealthRouter(repository) {
     if (!repository) {
       return res.status(503).json({ error: { code: 'DATABASE_NOT_CONFIGURED', message: 'No database connection is configured.' } });
     }
+    if (repository.mode === 'offline-files') {
+      return res.status(503).json({ error: { code: 'OFFLINE_MODE', message: 'The API is serving committed offline files; the database is not used, so it is not reported as reachable.' } });
+    }
     try {
-      await repository.ping();
+      await (repository.pingDatabase ?? repository.ping)();
       return res.status(200).json({ status: 'ok', database: 'reachable' });
     } catch (err) {
       console.error('Database health check failed:', err.message);
@@ -36,6 +43,8 @@ export function createHealthRouter(repository) {
     const tally = { nasa: 0, synthetic: 0, none: 0 };
     for (const d of districts) tally[d.climateData] += 1;
     res.status(200).json({
+      dataMode: repository.mode ?? 'database',
+      degraded: Boolean(repository.isDegraded?.()),
       upstream: { service: 'NASA POWER', checked: false, status: 'not_checked' },
       districts: districts.map((d) => ({
         slug: d.slug,

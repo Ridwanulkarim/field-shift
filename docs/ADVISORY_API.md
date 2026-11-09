@@ -23,7 +23,9 @@ Errors use the standard shape: 422 `VALIDATION_ERROR` (with `details[].field`), 
 3. `window` (null unless `usualFrom`/`usualTo` were sent): `usual`, `revised`, `changed`. This is the farmer's own window moved by the supported shift, not an agronomic recommendation.
 4. `evidence.distributions.early` / `.late`: `valuesDayOfYear` (one value per year, for a dot plot), `summary` (min, q1, median, q3, max and `*Date` as `MM-DD`), counts of censored and unknown years. Day of year is on a 365-day calendar (1 June is 152).
 5. `evidence.onsetDates` (median dates and measured shift), `evidence.excludedYears` (years left out and why), `evidence.strength` (p-value, definitions agreeing, start-boundary check, and `shiftEstimate` with a 95% interval), `evidence.heat` (null unless `includeHeat=true`; unverified parameters, never part of the decision).
-6. `provenance`, `dataLabel`, `latestObservationDate`, `status`/`statusNote`, `limitations`, `disclaimer`. Show the limitations and status; this is an experimental result from one modelled rainfall source.
+6. `sentence.sms.en` / `sentence.sms.bn` (each at most 160 characters) and `sentence.sms.meta` (`length`, `encoding`, `segments`). English is plain GSM-7: 160 characters in one SMS. Bangla is UCS-2: 70 characters in one SMS part, so a 160-character Bangla text costs 3 parts; `meta.bn.segments` says how many. Numbers come from the computed advisory.
+7. `decision.experimental` and `warnings[]` (`code: "EXPERIMENTAL_CROP"`, currently Aus): show the warning; the SMS then starts with "EXPERIMENTAL.". Aman is not marked.
+8. `provenance` (including `servedFrom`: `database` or `offline-file`), `dataLabel`, `latestObservationDate`, `status`/`statusNote`, `limitations`, `disclaimer`. Show the limitations and status; this is an experimental result from one modelled rainfall source.
 
 `ETag` and `Cache-Control: public, max-age=300` are set; send `If-None-Match` to get 304.
 

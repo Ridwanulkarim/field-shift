@@ -8,13 +8,14 @@ import {
   PRIORITY_MAX,
   PRIORITY_DEFAULT,
   MAX_CROPS,
+  CONSTRAINT_DEFAULTS,
   IRRIGATION_OPTIONS,
   SALINITY_OPTIONS,
   DRAINAGE_OPTIONS,
 } from '../science/rules.js';
 
 const SLUG = /^[a-z0-9-]{2,40}$/;
-const TOP_LEVEL = ['district', 'fieldId', 'existingRotation', 'soil', 'irrigation', 'priorities'];
+const TOP_LEVEL = ['district', 'fieldId', 'existingRotation', 'soil', 'irrigation', 'priorities', 'constraints'];
 
 function isPlainObject(v) {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -92,6 +93,19 @@ export function parseEvaluateRequest(body) {
     }
   }
 
+  const constraints = { ...CONSTRAINT_DEFAULTS };
+  if (body.constraints !== undefined) {
+    if (!isPlainObject(body.constraints)) {
+      errors.push({ field: 'constraints', message: 'Must be an object.' });
+    } else {
+      for (const [key, value] of Object.entries(body.constraints)) {
+        if (!(key in CONSTRAINT_DEFAULTS)) errors.push({ field: `constraints.${key}`, message: `Unknown constraint. Known: ${Object.keys(CONSTRAINT_DEFAULTS).join(', ')}.` });
+        else if (typeof value !== 'boolean') errors.push({ field: `constraints.${key}`, message: 'Must be true or false.' });
+        else constraints[key] = value;
+      }
+    }
+  }
+
   if (errors.length) throw validationError(errors);
-  return { district: body.district, fieldId: body.fieldId, existingRotation: existing, soil, irrigation, priorities };
+  return { district: body.district, fieldId: body.fieldId, existingRotation: existing, soil, irrigation, priorities, constraints };
 }

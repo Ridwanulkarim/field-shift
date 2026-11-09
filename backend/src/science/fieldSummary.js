@@ -55,7 +55,7 @@ export function buildFieldSummary({ monthly, crops, cell, areaHa, soil, spansMul
 
 import { toBnDigits } from './plantingAdvisory.js';
 
-const MONTHS_BN = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+export const MONTHS_BN = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
 const SALINITY_CLASS_BN = { none: 'নেই', slight: 'সামান্য', moderate: 'মাঝারি', high: 'বেশি' };
 
 function nameListBn(names) {

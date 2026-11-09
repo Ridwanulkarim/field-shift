@@ -69,7 +69,33 @@ export const PRIORITY_MAX = 3;
 export const PRIORITY_DEFAULT = 1;
 
 // Base weights of the always-on components.
-export const BASE_WEIGHTS = { waterFit: 1, heatFit: 1, soilFit: 2 };
+// croppingIntensity: months the plot is in crop / 12. stapleSecurity: staple cereal crops in the rotation / 2, capped at 1 (two cereal crops a year is the benchmark for a household that grows its own staple).
+// These two were missing from the first version, which let a sparse rotation outrank the common Boro-Aman system.
+// The weights are judgment calls, not fitted values; the ranking-stability check (rankingStability.js) shows how much they matter.
+export const BASE_WEIGHTS = { waterFit: 1, heatFit: 1, soilFit: 2, croppingIntensity: 2, stapleSecurity: 2 };
+
+// Staple cereals for household food security in Bangladesh. Kept as a slug list here (not a database column) so
+// no migration is needed and the offline and database repositories behave the same.
+export const STAPLE_CEREAL_SLUGS = ['aman', 'boro', 'aus', 'wheat', 'maize'];
+
+// Defaults for the optional filters in POST /api/evaluate "constraints".
+//   requireStapleCereal: every alternative must contain a staple cereal (food for the household first).
+//   onlyDocumentedPatterns: every alternative must be a subset of a cropping pattern reported in a BRRI/BARI survey or trial
+//     (src/data/reference/croppingPatterns.json). Leaving a season fallow is always allowed.
+export const CONSTRAINT_DEFAULTS = { requireStapleCereal: true, onlyDocumentedPatterns: true };
+
+// Weight perturbations used by the ranking-stability check.
+export const STABILITY = { downFactor: 0.5, upFactor: 2, upFloor: 1, stableShare: 0.8, moderateShare: 0.5 };
+
+// Factors the brief names that this version does NOT model. Shown in every evaluate response so absence is never read as "good".
+export const NOT_MODELED = [
+  { id: 'erosion', en: 'Soil erosion and runoff', bn: 'মাটি ক্ষয় ও পানির প্রবাহ' },
+  { id: 'organicMatter', en: 'Soil organic matter (only a legume and plant-family variety are used as a rough proxy)', bn: 'মাটির জৈব পদার্থ (শুধু ডালজাতীয় ফসল ও উদ্ভিদ পরিবারের বৈচিত্র্য মোটামুটি নির্দেশক হিসেবে ধরা হয়েছে)' },
+  { id: 'forageValue', en: 'Fodder and forage value of crop residues', bn: 'গবাদিপশুর খাদ্য ও ফসলের অবশিষ্টাংশের মূল্য' },
+  { id: 'marketSuitability', en: 'Prices, market access and income (cropping intensity is the only land-use proxy)', bn: 'দাম, বাজারের সুযোগ ও আয় (শুধু জমি ব্যবহারের হার ধরা হয়েছে)' },
+  { id: 'pestCycles', en: 'Pest and disease cycles beyond plant-family variety', bn: 'পোকামাকড় ও রোগের চক্র (উদ্ভিদ পরিবারের বৈচিত্র্যের বাইরে)' },
+  { id: 'seedLabourFlood', en: 'Seed supply, labour, and flood timing', bn: 'বীজের সরবরাহ, শ্রম ও বন্যার সময়' },
+];
 
 export const IRRIGATION_OPTIONS = ['none', 'limited', 'reliable'];
 export const SALINITY_OPTIONS = ['none', 'slight', 'moderate', 'high'];
@@ -115,3 +141,12 @@ export const ONSET_BY_CROP = {
 // If at least this share of the years in a period have their onset on the very first day the search
 // allows, the true onset in those years may be earlier than anything the analysis can see.
 export const BOUNDARY_SATURATED_SHARE = 0.5;
+// Crops whose advisory is shown with an EXPERIMENTAL label (decision.experimental, warnings[], and an "EXPERIMENTAL." prefix on the SMS).
+// Aus: its onset search starts in May, and a cross-check of stored NASA POWER May rainfall for Rajshahi against ERA5 reanalysis
+// (not NASA data, not ground truth) did not corroborate the earlier-onset result (POWER May mean +81%, ERA5 +15%). See docs/SCIENTIFIC_METHOD.md.
+export const EXPERIMENTAL_CROPS = {
+  aus: {
+    en: 'Experimental: for Aus the May rainfall in NASA POWER was not confirmed by an independent source (ERA5), so any change in when rain starts may partly reflect the data and not the weather. Use Aman for decisions.',
+    bn: 'পরীক্ষামূলক: আউশের ক্ষেত্রে NASA POWER-এর মে মাসের বৃষ্টি স্বাধীন উৎস (ERA5) দিয়ে নিশ্চিত হয়নি, তাই বৃষ্টি শুরুর পরিবর্তন আংশিকভাবে আবহাওয়ার বদলে তথ্যের প্রভাব হতে পারে। সিদ্ধান্তের জন্য আমন দেখুন।',
+  },
+};

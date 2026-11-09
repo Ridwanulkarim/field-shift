@@ -47,8 +47,22 @@ Weighted average of components in [0, 1]. A component that cannot be computed (n
 | `soilHealth` | 0.5 if a legume is included + 0.5 x family variety | soil priority |
 | `diversification` | min(1, number of crops / 3) | diversification priority |
 | `lowInput` | 1 - (mean input intensity - 1) / 4 | cost priority |
+| `croppingIntensity` | months the plot is in crop / 12 (a land-use proxy; income is NOT estimated) | 2 |
+| `stapleSecurity` | staple cereal crops (aman, boro, aus, wheat, maize) in the rotation / 2, capped at 1 | 2 |
 
-Farmer priorities are integers 0 to 3 (default 1) and set the weights of the priority-driven components. The score deliberately ignores how many months the plot is cropped (that would imply an income claim); a drop in cropping intensity is listed as a trade-off instead.
+Farmer priorities are integers 0 to 3 (default 1) and set the weights of the priority-driven components. The two fixed weights above are judgment calls, not fitted values.
+
+**Why `croppingIntensity` and `stapleSecurity` were added.** The first version scored only water, heat, soil, input and variety. On a synthetic test the existing Boro-Aman rotation (the most common documented pattern in the Rajshahi region survey) ranked below all 103 alternatives, including rotations with no cereal and 5 months in crop. Those two components, plus the filters below, remove that structural bias.
+
+**Filters on alternatives** (`constraints` in `POST /api/evaluate`; both default to on; the current rotation is always scored):
+- `requireStapleCereal`: the alternative must contain a staple cereal.
+- `onlyDocumentedPatterns`: the alternative must be a subset of a cropping pattern in `backend/src/data/reference/croppingPatterns.json` (BRRI/BARI surveys and trials: Rashid et al. 2017, Khan et al. 2022, Kabir and Islam 2012, Hossain et al. 2018). Leaving a season fallow is always allowed. "Documented" means reported in a survey or trial for some region; it does not mean recommended for a farm. The file's status is `SECONDARY_READING_NOT_AGRONOMIST_VERIFIED`.
+
+**Ranking stability.** After ranking, each of the 9 weights is halved and doubled one at a time (a weight of 0 is tried at 2) and the same candidates are re-ranked. The response (`stability`) gives how many of those scenarios keep the top pick first, the verdict (`stable` at 80% or more, `moderate` at 50% or more, otherwise `sensitive`) and which weight changes flipped it.
+
+**Known remaining limitation.** The score has no yield, food-output or income term, so a high-input, high-output system such as Boro-Aman can still rank below lighter rotations when water, heat and input use dominate. The response says so when the current rotation is a documented pattern and ranks in the lower half. Do not present the rank as a verdict. Adding a sourced production term needs BRRI/BARI yield data and an agronomist.
+
+**Not modelled** (listed in every evaluate response as `notModeled`): soil erosion, organic matter beyond a legume and family-variety proxy, forage value, prices and market suitability, pest and disease cycles beyond plant-family variety, seed supply, labour and flood timing.
 
 ## 5. Explanations
 

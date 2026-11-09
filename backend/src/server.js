@@ -1,30 +1,37 @@
 import { config } from './config/env.js';
 import { createApp } from './app.js';
-import { createPrismaClient } from './data/prisma.js';
-import { createRepository } from './data/repository.js';
+import { createDataSource } from './data/dataSource.js';
 
-let prisma = null;
-let repository;
-if (config.databaseUrl) {
-  prisma = createPrismaClient(config.databaseUrl);
-  repository = createRepository(prisma);
-} else {
-  console.warn('WARNING: No database URL is set for the selected NODE_ENV. The API will start, but data routes will answer 503. See docs/SETUP.md.');
+// The prisma modules are imported only when a database is actually used, so OFFLINE=1 never touches them.
+async function createDatabaseRepository(databaseUrl) {
+  const { createPrismaClient } = await import('./data/prisma.js');
+  const { createRepository } = await import('./data/repository.js');
+  const prisma = createPrismaClient(databaseUrl);
+  return { repository: createRepository(prisma), close: () => prisma.$disconnect() };
 }
+
+let source;
+try {
+  source = await createDataSource(config, { createDatabaseRepository });
+} catch (err) {
+  console.error(`ERROR: ${err.message}`);
+  process.exit(1);
+}
+for (const note of source.notes) (note.startsWith('WARNING') ? console.warn : console.log)(note);
 
 if (config.sessionSecretIsEphemeral) {
   console.warn('NOTE: ANONYMOUS_SESSION_SECRET is not set, so a random secret is used for this run. Browser session cookies stop working when the server restarts. Set it in .env to keep them.');
 }
 
-const app = createApp(config, { repository });
+const app = createApp(config, { repository: source.repository });
 
 const server = app.listen(config.port, () => {
-  console.log(`Field Shift API listening on http://localhost:${config.port}`);
+  console.log(`Field Shift API listening on http://localhost:${config.port} (data mode: ${source.mode})`);
 });
 
 async function shutdown() {
   server.close();
-  if (prisma) await prisma.$disconnect();
+  await source.close();
   process.exit(0);
 }
 process.on('SIGINT', shutdown);

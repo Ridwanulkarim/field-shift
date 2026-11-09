@@ -197,3 +197,111 @@ describe('evaluateRotations', () => {
     expect(irrigation(thirsty)[0]).toBeLessThanOrEqual(irrigation(base)[0]);
   });
 });
+
+// ---- Bias fix: cropping intensity, staple cereal, documented patterns, ranking stability ------------------------------
+import { patternInfo } from '../src/science/cropPatterns.js';
+import { rankingStability, weightScenarios } from '../src/science/rankingStability.js';
+import { effectiveWeights, stapleCount } from '../src/science/rotation.js';
+
+describe('cropping intensity and staple cereal are scored', () => {
+  const ctx = () => makeCtx();
+  const comp = (rot, id) => scoreRotation(rot, ctx()).components.find((c) => c.id === id).value;
+
+  it('cropping intensity is months in crop / 12', () => {
+    expect(comp(crops('boro', 'aman'), 'croppingIntensity')).toBeCloseTo(11 / 12, 3);
+    expect(comp(crops('mustard', 'mungbean'), 'croppingIntensity')).toBeLessThan(comp(crops('boro', 'aman'), 'croppingIntensity'));
+  });
+  it('staple security counts cereal crops, capped at two', () => {
+    expect(stapleCount(crops('boro', 'aman'))).toBe(2);
+    expect(comp(crops('boro', 'aman'), 'stapleSecurity')).toBe(1);
+    expect(comp(crops('aman', 'mustard'), 'stapleSecurity')).toBe(0.5);
+    expect(comp(crops('mustard', 'mungbean'), 'stapleSecurity')).toBe(0);
+  });
+  it('a rotation with no cereal and few months scores below the same plot with Boro and Aman on those two components', () => {
+    const sparse = scoreRotation(crops('mustard', 'mungbean'), ctx());
+    const double = scoreRotation(crops('boro', 'aman'), ctx());
+    for (const id of ['croppingIntensity', 'stapleSecurity']) {
+      expect(sparse.components.find((c) => c.id === id).value).toBeLessThan(double.components.find((c) => c.id === id).value);
+    }
+  });
+});
+
+describe('alternative filters', () => {
+  const run = (constraints, existing = ['boro', 'aman']) => evaluateRotations({ crops: CROPS, existingSlugs: existing, ctx: makeCtx(), constraints });
+
+  it('by default every alternative has a staple cereal and is a documented pattern; the existing rotation is still scored', () => {
+    const r = run();
+    expect(r.strategies[0].kind).toBe('existing');
+    expect(r.strategies[0].score).not.toBeNull();
+    expect(r.constraints.applied).toEqual({ requireStapleCereal: true, onlyDocumentedPatterns: true });
+    for (const s of r.strategies.slice(1)) {
+      expect(s.hasStapleCereal).toBe(true);
+      expect(s.pattern.documented).toBe(true);
+    }
+    expect(r.constraints.excluded.noStapleCereal).toBeGreaterThan(0);
+    expect(r.constraints.excluded.notDocumented).toBeGreaterThan(0);
+    expect(r.alternativesConsidered).toBeLessThan(r.constraints.candidatesBeforeFilters);
+  });
+  it('switching the filters off restores every feasible alternative', () => {
+    const r = run({ requireStapleCereal: false, onlyDocumentedPatterns: false });
+    expect(r.alternativesConsidered).toBe(r.constraints.candidatesBeforeFilters);
+    expect(r.constraints.excluded).toEqual({ noStapleCereal: 0, notDocumented: 0 });
+  });
+  it('flags an existing rotation that is not a documented pattern instead of hiding it', () => {
+    const r = run({}, ['mustard', 'mungbean']);
+    expect(r.strategies[0].pattern.documented).toBe(false);
+    expect(r.strategies[0].hasStapleCereal).toBe(false);
+    expect(r.strategies[0].risks.join(' ')).toMatch(/No staple cereal/);
+  });
+  it('says a low rank is not a verdict when the existing rotation is a documented pattern', () => {
+    const r = run();
+    const beating = r.strategies[0].summary.match(/(\d+) of (\d+) alternative/);
+    if (beating && Number(beating[1]) >= Number(beating[2]) / 2) expect(r.strategies[0].summary).toMatch(/does not mean your system is wrong/);
+  });
+});
+
+describe('cropping patterns', () => {
+  it('Boro + Aman is documented (Boro-Fallow-T. Aman) and cites its sources', () => {
+    const info = patternInfo(['boro', 'aman']);
+    expect(info.documented).toBe(true);
+    expect(info.matches.map((m) => m.id)).toContain('boro-fallow-aman');
+    expect(info.sourceIds).toContain('rashid2017');
+  });
+  it('a subset of a pattern counts (a season may be left fallow); a combination in no pattern does not', () => {
+    expect(patternInfo(['mustard', 'aman']).documented).toBe(true);
+    expect(patternInfo(['potato', 'maize']).documented).toBe(false);
+  });
+  it('an empty or unknown crop list is never documented by accident', () => {
+    expect(patternInfo(['unknown-crop']).documented).toBe(false);
+  });
+});
+
+describe('ranking stability', () => {
+  it('reports a stable pick when no weight change alters the order', () => {
+    const r = rankingStability({ baseOrder: ['a', 'b', 'c'], effectiveWeights: { x: 1, y: 0 }, rank: () => ['a', 'b', 'c'] });
+    expect(r).toMatchObject({ applicable: true, verdict: 'stable', topPickStaysFirstShare: 1 });
+    expect(r.changes).toEqual([]);
+  });
+  it('reports a sensitive pick and names what flipped it', () => {
+    const r = rankingStability({ baseOrder: ['a', 'b'], effectiveWeights: { x: 1, y: 1 }, rank: () => ['b', 'a'] });
+    expect(r.verdict).toBe('sensitive');
+    expect(r.changes[0]).toMatchObject({ component: 'x', newTop: 'b' });
+  });
+  it('tries a zero-weight component at 2 (what if you cared) and halves/doubles the others', () => {
+    const sc = weightScenarios({ x: 2, y: 0 });
+    expect(sc.map((s) => [s.component, s.overrides[s.component]])).toEqual([['x', 1], ['x', 4], ['y', 2]]);
+  });
+  it('is not applicable when there is nothing to rank', () => {
+    expect(rankingStability({ baseOrder: [], effectiveWeights: { x: 1 }, rank: () => [] }).applicable).toBe(false);
+  });
+  it('evaluateRotations returns it, and a weight override changes the score but a request cannot set one', () => {
+    const r = evaluateRotations({ crops: CROPS, existingSlugs: ['boro', 'aman'], ctx: makeCtx() });
+    expect(r.stability.applicable).toBe(true);
+    expect(r.stability.scenariosTried).toBeGreaterThan(10);
+    expect(['stable', 'moderate', 'sensitive']).toContain(r.stability.verdict);
+    const base = scoreRotation(crops('boro', 'aman'), makeCtx()).score;
+    const changed = scoreRotation(crops('boro', 'aman'), { ...makeCtx(), weightOverrides: { croppingIntensity: 0 } }).score;
+    expect(changed).not.toBe(base);
+    expect(effectiveWeights(makeCtx()).croppingIntensity).toBeGreaterThan(0);
+  });
+});

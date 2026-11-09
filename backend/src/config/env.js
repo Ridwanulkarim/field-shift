@@ -38,6 +38,15 @@ function parseBoundedInteger(raw, fallback, label, min, max) {
 // to avoid that. In production the variable is required.
 const EPHEMERAL_SESSION_SECRET = crypto.randomBytes(32).toString('hex');
 
+// OFFLINE=1 (also true/yes/on) serves climate from backend/data/offline/*.json only. 0/false/no/off/unset = normal.
+function parseBoolean(raw, label) {
+  if (raw === undefined || raw === '') return false;
+  const v = String(raw).trim().toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(v)) return true;
+  if (['0', 'false', 'no', 'off'].includes(v)) return false;
+  throw new Error(`Invalid ${label} "${raw}". Use 1 or 0 (also accepted: true/false, yes/no, on/off).`);
+}
+
 export function loadConfig(env = process.env) {
   const nodeEnv = env.NODE_ENV || 'development';
   const { databaseUrl } = databaseUrls(env, nodeEnv);
@@ -63,6 +72,10 @@ export function loadConfig(env = process.env) {
     imergTimeoutMs: parseBoundedInteger(env.IMERG_TIMEOUT_MS, 60000, 'IMERG_TIMEOUT_MS', 1000, 300000),
     // Neon (or local PostgreSQL) connection string used by the running API. Empty = no database.
     databaseUrl,
+    // OFFLINE=1: never open the database or the network; read the committed files in offlineDataDir (see docs/OFFLINE.md).
+    offline: parseBoolean(env.OFFLINE, 'OFFLINE'),
+    // Empty = backend/data/offline (the committed snapshot).
+    offlineDataDir: env.OFFLINE_DATA_DIR || '',
     // Optional: folder with the built frontend, served by this same server (demo mode).
     frontendDist: env.FRONTEND_DIST || '',
   };

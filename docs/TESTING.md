@@ -19,10 +19,13 @@ The suite is in `backend/tests/`. Run `ls tests` for the full list; the groups a
 | `onsetAnalysis`, `onsetEdgeCases`, `onsetSensitivity`, `plantingWindow*`, `plantingAdvisory`, `advisoryApi`, `screening` | unit, integration | Mann-Whitney, censoring, partial years, boundary dates, the decision rule, the advisory endpoint, multiple-testing screening |
 | `rotation`, `soilNotEntered`, `fieldProfile`, `field*` | unit, integration | Rotation scoring and explanations, missing soil input, field records and field intelligence |
 | `imerg*`, `rainComparison`, `fieldRainEvidence` | unit, integration | GPM IMERG request/parse code, pixel aggregation, POWER versus IMERG comparison |
+| `offline`, `smsAdvisory` | unit, integration | Offline files (validation, hashing, refusal of synthetic data), start-up source selection, fallback when the database fails, `OFFLINE` flag, health mode; SMS length and encoding for every advisory kind, Aus experimental label |
 | `cropSheet`, `cropSources` | unit | Crop sourcing sheet checker and verified-value overlay |
 | `*.integration.test.js` | integration | Real PostgreSQL with PostGIS: ingestion, locks, field climate. Skipped without `TEST_DATABASE_URL` |
 
 **Unit vs integration:** unit tests call one function with known inputs. Integration tests start the whole API (and optionally a real database) and call it over HTTP.
+
+**Offline rehearsal:** turn wifi off, `npm run check:offline` (exit 0), `npm run start:offline -- --with-frontend`, and walk the demo. See `docs/OFFLINE.md`.
 
 **Manual checks** (before every demo): `/api/health`, `/api/health/db`, `/api/health/data`; evaluate Rajshahi with Boro + Aman; confirm the banner matches the data actually loaded (NASA vs synthetic); switch to Bangla; test on a phone-width window.
 

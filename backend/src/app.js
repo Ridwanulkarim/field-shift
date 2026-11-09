@@ -18,7 +18,9 @@ import { createRateLimiter } from './utils/rateLimiter.js';
 export function createApp(config, { repository, fieldService } = {}) {
   const app = express();
   const service = repository ? createEvaluationService(repository) : null;
-  const fields = fieldService ?? (repository ? createFieldService(repository) : null);
+  // Fields need PostGIS: the offline file repository has no field methods, so the field routes answer 503 there.
+  const offlineOnly = repository?.mode === 'offline-files';
+  const fields = fieldService ?? (repository && !offlineOnly ? createFieldService(repository) : null);
 
   // Behind a reverse proxy (Render, Fly, nginx) req.ip is the proxy unless Express is told how many
   // proxy hops to trust. 0 (default) means: use the socket address and ignore X-Forwarded-For.
@@ -54,7 +56,9 @@ export function createApp(config, { repository, fieldService } = {}) {
   app.use((req, res, next) => {
     if (['POST', 'PATCH', 'DELETE', 'PUT'].includes(req.method)) {
       const origin = req.get('Origin');
-      if (origin && origin !== config.corsOrigin) {
+      // Allowed: the configured dev origin, or the page this same server served (single-server demo: Origin host = Host).
+      const sameServer = origin && req.get('Host') && (() => { try { return new URL(origin).host === req.get('Host'); } catch { return false; } })();
+      if (origin && origin !== config.corsOrigin && !sameServer) {
         return res.status(403).json({ error: { code: 'ORIGIN_NOT_ALLOWED', message: 'The request origin is not allowed.' } });
       }
     }
@@ -64,7 +68,7 @@ export function createApp(config, { repository, fieldService } = {}) {
 
   app.use('/api/health', createHealthRouter(repository));
   app.use('/api', createApiRouter(service));
-  app.use('/api', createFieldRouter(fields));
+  app.use('/api', createFieldRouter(fields, { offlineOnly }));
 
   // Optional: serve the built frontend from this same server (handy for an offline demo).
   if (config.frontendDist && fs.existsSync(path.join(config.frontendDist, 'index.html'))) {

@@ -11,7 +11,7 @@ function combinations(n, k) {
 }
 
 function normalTwoSidedP(z) {
-  return Math.erfc ? Math.erfc(Math.abs(z) / Math.sqrt(2)) : 2 * (1 - normalCdf(Math.abs(z)));
+  return 2 * (1 - normalCdf(Math.abs(z))); // JavaScript has no Math.erfc; normalCdf is a polynomial approximation (about 1e-7 against scipy)
 }
 
 function normalCdf(x) {

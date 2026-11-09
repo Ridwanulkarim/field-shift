@@ -20,7 +20,11 @@ import {
   MAX_CROPS,
   ALTERNATIVES_RETURNED,
   PRIORITIES,
+  STAPLE_CEREAL_SLUGS,
+  CONSTRAINT_DEFAULTS,
 } from './rules.js';
+import { patternInfo } from './cropPatterns.js';
+import { rankingStability } from './rankingStability.js';
 
 export const COMPONENT_LABELS = {
   waterFit: 'Rainfall covers water need',
@@ -30,7 +34,13 @@ export const COMPONENT_LABELS = {
   soilHealth: 'Soil-health practices (legume, variety)',
   diversification: 'Crop variety (risk spreading proxy)',
   lowInput: 'Low input intensity',
+  croppingIntensity: 'Plot kept in crop (cropping intensity)',
+  stapleSecurity: 'Staple cereal for the household (up to two crops)',
 };
+
+export const stapleCount = (crops) => crops.filter((c) => STAPLE_CEREAL_SLUGS.includes(c.slug)).length;
+export const hasStapleCereal = (crops) => stapleCount(crops) > 0;
+const monthsInFieldOf = (crops) => new Set(crops.flatMap(cropMonthList)).size;
 
 // Which farmer priority controls the weight of which component.
 const PRIORITY_COMPONENT = {
@@ -143,6 +153,23 @@ function meanOrNull(values) {
   return mean(values.filter((v) => v !== null));
 }
 
+// The weight of every component for this request. ctx.weightOverrides ({ id: weight }) replaces some of them; it is used only
+// by the ranking-stability check, never by a request.
+export function effectiveWeights(ctx) {
+  const w = {
+    waterFit: BASE_WEIGHTS.waterFit,
+    heatFit: BASE_WEIGHTS.heatFit + (ctx.priorities.heatResilience ?? 0),
+    soilFit: BASE_WEIGHTS.soilFit,
+    waterSaving: ctx.priorities.waterSaving ?? 0,
+    soilHealth: ctx.priorities.soilHealth ?? 0,
+    diversification: ctx.priorities.diversification ?? 0,
+    lowInput: ctx.priorities.lowInput ?? 0,
+    croppingIntensity: BASE_WEIGHTS.croppingIntensity,
+    stapleSecurity: BASE_WEIGHTS.stapleSecurity,
+  };
+  return ctx.weightOverrides ? { ...w, ...ctx.weightOverrides } : w;
+}
+
 // Score one rotation. Returns components (value 0-1 or null when it cannot be computed),
 // the weights used, and the overall 0-100 score.
 export function scoreRotation(crops, ctx) {
@@ -159,6 +186,8 @@ export function scoreRotation(crops, ctx) {
     soilHealth: 0.5 * (legumes.length > 0 ? 1 : 0) + 0.5 * familyVariety,
     diversification: Math.min(1, crops.length / 3),
     lowInput: 1 - (mean(crops.map((c) => c.inputIntensity)) - 1) / 4,
+    croppingIntensity: monthsInFieldOf(crops) / 12,
+    stapleSecurity: Math.min(1, stapleCount(crops) / 2),
   };
   const irrigationVolumes = metrics.map((m) => m.irrigationNeedMm);
   const totalIrrigationMm = irrigationVolumes.every((v) => v !== null)
@@ -168,15 +197,7 @@ export function scoreRotation(crops, ctx) {
     values.waterSaving = 1 - Math.min(1, totalIrrigationMm / WATER_SAVING_REFERENCE_MM);
   }
 
-  const weights = {
-    waterFit: BASE_WEIGHTS.waterFit,
-    heatFit: BASE_WEIGHTS.heatFit + (ctx.priorities.heatResilience ?? 0),
-    soilFit: BASE_WEIGHTS.soilFit,
-    waterSaving: ctx.priorities.waterSaving ?? 0,
-    soilHealth: ctx.priorities.soilHealth ?? 0,
-    diversification: ctx.priorities.diversification ?? 0,
-    lowInput: ctx.priorities.lowInput ?? 0,
-  };
+  const weights = effectiveWeights(ctx);
 
   let num = 0;
   let den = 0;
@@ -212,8 +233,11 @@ function narrate(crops, scored, ctx, monthsInField) {
   const benefits = [];
   const risks = [];
   if (monthsInField <= 7) {
-    risks.push(`The plot is in crop for only about ${monthsInField} months of the year, so a lot of the year is left unused. The score does not reward using more months, so check this against your goals.`);
+    risks.push(`The plot is in crop for only about ${monthsInField} months of the year, so much of the year is left unused. The score counts this as lower cropping intensity, but income is not estimated.`);
+  } else if (monthsInField >= 10) {
+    benefits.push(`The plot is in crop for about ${monthsInField} months of the year (high cropping intensity).`);
   }
+  if (!hasStapleCereal(crops)) risks.push('No staple cereal (rice, wheat or maize) is included, so the household would have to buy its main food or rely on other plots.');
   const hotCrops = scored.metrics
     .map((m, i) => ({ m, crop: crops[i] }))
     .filter(({ m }) => m.heatFit !== null && m.heatFit < 0.6)
@@ -303,6 +327,8 @@ function buildStrategy({ crops, kind, ctx }) {
     labelBn: ordered.map((c) => c.nameBn).join(' → '),
     crops: ordered.map((c) => ({ slug: c.slug, nameEn: c.nameEn, nameBn: c.nameBn, months: cropMonthList(c) })),
     monthsInField: months.size,
+    hasStapleCereal: hasStapleCereal(crops),
+    pattern: patternInfo(crops.map((c) => c.slug)),
     score: scored.score,
     components: scored.components,
     totalIrrigationMm: scored.totalIrrigationMm,
@@ -334,12 +360,9 @@ function compare(strategy, existing, priorities) {
   const diff = existing.score === null || strategy.score === null ? null : round(strategy.score - existing.score, 1);
   const explain = (d) => `${d.label}: ${d.delta > 0 ? '+' : ''}${Math.round(d.delta * 100)} points${keyFor(d.id) ? priorityNote(keyFor(d.id), priorities) : ''}`;
   const tradeOffs = downs.map(explain);
-  // The score deliberately ignores how many months the plot is cropped (that would imply an
-  // income claim), so a drop in cropping intensity is stated here instead.
-  if (strategy.monthsInField <= existing.monthsInField - 2) {
-    tradeOffs.push(
-      `Uses the plot for about ${strategy.monthsInField} months a year instead of ${existing.monthsInField} (lower cropping intensity; not part of the score)`,
-    );
+  // Cropping intensity is in the score; the plain-month comparison is repeated here because it is easy to overlook.
+  if (strategy.monthsInField <= existing.monthsInField - 2 && !tradeOffs.some((t) => t.startsWith(COMPONENT_LABELS.croppingIntensity))) {
+    tradeOffs.push(`Uses the plot for about ${strategy.monthsInField} months a year instead of ${existing.monthsInField} (lower cropping intensity)`);
   }
   return {
     scoreDifference: diff,
@@ -353,37 +376,65 @@ function compare(strategy, existing, priorities) {
 //   crops            all available crops
 //   existingSlugs    the farmer's current rotation
 //   ctx              { cropClimate, soil, irrigation, priorities }
-export function evaluateRotations({ crops, existingSlugs, ctx }) {
+//   constraints      { requireStapleCereal, onlyDocumentedPatterns } (defaults: both true; see CONSTRAINT_DEFAULTS)
+// The current rotation is always scored and shown, even when it fails a constraint; constraints only limit the alternatives.
+export function evaluateRotations({ crops, existingSlugs, ctx, constraints = {} }) {
+  const applied = { ...CONSTRAINT_DEFAULTS, ...constraints };
   const bySlug = new Map(crops.map((c) => [c.slug, c]));
   const existingCrops = existingSlugs.map((s) => bySlug.get(s));
   const existing = buildStrategy({ crops: existingCrops, kind: 'existing', ctx });
 
   const existingKey = rotationKey(existingCrops);
-  const candidates = generateCandidates(crops).filter((set) => rotationKey(set) !== existingKey);
+  const all = generateCandidates(crops).filter((set) => rotationKey(set) !== existingKey);
+  const excluded = { noStapleCereal: 0, notDocumented: 0 };
+  const candidates = all.filter((set) => {
+    if (applied.requireStapleCereal && !hasStapleCereal(set)) { excluded.noStapleCereal += 1; return false; }
+    if (applied.onlyDocumentedPatterns && !patternInfo(set.map((c) => c.slug)).documented) { excluded.notDocumented += 1; return false; }
+    return true;
+  });
+  const byScore = (a, b) => b.score - a.score || a.id.localeCompare(b.id);
   const scored = candidates
     .map((set) => buildStrategy({ crops: set, kind: 'alternative', ctx }))
     .filter((s) => s.score !== null)
-    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+    .sort(byScore);
 
   const alternatives = scored.slice(0, ALTERNATIVES_RETURNED).map((s, i) => ({ ...s, rank: i + 1 }));
   const beating = scored.filter((s) => existing.score !== null && s.score > existing.score).length;
+
+  // Same candidates, re-ranked under changed weights (scores only; no explanations are built).
+  const rankUnder = (overrides) => candidates
+    .map((set) => ({ id: rotationKey(set), score: scoreRotation(set, { ...ctx, weightOverrides: overrides }).score }))
+    .filter((r) => r.score !== null)
+    .sort(byScore)
+    .map((r) => r.id);
+  const stability = rankingStability({ baseOrder: scored.map((s) => s.id), effectiveWeights: effectiveWeights(ctx), rank: rankUnder });
 
   existing.rank = null;
   existing.comparison = null;
   existing.summary =
     existing.score === null
       ? 'The current rotation could not be scored.'
-      : `Your current rotation scores ${existing.score} out of 100 on these heuristic rules; ${beating} of ${scored.length} alternative rotations that fit one year scored higher.`;
+      : `Your current rotation scores ${existing.score} out of 100 on these heuristic rules; ${beating} of ${scored.length} alternative rotations that pass the filters scored higher.`;
+  if (existing.score !== null && scored.length > 0 && beating >= scored.length / 2 && existing.pattern.documented) {
+    existing.summary += ` Your rotation is itself a documented pattern (${existing.pattern.matches.map((m) => m.label).join('; ')}). A low rank here mostly reflects its higher water, heat and input use: yield, food output and income are not modelled, so it does not mean your system is wrong.`;
+  }
   for (const alt of alternatives) {
     alt.comparison = compare(alt, existing, ctx.priorities);
     const d = alt.comparison.scoreDifference;
     alt.summary =
-      `Ranked #${alt.rank} of ${scored.length} feasible alternatives, scoring ${alt.score}` +
+      `Ranked #${alt.rank} of ${scored.length} alternatives that pass the filters, scoring ${alt.score}` +
       (d === null ? '.' : ` (${d >= 0 ? '+' : ''}${d} compared with your current rotation).`);
   }
 
   return {
     strategies: [existing, ...alternatives],
     alternativesConsidered: scored.length,
+    constraints: {
+      applied,
+      candidatesBeforeFilters: all.length,
+      excluded,
+      note: 'Filters limit the ALTERNATIVES only. Your current rotation is always scored. "Documented" means reported in a BRRI/BARI survey or trial, not recommended for your farm.',
+    },
+    stability,
   };
 }

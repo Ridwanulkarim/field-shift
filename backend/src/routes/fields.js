@@ -3,10 +3,14 @@ import { parseFieldId, parseFieldRequest } from '../validation/fieldRequest.js';
 import { unavailable } from '../utils/errors.js';
 import { parseDailyClimateRequest } from '../validation/dailyClimateRequest.js';
 
-export function createFieldRouter(service) {
+export function createFieldRouter(service, { offlineOnly = false } = {}) {
   const router = Router();
   const need = () => {
-    if (!service) throw unavailable('No database connection is configured.');
+    if (!service) {
+      throw unavailable(offlineOnly
+        ? 'Field boundaries need the PostGIS database, which is not used while OFFLINE=1 (or when only the offline files are available). District-level advisories and rotation evaluation still work.'
+        : 'No database connection is configured.');
+    }
     return service;
   };
 

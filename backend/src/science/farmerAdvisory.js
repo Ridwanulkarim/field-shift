@@ -12,7 +12,8 @@
 import { addDays } from './series.js';
 import { round } from './stats.js';
 import { toBnDigits, SOURCE_CAVEAT_EN, SOURCE_CAVEAT_BN, buildAdvisory } from './plantingAdvisory.js';
-import { ONSET_CENSOR_DAY, GDD, SHIFT_ROBUST_SHARE, BOUNDARY_SATURATED_SHARE } from './rules.js';
+import { ONSET_CENSOR_DAY, GDD, SHIFT_ROBUST_SHARE, BOUNDARY_SATURATED_SHARE, EXPERIMENTAL_CROPS } from './rules.js';
+import { buildSms } from './smsAdvisory.js';
 
 const REF_YEAR = 2001; // a non-leap year: the onset analysis uses a 365-day calendar
 const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -254,6 +255,24 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
         const extra = estimate && (t.kind === 'no_change' || t.kind === 'weak') ? intervalSentence(estimate) : { en: '', bn: '' };
         return { en: t.en + extra.en, bn: t.bn + extra.bn };
       })();
+  const experimentalNote = EXPERIMENTAL_CROPS[result.crop.slug] ?? null;
+  const smsWindow = window
+    ? {
+        en: { usual: `${formatMonthDay(window.usual.from, 'en')}-${formatMonthDay(window.usual.to, 'en')}`, revised: `${formatMonthDay(window.revised.from, 'en')}-${formatMonthDay(window.revised.to, 'en')}` },
+        bn: { usual: `${formatMonthDay(window.usual.from, 'bn')}-${formatMonthDay(window.usual.to, 'bn')}`, revised: `${formatMonthDay(window.revised.from, 'bn')}-${formatMonthDay(window.revised.to, 'bn')}` },
+      }
+    : null;
+  // The SMS is built from the same computed numbers as the long sentence. A window is only worth showing when it moved.
+  const sms = buildSms({
+    kind: result.advisory.kind,
+    district,
+    crop,
+    n,
+    periods,
+    estimate,
+    window: supported ? smsWindow : null,
+    experimental: Boolean(experimentalNote),
+  });
   const unchangedNote = window && !supported
     ? { en: ' Your usual window stays as it is.', bn: ' আপনার চিরাচরিত সময় অপরিবর্তিত থাকুক।' }
     : { en: '', bn: '' };
@@ -272,8 +291,10 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
       confidence: rec.confidence,
       confidenceMeaning: CONFIDENCE_MEANING[rec.confidence] ?? null,
       reason: rec.reason,
+      experimental: Boolean(experimentalNote),
     },
-    sentence: { text: (sentence[lang] ?? sentence.en) + (mayNote[lang] ?? '') + (unchangedNote[lang] ?? ''), lang: sentence[lang] ? lang : 'en', en: sentence.en + mayNote.en + unchangedNote.en, bn: sentence.bn + mayNote.bn + unchangedNote.bn, reviewStatus: result.advisory.reviewStatus },
+    warnings: experimentalNote ? [{ code: 'EXPERIMENTAL_CROP', message: experimentalNote.en, messageBn: experimentalNote.bn }] : [],
+    sentence: { text: (sentence[lang] ?? sentence.en) + (mayNote[lang] ?? '') + (unchangedNote[lang] ?? ''), lang: sentence[lang] ? lang : 'en', en: sentence.en + mayNote.en + unchangedNote.en, bn: sentence.bn + mayNote.bn + unchangedNote.bn, reviewStatus: result.advisory.reviewStatus, sms },
     window,
     windowHint: window ? null : 'Add usualFrom and usualTo (MM-DD) to see your own usual transplanting window moved by this shift.',
     evidence: {
@@ -310,7 +331,7 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
     dataLabel: result.dataLabel,
     latestObservationDate: result.latestObservationDate ?? null,
     daysSinceLatest: result.daysSinceLatest ?? null,
-    limitations: [...result.limitations, ...(mayOnset ? [MAY_SOURCE_CHECK.en] : []), ...(window ? [window.note] : [])],
+    limitations: [...result.limitations, ...(experimentalNote ? [experimentalNote.en] : []), ...(mayOnset ? [MAY_SOURCE_CHECK.en] : []), ...(window ? [window.note] : [])],
     disclaimer: result.disclaimer,
   };
 }

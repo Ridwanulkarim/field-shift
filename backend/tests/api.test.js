@@ -141,7 +141,7 @@ describe('POST /api/evaluate', () => {
     expect(res.body.climate.notice).toBeNull();
     expect(res.body.disclaimer).toMatch(/does not replace/);
     expect(res.body.limitations.length).toBeGreaterThan(0);
-    expect(res.body.method.components.length).toBe(7);
+    expect(res.body.method.components.length).toBe(9);
   });
 
   it('flags synthetic data prominently', async () => {
