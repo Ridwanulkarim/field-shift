@@ -25,6 +25,7 @@ backend/cache/
 *.db
 
 # OS / editor files
+.chrome-tmp/
 .DS_Store
 Thumbs.db
 .vscode/

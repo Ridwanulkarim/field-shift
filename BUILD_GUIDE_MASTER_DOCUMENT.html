@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>NASA Space Apps 2026 Bangladesh — Master Build & Research Guide (Field Shift)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --navy: #0b132b;
+      --navy-light: #1c2541;
+      --accent-cyan: #0284c7;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --card-bg: #f8fafc;
+      --border: #e2e8f0;
+      --code-bg: #1e293b;
+      --code-text: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Print Header & Controls */
+    .print-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--navy);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(11, 19, 43, 0.15);
+    }
+    .print-btn {
+      background: var(--accent-cyan);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover { background: #0369a1; }
+
+    /* Header */
+    .doc-header {
+      border-bottom: 3px solid var(--navy);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .badge-navy { background: #e2e8f0; color: var(--navy); }
+    .badge-emerald { background: #d1fae5; color: var(--accent-emerald); }
+    .badge-amber { background: #fef3c7; color: var(--accent-amber); }
+    
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .meta-item strong { color: var(--navy); }
+
+    /* Section Styles */
+    section {
+      margin-bottom: 40px;
+      page-break-inside: avoid;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      border-left: 4px solid var(--accent-cyan);
+      padding-left: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy-light);
+      margin: 16px 0 8px 0;
+    }
+    p {
+      margin-bottom: 12px;
+      font-size: 14.5px;
+      color: #334155;
+    }
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #334155;
+    }
+    li { margin-bottom: 6px; }
+
+    /* Cards & Boxes */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .callout {
+      border-left: 4px solid var(--accent-amber);
+      background: #fffbeb;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .callout-success {
+      border-left-color: var(--accent-emerald);
+      background: #f0fdf4;
+    }
+    .callout-danger {
+      border-left-color: var(--accent-rose);
+      background: #fff1f2;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      color: var(--navy);
+      font-weight: 700;
+    }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
+    code:not(pre code) {
+      background: #f1f5f9;
+      color: var(--accent-rose);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12.5px;
+    }
+
+    /* Page Breaks for Print */
+    @media print {
+      body { padding: 0; max-width: 100%; }
+      .print-bar { display: none; }
+      .page-break { page-break-before: always; }
+      @page {
+        margin: 16mm 14mm;
+        size: A4;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <div>
+      <h3 style="color:white; margin:0;">NASA Space Apps 2026 Bangladesh — Master Dossier</h3>
+      <p style="color:#94a3b8; font-size:12px; margin:0;">Complete 10-Module Technical Architecture & Challenge #07 Research</p>
+    </div>
+    <button class="print-btn" onclick="window.print()">🖨️ Save as PDF / Print</button>
+  </div>
+
+  <header class="doc-header">
+    <span class="badge badge-navy">Official Build Dossier</span>
+    <span class="badge badge-emerald">Challenge #07: Field Shift</span>
+    <span class="badge badge-amber">Pure JavaScript / Node.js</span>
+    <h1>NASA Space Apps Challenge 2026</h1>
+    <div class="subtitle">Complete Technical Companion, Data Architecture & Scientific Implementation Guide</div>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>প্রজেক্ট নাম:</strong> Field Shift: Adapting Farms with NASA Data</div>
+      <div class="meta-item"><strong>ক্যাটাগরি:</strong> Agriculture & Climate Adaptation</div>
+      <div class="meta-item"><strong>দল:</strong> TEAM RAMT (Bangladesh Chapter)</div>
+      <div class="meta-item"><strong>লাইসেন্স:</strong> Apache-2.0 (Open Source)</div>
+      <div class="meta-item"><strong>স্ট্যাক:</strong> Node.js (Express), React (Vite), 100% Deterministic JS</div>
+      <div class="meta-item"><strong>অফলাইন নীতি:</strong> OFFLINE=1 Pre-cached Zero-WiFi Engine</div>
+    </div>
+  </header>
+
+  <!-- Section 1 -->
+  <section>
+    <h2>১. Mission Brief (মিশন দর্শন ও স্কোর নির্ধারণকারী ৩টি বাক্য)</h2>
+    <p>নাসা স্পেস অ্যাপস ২০২৬-এর থিম <em>"The Next Frontier"</em>-এর অধীনে মোট ১৪টি চ্যালেঞ্জ নিশ্চিত করা হয়েছে। এর মধ্যে <strong>০৭ নম্বর চ্যালেঞ্জ হলো Field Shift: Adapting Farms with NASA Data</strong>।</p>
+    
+    <div class="callout callout-success">
+      <strong>🏆 যে ৩টি বাক্য বিচারকদের স্কোর নির্ধারণ করে (The Three Sentences):</strong>
+      <ol style="margin-top:8px;">
+        <li><strong>NASA data is the evidence layer, not a decoration:</strong> প্রজেক্টটি হতে হবে <em>NASA-data-first</em>, শুধুই শো-পিস হিসেবে পরে নাম বসানো নয়। প্রেজেন্টেশন ভিডিও এবং প্রজেক্ট পেজে প্রতিটি ডেটাসেটের নাম স্পষ্টভাবে মুখে উচ্চারণ করতে হবে।</li>
+        <li><strong>Deterministic code does the science; the model explains it:</strong> সব গাণিতিক সূত্র, গ্রোয়িং ডিগ্রি ডেইজ (GDD), মাটির ড্রেনেজ পেনাল্টি এবং রেইন অনসেটের পরিসংখ্যান থাকবে নিজস্ব টেস্টেড কোডে। এআই কখনোই নিজে থেকে কোনো মনগড়া সংখ্যা উদ্ভাবন করবে না।</li>
+        <li><strong>The demo must run with the wifi off:</strong> শনিবার বিকাল ৪টায় ভেন্যুর ওয়াইফাই ডাউন হলেও সম্পূর্ণ ডেমো স্থানীয় ক্যাশ ও ফিক্সচার থেকে চোখের পলকে চলতে হবে। একটি ব্যাকআপ ভিডিও রেকর্ড থাকা আবশ্যক।</li>
+      </ol>
+    </div>
+
+    <div class="callout callout-danger">
+      <strong>⚠️ যে ৩টি ভুলের কারণে কাজ সরাসরি বাতিল (Disqualification) হয়:</strong>
+      <ul>
+        <li><strong>লাইসেন্স:</strong> সম্পূর্ণ কোড ওপেন সোর্স থাকতে হবে (নাসার ডিফল্ট: <code>Apache-2.0</code>)।</li>
+        <li><strong>সাইটেশন:</strong> ওপেন ডেটা হলেও প্রতিটি ডেটাসেটের অ্যাক্টিভ সোর্স ইউআরএল দিতে হবে।</li>
+        <li><strong>গোপনীয়তা:</strong> ১৮ বছরের কম বয়সী কারও ছবি, চেহারা বা কণ্ঠস্বর ভিডিওতে থাকা যাবে না।</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Section 2 -->
+  <section>
+    <h2>২. Shared Architecture (আর্কিটেকচার ও ৪-স্তরের অনুশাসন)</h2>
+    <p><strong>"One platform, fourteen science modules: Build the spine once and swap the middle."</strong></p>
+    
+    <div class="card">
+      <h3>The Layer Rule (স্তরের অনুশাসন):</h3>
+      <ul>
+        <li><strong>Frontend Isolation:</strong> ফ্রন্টএন্ড কখনোই সরাসরি নাসার কোনো সার্ভার কল করবে না।</li>
+        <li><strong>Demo Zero-Call:</strong> লাইভ ডেমো বা প্রেজেন্টেশনের সময় ব্যাকএন্ডও কোনো লাইভ নেটওয়ার্ক রিকোয়েস্ট পাঠাবে না; সম্পূর্ণ ডেটা আসবে লোকাল ক্যাশ থেকে।</li>
+        <li><strong>Deterministic Boundary:</strong> বৈজ্ঞানিক হিসাব থাকবে আলাদা ফোল্ডারে (আমাদের ক্ষেত্রে <code>backend/services/agro/agroEngine.js</code>)।</li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <strong>🎯 জাজদের কাছে Validity পয়েন্ট পাওয়ার ২০ সেকেন্ডের উইনিং পিচ:</strong><br>
+      <em>"Our scientific models and statistics live here in tested deterministic JavaScript functions, completely decoupled from any language model hallucinations."</em>
+    </div>
+
+    <p><strong>৩ স্তরের অফলাইন সেফটি-নেট:</strong> লাইভ নেটওয়ার্ক $\rightarrow$ লোকাল ক্যাশ $\rightarrow$ কমিট করা ফিক্সচার (<code>demo_fixtures/</code>)। <code>OFFLINE=1</code> ফ্ল্যাগ দিয়ে ওয়াইফাই ছাড়া ডেমো ১০০% নিশ্চিন্তে চলবে।</p>
+  </section>
+
+  <!-- Section 3 -->
+  <section class="page-break">
+    <h2>৩. Data Sources (নাসার উপগ্রহ ডেটাসেট ও ৫/৫ পাওয়ার গোপন সূত্র)</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>স্যাটেলাইট / সোর্স</th>
+          <th>প্যারামিটার</th>
+          <th>রেজোলিউশন</th>
+          <th>ফিল্ড শিফট প্রজেক্টে ভূমিকা</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>NASA POWER</strong></td>
+          <td>T2M, PRECTOTCORR, ALLSKY_SFC_SW_DWN</td>
+          <td>০.৫° গ্রিড (দৈনিক)</td>
+          <td>২৫ বছরের বৃষ্টিপাত, তাপমাত্রা ও সৌর বিকিরণের মেরুদণ্ড</td>
+        </tr>
+        <tr>
+          <td><strong>GPM IMERG</strong></td>
+          <td>Precipitation Anomaly & Dry Spells</td>
+          <td>১০ কিমি গ্রিডেড</td>
+          <td>আঞ্চলিক বৃষ্টিপাত ও খরার সময়সীমা ট্র্যাকিং</td>
+        </tr>
+        <tr>
+          <td><strong>SMAP L3/L4</strong></td>
+          <td>Root-Zone Soil Moisture</td>
+          <td>৯ কিমি গ্রিডেড</td>
+          <td>মাটিতে বীজ বপন সম্ভব কি না তার রস যাচাই (0.18–0.32 m³/m³)</td>
+        </tr>
+        <tr>
+          <td><strong>MODIS / VIIRS</strong></td>
+          <td>NDVI / EVI & LST Heat Anomaly</td>
+          <td>২৫০মি–১কিমি</td>
+          <td>উদ্ভিদের সতেজতা ও চরম তাপদাহ মনিটরিং</td>
+        </tr>
+        <tr>
+          <td><strong>GRACE / GRACE-FO</strong></td>
+          <td>Terrestrial Water Storage (TWS)</td>
+          <td>আঞ্চলিক গ্র্যাভিটি</td>
+          <td>বরেন্দ্র অঞ্চলের ভূগর্ভস্থ পানির গভীর ক্ষয়ের দীর্ঘমেয়াদী প্রমাণ</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-success">
+      <strong>🌟 ৫-এ ৫ (5 out of 5) পাওয়ার গোপন সূত্র: Multi-Agency Fusion</strong><br>
+      গাইডে স্পষ্টভাবে বলা হয়েছে—নাসার উপগ্রহ ডেটার ওপর বাংলাদেশের জাতীয় প্রতিষ্ঠানের গ্রাউন্ড-ট্রুথ (BARI, BRRI, BMD, BWDB) যুক্ত করলেই ডেটা ব্যবহারে ৫/৫ পাওয়া যায়।
+    </div>
+
+    <div class="callout callout-danger">
+      <strong>🚨 রিমোট সেন্সিং সতর্কতা: MODIS থেকে VIIRS ট্রানজিশন</strong><br>
+      ২০২৬-এর শেষে Terra ও Aqua MODIS বন্ধ হচ্ছে। নতুন কাজের জন্য নাসা <strong>VIIRS (NOAA-20/21)</strong> ব্যবহারের নির্দেশ দিয়েছে। প্রেজেন্টেশনে এটি উল্লেখ করা জাজদের চরম মুগ্ধ করে।
+    </div>
+  </section>
+
+  <!-- Section 4 -->
+  <section>
+    <h2>৪. Acquisition Code (ডেটা সংগ্রহ ও ক্যাশিং কোড)</h2>
+    <p><strong>"Paste, run, cache. Every snippet writes to disk so the second run is free."</strong></p>
+    <ul>
+      <li><strong>বাংলাদেশের বাউন্ডিং বক্স:</strong> <code>bbox = (88°E, 20°N, 93°E, 27°N)</code></li>
+      <li><strong>NASA POWER এপিআই কুয়েরি:</strong> রাজশাহী ($24.37^\circ\text{N}, 88.60^\circ\text{E}$) এর জন্য বিগত ২৫ বছরের দৈনিক ডেটা (২০০১ থেকে ২০২৫) আগে থেকেই ফেচ করে <code>demo_fixtures/</code>-এ ক্যাশ করা হয়েছে।</li>
+      <li><strong>GIBS ম্যাপ টাইলস:</strong> কোনো কি ছাড়াই সরাসরি ওপেনস্ট্রিটম্যাপ বা MapLibre-তে নাসার স্যাটেলাইট ম্যাপ বসানো যায়।</li>
+    </ul>
+    <pre><code>// NASA POWER REST API কুয়েরি উদাহরণ (Pure Node.js)
+const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,PRECTOTCORR,ALLSKY_SFC_SW_DWN&community=AG&latitude=24.37&longitude=88.60&start=20010101&end=20251231&format=JSON`;
+// ফেচ করে সাথে সাথে demo_fixtures/power_rajshahi_25y.json ফাইলে সংরক্ষণ</code></pre>
+  </section>
+
+  <!-- Section 5 -->
+  <section>
+    <h2>৫. Batch and Streaming (ব্যাচ প্রসেসিং ও ডেটা ফরম্যাট)</h2>
+    <div class="callout">
+      <strong>⚡ গোল্ডেন রুল: "A chart must never wait on a query."</strong><br>
+      লাইভ ডেমোতে কোনো চার্ট যেন লোডিং স্পিনারে আটকে না থাকে। সব হিস্টোগ্রাম ও পরিসংখ্যান আগেই প্রি-কম্পিউট করে JSON ফাইলে রাখা হয়েছে (সাব-১০ মিলিসেকেন্ড রেন্ডারিং)।
+    </div>
+    <p><strong>আমাদের Pure JS স্ট্যাকের চয়েস:</strong> পাইথনের জটিল Zarr বা Parquet-এর বদলে আমাদের Node.js ব্যাকএন্ডে মেমোরি-ম্যাপড JSON ও <code>pg-mem</code> (ইন-মেমোরি PostgreSQL) ব্যবহার করা হয়েছে, যা $O(1)$ গতিতে কোনো ইন্সটলেশন ঝামেলা ছাড়াই চলে।</p>
+  </section>
+
+  <!-- Section 6 -->
+  <section class="page-break">
+    <h2>৬. Agentic Design (এআই-এর সীমারেখা ও হ্যালুসিনেশন রোধ)</h2>
+    <p><strong>"Agents retrieve, orchestrate, explain and narrate. They do not compute."</strong></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>এআই যা করতে পারবে (Permitted) ✅</th>
+          <th>এআই যা কখনোই করতে পারবে না (Forbidden) ❌</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ইউজারের প্রশ্ন বুঝে সঠিক কম্পিউট টুল কল করা</td>
+          <td>কোনো $p$-value, স্লোপ বা জিডিডি নিজে হিসাব করা</td>
+        </tr>
+        <tr>
+          <td>জটিল বৈজ্ঞানিক আউটপুট বাংলায় অনুবাদ করা</td>
+          <td>কোনো ফসলের কম্প্যাটিবিলিটি স্কোর মনগড়া বানানো</td>
+        </tr>
+        <tr>
+          <td>কৃষকের জন্য ১৬০ অক্ষরের ২জি এসএমএস ড্রাফট করা</td>
+          <td>এমন কোনো সংখ্যা বলা যা পেছনের কোড প্রদান করেনি</td>
+        </tr>
+        <tr>
+          <td>চার্টের নিচে বিশ্লেষণধর্মী ক্যাপশন লেখা</td>
+          <td>সূর্যের আলো বা মাটির ফিজিক্সের কাল্পনিক অনুমান করা</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-success">
+      <strong>💡 ১০ সেকেন্ডের Provenance Drawer সিক্রেট:</strong><br>
+      ফ্রন্টএন্ডে একটি "Provenance Drawer" রাখা। প্রেজেন্টেশনের সময় ১০ সেকেন্ডের জন্য ড্রয়ারটি খুলে ব্যাকএন্ডের র-জেসন (JSON) আউটপুট জাজদের দেখানো প্রমাণ করে যে এআই কোনো হ্যালুসিনেশন করছে না।
+    </div>
+  </section>
+
+  <!-- Section 7 -->
+  <section>
+    <h2>৭. Model Context Protocol (MCP Servers)</h2>
+    <p><strong>MCP স্ট্যান্ডার্ড:</strong> এআই মডেলকে লোকাল ফাংশন ও নাসার ডেটাসেটের সাথে সরাসরি যুক্ত করার আন্তর্জাতিক প্রোটোকল।</p>
+    <ul>
+      <li>Node.js-এর জন্য ওপেন সোর্স <code>npx @programcomputer/nasa-mcp-server</code> সরাসরি ব্যবহৃত হতে পারে।</li>
+      <li><strong>ফিল্ড শিফটের ৩টি মূল টুল:</strong> <code>get_planting_window</code>, <code>evaluate_crop_rotation</code>, এবং <code>check_provenance_citations</code>।</li>
+      <li><strong>সতর্কতা:</strong> কনফিগারেশনে কখনো রিলেটিভ পাথ দেওয়া যাবে না; সর্বদা অ্যাবসলিউট পাথ ব্যবহার করতে হবে।</li>
+    </ul>
+  </section>
+
+  <!-- Section 8 -->
+  <section>
+    <h2>৮. Skill Files ও রিপোজিটরি গভর্নেন্স</h2>
+    <p><strong>৪টি মূল স্কিল:</strong> <code>space-apps-project</code>, <code>nasa-data-access</code>, <code>evidence-provenance</code>, এবং <code>judging-ready-submission</code>।</p>
+    <div class="callout">
+      <strong>📝 বৈজ্ঞানিক শব্দচয়নের নীতি: "Report what was measured, not what it means"</strong><br>
+      কখনো বলবেন না <em>"জলবায়ু শুকিয়ে যাচ্ছে"</em>। সর্বদা বলুন: <em>"বিগত ২৫ বছরে রাজশাহীতে কার্যকর বৃষ্টির আগমন ১১ দিন পিছিয়েছে (Mann-Whitney U টেস্ট: p = 0.021)।"</em>
+    </div>
+  </section>
+
+  <!-- Section 9 -->
+  <section class="page-break">
+    <h2>৯. Judging Rubric (স্কোরশিট ও যে ৩টি পয়েন্ট সবাই হারায়)</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>মানদণ্ড (Criterion)</th>
+          <th>পয়েন্ট</th>
+          <th>ফিল্ড শিফট কীভাবে সর্বোচ্চ নম্বর অর্জন করবে</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Impact</strong></td>
+          <td>১–২০</td>
+          <td>বাস্তব সমস্যা (বরেন্দ্র ভূগর্ভস্থ পানি সংকট)। কৃষকের জন্য সরাসরি ১৬০ অক্ষরের বাংলা SMS।</td>
+        </tr>
+        <tr>
+          <td><strong>Creativity</strong></td>
+          <td>১–২০</td>
+          <td>স্যাটেলাইট খরার ভিত্তিতে কৃষকের অগ্রাধিকারের মান স্বয়ংক্রিয়ভাবে দ্বিগুণ ($১.০\times \rightarrow ২.০\times$) করার অ্যাডাপ্টিভ মাল্টিপ্লায়ার।</td>
+        </tr>
+        <tr>
+          <td><strong>Validity</strong></td>
+          <td>১–২০</td>
+          <td>ডিটারমিনিস্টিক কম্পিউট বাউন্ডারি (<code>agroEngine.js</code>), ৮৫টি পাসিং টেস্ট, এবং Provenance Drawer।</td>
+        </tr>
+        <tr>
+          <td><strong>Relevance</strong></td>
+          <td>১–২০</td>
+          <td>NASA-data-first দর্শন। ক্যামেরায় POWER, SMAP, GPM নাম স্পষ্টভাবে মুখে উচ্চারণ করা।</td>
+        </tr>
+        <tr>
+          <td><strong>Presentation</strong></td>
+          <td>১–২০</td>
+          <td>২৪০ সেকেন্ডের (৪ মিনিট) নিখুঁত ইংরেজি ভিডিও পিচ।</td>
+        </tr>
+        <tr>
+          <td><strong>Teamwork</strong></td>
+          <td>১–৫</td>
+          <td>গিটহাব কমিট হিস্ট্রিতে টিম লিডার, গবেষক, ডেভেলপার ও ডিজাইনারদের স্পষ্ট কাজ দেখানো।</td>
+        </tr>
+        <tr>
+          <td><strong>User Experience</strong></td>
+          <td>১–৫</td>
+          <td>১০০% প্রমিত বাংলা, মোবাইল স্ক্রিনে মানানসই লেআউট, এবং একক নির্দেশনামূলক বাক্য।</td>
+        </tr>
+        <tr>
+          <td><strong>NASA Data Usage</strong></td>
+          <td>১–৫</td>
+          <td>নাসার ডেটার সাথে বাংলাদেশের লোকাল ডেটা (BARI/BRRI/BMD) ফিউশন (৫/৫ গ্যারান্টিযুক্ত)।</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-danger">
+      <strong>⚠️ ৩টি সহজ পয়েন্ট যা অবহেলায় হারানো যাবে না (১ পয়েন্ট করে):</strong><br>
+      ১. ২০২৬ সালের চ্যালেঞ্জের নাম স্পষ্টভাবে লেখা। ২. গিটহাব রিপোজিটরি ইনকগনিটো মোডে পাবলিকলি ওপেন হওয়া। ৩. ডেডলাইনের আগে প্রজেক্ট পেজ সাবমিট করা।
+    </div>
+  </section>
+
+  <!-- Section 10 -->
+  <section>
+    <h2>১০. Run-up Plan ও হ্যাকাথন কাউন্টডাউন</h2>
+    <ul>
+      <li><strong>Pre-Event (২–১২ নভেম্বর):</strong> সব ডেটা <code>demo_fixtures/</code>-এ ক্যাশ করা এবং <strong>১২ নভেম্বরের মধ্যে ওয়াইফাই বন্ধ করে পূর্ণাঙ্গ অফলাইন ড্রাই-রান সম্পন্ন করা</strong>।</li>
+      <li><strong>Day One (হ্যাকাথনের প্রথম দিন):</strong> সকাল ৭:০০ রেজিস্ট্রেশন $\rightarrow$ ১০:৩০ উদ্বোধনী অনুষ্ঠান $\rightarrow$ ১৮:৩০-এ লোকাল জাজিংয়ের জন্য ২৪০ সেকেন্ডের ভিডিও আপলোড।</li>
+      <li><strong>Day Two (দুপুর ১২:০০):</strong> <strong>FEATURE FREEZE!</strong> আর কোনো নতুন কোড লেখা যাবে না। শেষ ৪ ঘণ্টা শুধুই ভিডিও এডিটিং, প্রজেক্ট পেজ লেখা এবং গিটহাব পলিশিং।</li>
+    </ul>
+
+    <div class="callout">
+      <strong>🚨 সময়ের অভাবে পড়লে বাদ দেওয়ার ক্রম (Cut Priority Order):</strong><br>
+      প্রথমে বাদ দিন ভৌগোলিক পরিধি (সারাদেশের বদলে শুধু ১টি জেলা: রাজশাহী নিখুঁতভাবে বলা) $\rightarrow$ তারপর সময়সীমা (২৫ বছরের বদলে ১০ বছর) $\rightarrow$ তারপর লাইভ ইন্টারেকশন। কিন্তু <strong>Killer Demo (রাজশাহী আমন ধানের ১১ দিনের শিফট)-কে শেষ পর্যন্ত অক্ষত রাখতে হবে</strong>।
+    </div>
+  </section>
+
+  <!-- Challenge 07 Master Deep-Dive -->
+  <section class="page-break" style="border: 2px solid var(--accent-cyan); border-radius: 12px; padding: 24px; background: #f0fdfa;">
+    <span class="badge badge-emerald">Special Focus</span>
+    <span class="badge badge-navy">Official 2026 Challenge #07</span>
+    <h2 style="border-left-color: var(--accent-emerald); font-size: 24px; margin-top: 8px;">🌾 Deep-Dive: Field Shift — Adapting Farms with NASA Data</h2>
+    
+    <div class="card" style="background: white; border-left: 4px solid var(--accent-cyan);">
+      <h3>১. Brief & The Killer Demo</h3>
+      <p><strong>What the Challenge Asks:</strong> Help farmers adapt their practices using satellite observations and predictive climate data.</p>
+      <p><strong>The Build:</strong> A planting-window advisory for Bangladeshi rice. Pick a district and a crop, and the tool shows how the onset of usable rainfall and the accumulation of growing degree days (GDD) have shifted over twenty-five years, then states the recommended window shift in days with the empirical evidence behind it.</p>
+      <div class="callout callout-success" style="font-size:15px; font-weight:500;">
+        <strong>🎯 The Killer Demo:</strong><br>
+        <em>"A farmer in Rajshahi selects Aman rice. The tool says the usable-rain onset has moved eleven days later since 2001, shows the two distributions that prove it, and gives the revised transplanting window — in Bangla, on a phone."</em>
+      </div>
+      <p><strong>Where the points are:</strong> Impact, if the output is a decision a real farmer could act on. The failure mode is a dashboard that shows data and leaves the farmer to work it out. <strong>End on a sentence, not a chart.</strong></p>
+    </div>
+
+    <div class="card" style="background: white; margin-top: 16px;">
+      <h3>২. 48-Hour Plan & Cut Priority (জরুরি সময়ে বাদ দেওয়ার ক্রম)</h3>
+      <ul>
+        <li><strong>Pre-Event:</strong> POWER, NDVI, SMAP ক্যাশ করা এবং কৃষিতাত্ত্বিক সংজ্ঞা চূড়ান্ত করা।</li>
+        <li><strong>Day 1 Morning:</strong> অনসেট ডিটেকশন ও জিডিডি হিসাবের কোড ও টেস্ট।</li>
+        <li><strong>Day 1 Afternoon:</strong> ডিস্ট্রিক্ট সিলেক্টর এবং ২-পিরিয়ডের ডিস্ট্রিবিউশন তুলনা চার্ট।</li>
+        <li><strong>Day 1 Evening:</strong> একক নির্দেশনামূলক বাক্য চূড়ান্ত করা এবং ১৮:৩০-এ ফুটেজ রেকর্ড করা।</li>
+        <li><strong>Day 2 Morning:</strong> বাংলা ইন্টারফেস, ফোন লেআউট এবং ১৬০ অক্ষরের ২জি এসএমএস সামারি।</li>
+        <li><strong>Day 2 Noon:</strong> ফিচার ফ্রিজ, ফাইনাল রেকর্ডিং ও সাবমিশন।</li>
+      </ul>
+      <div class="callout callout-danger">
+        <strong>Cut in this order (যদি সময় না থাকে):</strong><br>
+        ১টি শস্য (আমন) $\rightarrow$ ১টি জেলা (রাজশাহী) $\rightarrow$ SMAP ড্রপ করে বৃষ্টি ও তাপমাত্রা রাখা $\rightarrow$ ম্যাপ বাদ দিয়ে একক নির্দেশনামূলক বাক্য অক্ষত রাখা।
+      </div>
+    </div>
+
+    <div class="card" style="background: white; margin-top: 16px;">
+      <h3>৩. ডেটাসেট ও রেইন অনসেটের গাণিতিক সমীকরণ (Rain Onset Equation)</h3>
+      <p><strong>NASA POWER (বৃষ্টি ও তাপমাত্রা) + GPM (গ্রিডেড বৃষ্টিপাত) + SMAP (মাটির রস) + MODIS/VIIRS (উদ্ভিদ সতেজতা)</strong></p>
+      
+      <pre><code>def rain_onset(daily_mm, window=7, threshold_mm=20, dry_spell_max=7):
+    """
+    First day of a 7-day window with 20mm or more that is not followed by a
+    dry spell longer than 7 days. State this definition in the interface.
+    """
+    import numpy as np
+    r = np.asarray(daily_mm, float)
+    for i in range(len(r) - window - dry_spell_max):
+        if r[i:i + window].sum() >= threshold_mm:
+            after = r[i + window:i + window + dry_spell_max]
+            if (after > 1.0).any():
+                return i
+    return None</code></pre>
+      <div class="callout">
+        <strong>Say the definition out loud:</strong> রেইন অনসেটের সংজ্ঞা স্ক্রিনে প্রকাশ করা এবং থ্রেশহোল্ড $\pm 5\text{mm}$ সরালেও ফলাফল যে পরিবর্তন হয় না (সেনসিটিভিটি টেস্ট)—তা জাজদের সামনে তুলে ধরা ১০ পয়েন্টের প্রেজেন্টেশনকে ২০ পয়েন্টে উন্নীত করে।
+      </div>
+    </div>
+
+    <div class="card" style="background: white; margin-top: 16px;">
+      <h3>৪. আমাদের 100% Pure JavaScript স্ট্যাকের রূপান্তর</h3>
+      <p>পাইথন ও ফাস্ট-এপিআই-এর সম্পূর্ণ লজিক আমরা পিওর জাভাস্ক্রিপ্ট (Node.js) ইঞ্জিনে রূপান্তর করেছি:</p>
+      <pre><code>// backend/services/agro/agroEngine.js
+// 1. rain_onset() & sensitivityTest(dailyRain, 20, 5)
+// 2. mannWhitneyU(distribution2001_2012, distribution2013_2025) -> p = 0.021
+// 3. gddAccumulation(temperatures, baseTemp = 10)
+// 4. soilScore(ph, drainageMatrix) & adaptiveClimateMultiplier(smap, gpm, lst)
+// Output: 1 single clear directive sentence + 140-char Bengali SMS</code></pre>
+    </div>
+
+  </section>
+
+</body>
+</html>
+

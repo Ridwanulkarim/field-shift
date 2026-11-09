@@ -1,0 +1,13 @@
+{
+  "name": "field-shift",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "description": "Field Shift: Adapting Farms with NASA Earth Observations (NASA Space Apps Challenge)",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "start": "node backend/src/server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
+  }
+}
