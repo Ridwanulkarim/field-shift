@@ -1,42 +1,45 @@
 import { createBrowserRouter, Navigate } from "react-router";
+import HomePage from "../pages/HomePage";
+import DashboardPage from "../pages/DashboardPage";
+import FieldsPage from "../pages/FieldsPage";
+import PlannerPage from "../pages/PlannerPage";
+import ComparisonPage from "../pages/ComparisonPage";
+import RecommendationPage from "../pages/RecommendationPage";
+import AdvisoryPage from "../pages/AdvisoryPage";
 import MainLayout from "../layouts/MainLayout";
-import FieldSetup from "../pages/FieldSetup";
-import RotationPlanner from "../pages/RotationPlanner";
-import RotationComparison from "../pages/RotationComparison";
-import Recommendation from "../pages/Recommendation";
-import PlantingWindowAdvisory from "../components/PlantingWindowAdvisory";
-import Dashboard from "../pages/Dashboard";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainLayout,
-
     children: [
       {
         index: true,
-        Component: Dashboard,
+        Component: HomePage,
       },
       {
-        path: "advisory",
-        Component: PlantingWindowAdvisory,
-        
-      },
-      {
-        path: "planner",
-        Component: RotationPlanner,
-      },
-      {
-        path: "comparison",
-        Component: RotationComparison,
-      },
-      {
-        path: "recommendation",
-        Component: Recommendation,
+        path: "dashboard",
+        Component: DashboardPage,
       },
       {
         path: "fields",
-        Component: FieldSetup,
+        Component: FieldsPage,
+      },
+      {
+        path: "planner",
+        Component: PlannerPage,
+      },
+      {
+        path: "comparison",
+        Component: ComparisonPage,
+      },
+      {
+        path: "recommendation",
+        Component: RecommendationPage,
+      },
+      {
+        path: "advisory",
+        Component: AdvisoryPage,
       },
       {
         path: "*",
