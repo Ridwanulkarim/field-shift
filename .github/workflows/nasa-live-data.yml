@@ -102,7 +102,7 @@ jobs:
         run: |
           for cell in 49:430 50:431 51:430 52:431 48:433 50:433 50:435 47:434 45:435 46:431 45:433; do
             echo "Ingesting POWER cell ${cell}"
-            npm run ingest:imerg:cells -- --cell="${cell}" --start=2001 --concurrency=4
+            npm run ingest:imerg:cells -- --cell="${cell}" --start=2023 --concurrency=4
           done
 
       - name: Verify every district is on fresh NASA data
