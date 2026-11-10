@@ -5,6 +5,7 @@
 #   DIRECT_URL_PRODUCTION        Neon direct connection string
 #   ANONYMOUS_SESSION_SECRET     same 32+ character value the production API uses
 #                                (the shared config loader refuses to start in production without it)
+#   EARTHDATA_TOKEN              NASA Earthdata token for GPM IMERG ingestion
 #
 # First time: Actions > "NASA live data" > Run workflow > mode = initial.
 # After that the daily schedule runs the incremental refresh by itself.
@@ -41,6 +42,9 @@ jobs:
       DATABASE_URL_PRODUCTION: ${{ secrets.DATABASE_URL_PRODUCTION || vars.DATABASE_URL_PRODUCTION }}
       DIRECT_URL_PRODUCTION: ${{ secrets.DIRECT_URL_PRODUCTION || vars.DIRECT_URL_PRODUCTION }}
       ANONYMOUS_SESSION_SECRET: ${{ secrets.ANONYMOUS_SESSION_SECRET || vars.ANONYMOUS_SESSION_SECRET }}
+      EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+      IMERG_CONCURRENCY: 4
+      IMERG_TIMEOUT_MS: 60000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,7 +56,7 @@ jobs:
         id: config_check
         run: |
           missing=()
-          for key in DATABASE_URL_PRODUCTION DIRECT_URL_PRODUCTION ANONYMOUS_SESSION_SECRET; do
+          for key in DATABASE_URL_PRODUCTION DIRECT_URL_PRODUCTION ANONYMOUS_SESSION_SECRET EARTHDATA_TOKEN; do
             if [ -z "${!key}" ]; then
               missing+=("$key")
             fi
@@ -89,6 +93,12 @@ jobs:
       - name: Incremental refresh
         if: steps.config_check.outputs.configured == 'true'
         run: npm run ingest:refresh
+
+      # Keep the IMERG evidence used by the Rajshahi field/demo endpoints available.
+      # The ingestion is idempotent and skips dates already stored.
+      - name: Ingest GPM IMERG for Rajshahi
+        if: steps.config_check.outputs.configured == 'true'
+        run: npm run ingest:imerg:cells -- --cell=49:430 --start=2001 --end=2025-09-30 --concurrency=4
 
       - name: Verify every district is on fresh NASA data
         if: steps.config_check.outputs.configured == 'true'
