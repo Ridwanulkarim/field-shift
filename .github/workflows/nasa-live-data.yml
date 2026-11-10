@@ -94,11 +94,16 @@ jobs:
         if: steps.config_check.outputs.configured == 'true'
         run: npm run ingest:refresh
 
-      # Keep the IMERG evidence used by the Rajshahi field/demo endpoints available.
+      # Keep IMERG evidence available for all 12 supported districts. Khulna and
+      # Jashore share POWER cell 46:431, so there are 11 unique cells.
       # The ingestion is idempotent and skips dates already stored.
-      - name: Ingest GPM IMERG for Rajshahi
+      - name: Ingest GPM IMERG for all district cells
         if: steps.config_check.outputs.configured == 'true'
-        run: npm run ingest:imerg:cells -- --cell=49:430 --start=2001 --end=2025-09-30 --concurrency=4
+        run: |
+          for cell in 49:430 50:431 51:430 52:431 48:433 50:433 50:435 47:434 45:435 46:431 45:433; do
+            echo "Ingesting POWER cell ${cell}"
+            npm run ingest:imerg:cells -- --cell="${cell}" --start=2001 --concurrency=4
+          done
 
       - name: Verify every district is on fresh NASA data
         if: steps.config_check.outputs.configured == 'true'
