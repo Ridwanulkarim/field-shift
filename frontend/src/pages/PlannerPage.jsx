@@ -251,21 +251,23 @@ export default function PlannerPage() {
     try {
       const response = await axios.post("/evaluate", payload);
 
-      // ComparisonPage can read this with useLocation().state.result.
+      const result = response.data?.data ?? response.data;
+
+      sessionStorage.setItem(
+        "rotationEvaluation",
+        JSON.stringify({
+          result,
+          payload,
+        }),
+      );
+
       navigate("/comparison", {
         state: {
-          result: response.data,
+          result,
           payload,
         },
       });
     } catch (err) {
-      console.error("Evaluation status:", err.response?.status);
-      console.log(
-        "BACKEND ERROR:",
-        JSON.stringify(err.response?.data, null, 2),
-      );
-      console.error("Submitted payload:", payload);
-
       const details = err.response?.data?.error?.details;
 
       const detailMessage = Array.isArray(details)

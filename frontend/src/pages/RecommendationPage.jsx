@@ -1,100 +1,159 @@
-import { Link } from "react-router";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Info,
-  AlertTriangle,
-  Satellite,
-} from "lucide-react";
+import { Link, useLocation } from "react-router";
+import { AlertTriangle, ArrowRight, CheckCircle2, Info } from "lucide-react";
+
 import { PageHeading, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
+
 const translations = {
   en: {
     eyebrow: "DECISION SUPPORT",
     title: "Rotation recommendation",
     description:
-      "Review the leading option, why it may fit and what still needs local verification.",
-
-    topOption: "TOP ILLUSTRATIVE OPTION",
-    cropSequence: "Aman Rice → Lentil → Mung bean",
-    candidateDescription:
-      "A candidate sequence to review against field conditions, local agronomic guidance and the assumptions used in the evaluation.",
-    score: "Illustrative score",
-
-    whyTitle: "Why this option is surfaced",
-    reasons: [
-      "Potential to diversify seasonal crop sequences.",
-      "Can be assessed against soil-health priorities.",
-      "Allows comparison of water requirements across seasons.",
-    ],
-
-    tradeoffsTitle: "Trade-offs to consider",
-    tradeoffs: [
-      "Actual suitability depends on local planting windows.",
-      "Water access and drainage can change the outcome.",
-      "Market access, seed availability and labour are not guaranteed.",
-    ],
-
+      "Review the selected strategy, its evidence, and its limitations.",
+    topOption: "SELECTED STRATEGY",
+    sequence: "Crop sequence",
+    score: "Model score",
+    whyTitle: "Why this option",
+    alternativesTitle: "Other options considered",
     evidenceTitle: "Evidence and limitations",
-    evidenceDescription:
-      "A recommendation should remain explainable and traceable.",
-    evidenceItems: [
-      "Earth observation context",
-      "Evaluation assumptions",
-      "Uncertainty and limitations",
-    ],
-    evidenceNote:
-      "Replace these illustrative explanations with the evidence and limitations returned by the existing backend.",
-
-    bottomText: "Review planting-window context for a district and crop.",
+    noResult: "No evaluation result was passed to this page.",
+    goPlanner: "Return to planner",
     advisoryButton: "Open planting advisory",
+    caveat:
+      "This model score is not a guarantee of agricultural success or a validated yield or profitability prediction.",
+    none: "No details were returned for this section.",
+    stability: "Stability",
+    soilBasis: "Soil basis",
+    climate: "Climate context",
+    limitations: "Limitations",
+    notModeled: "Not modeled",
+    disclaimer: "Disclaimer",
   },
-
   bn: {
     eyebrow: "সিদ্ধান্ত সহায়তা",
-    title: "শস্য পর্যায়ক্রম সুপারিশ",
-    description:
-      "প্রধান বিকল্পটি পর্যালোচনা করুন, কেন এটি উপযুক্ত হতে পারে এবং কোন বিষয়গুলো স্থানীয়ভাবে যাচাই করা প্রয়োজন তা দেখুন।",
-
-    topOption: "সর্বোচ্চ প্রস্তাবিত বিকল্প",
-    cropSequence: "আমন ধান → মসুর ডাল → মুগ ডাল",
-    candidateDescription:
-      "মাঠের অবস্থা, স্থানীয় কৃষি নির্দেশনা এবং মূল্যায়নে ব্যবহৃত অনুমানের ভিত্তিতে এই সম্ভাব্য শস্য পর্যায়ক্রমটি পর্যালোচনা করুন।",
-    score: "নমুনা স্কোর",
-
-    whyTitle: "কেন এই বিকল্পটি প্রস্তাব করা হয়েছে",
-    reasons: [
-      "মৌসুমি শস্য পর্যায়ক্রমে বৈচিত্র্য আনার সম্ভাবনা রয়েছে।",
-      "মাটির স্বাস্থ্য উন্নয়নের অগ্রাধিকারের ভিত্তিতে মূল্যায়ন করা যায়।",
-      "বিভিন্ন মৌসুমে পানির চাহিদা তুলনা করার সুযোগ দেয়।",
-    ],
-
-    tradeoffsTitle: "যেসব বিষয় বিবেচনা করতে হবে",
-    tradeoffs: [
-      "প্রকৃত উপযোগিতা স্থানীয় রোপণের সময়সীমার ওপর নির্ভর করে।",
-      "পানির প্রাপ্যতা ও নিষ্কাশন ব্যবস্থা ফলাফল পরিবর্তন করতে পারে।",
-      "বাজার সুবিধা, বীজের প্রাপ্যতা এবং শ্রমিক নিশ্চিত নয়।",
-    ],
-
+    title: "শস্য পর্যায়ের সুপারিশ",
+    description: "নির্বাচিত কৌশল, এর প্রমাণ এবং সীমাবদ্ধতা পর্যালোচনা করুন।",
+    topOption: "নির্বাচিত কৌশল",
+    sequence: "শস্যের পর্যায়ক্রম",
+    score: "মডেল স্কোর",
+    whyTitle: "এই বিকল্পের কারণ",
+    alternativesTitle: "বিবেচিত অন্যান্য বিকল্প",
     evidenceTitle: "প্রমাণ ও সীমাবদ্ধতা",
-    evidenceDescription:
-      "একটি সুপারিশের ব্যাখ্যা এবং তথ্যের উৎস যাচাইযোগ্য হওয়া উচিত।",
-    evidenceItems: [
-      "পৃথিবী পর্যবেক্ষণ সংক্রান্ত তথ্য",
-      "মূল্যায়নের অনুমানসমূহ",
-      "অনিশ্চয়তা ও সীমাবদ্ধতা",
-    ],
-    evidenceNote:
-      "এই নমুনা ব্যাখ্যাগুলোর পরিবর্তে বিদ্যমান ব্যাকএন্ড থেকে প্রাপ্ত প্রমাণ ও সীমাবদ্ধতার তথ্য ব্যবহার করুন।",
-
-    bottomText: "একটি জেলা ও ফসলের জন্য রোপণের উপযুক্ত সময় পর্যালোচনা করুন।",
+    noResult: "এই পৃষ্ঠায় কোনো মূল্যায়নের ফলাফল পাওয়া যায়নি।",
+    goPlanner: "পরিকল্পনায় ফিরুন",
     advisoryButton: "রোপণ পরামর্শ দেখুন",
+    caveat:
+      "এই মডেল স্কোর কৃষি সাফল্যের নিশ্চয়তা বা যাচাইকৃত ফলন কিংবা লাভের পূর্বাভাস নয়।",
+    none: "এই অংশের জন্য কোনো তথ্য ফেরত আসেনি।",
+    stability: "স্থিতিশীলতা",
+    soilBasis: "মাটির ভিত্তি",
+    climate: "জলবায়ু প্রসঙ্গ",
+    limitations: "সীমাবদ্ধতা",
+    notModeled: "মডেলে অন্তর্ভুক্ত নয়",
+    disclaimer: "দায়মুক্তি",
   },
 };
 
-const RecommendationPage = () => {
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
+function getSequence(strategy) {
+  const sequence =
+    strategy?.cropSequence ??
+    strategy?.sequence ??
+    strategy?.crops ??
+    strategy?.rotation;
+
+  if (!Array.isArray(sequence)) return [];
+
+  return sequence.map((crop) =>
+    typeof crop === "string"
+      ? crop
+      : crop?.nameEn || crop?.name || crop?.slug || String(crop),
+  );
+}
+
+function getText(value) {
+  if (typeof value === "string" || typeof value === "number")
+    return String(value);
+  if (value && typeof value === "object") {
+    return (
+      value.message || value.text || value.description || JSON.stringify(value)
+    );
+  }
+  return "";
+}
+
+function renderValue(value, emptyText) {
+  if (value == null || value === "") {
+    return <p className="text-sm text-slate-500">{emptyText}</p>;
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? (
+      <ul className="mt-2 space-y-2 text-sm text-slate-700">
+        {value.map((item, index) => (
+          <li className="flex gap-2" key={index}>
+            <span className="text-green-700">•</span>
+            <span>{getText(item)}</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-sm text-slate-500">{emptyText}</p>
+    );
+  }
+
+  if (typeof value === "object") {
+    return (
+      <dl className="mt-2 space-y-2 text-sm">
+        {Object.entries(value).map(([key, item]) => (
+          <div className="flex flex-wrap gap-x-2" key={key}>
+            <dt className="font-medium text-slate-700">{key}:</dt>
+            <dd className="text-slate-600">{getText(item)}</dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+
+  return <p className="mt-2 text-sm text-slate-700">{String(value)}</p>;
+}
+
+function getStrategyName(strategy) {
+  return (
+    strategy?.nameEn ||
+    strategy?.name ||
+    strategy?.title ||
+    getSequence(strategy).join(" → ")
+  );
+}
+
+export default function RecommendationPage() {
   const { language } = useLanguage();
   const t = translations[language] || translations.en;
+  const { state } = useLocation();
+
+  const savedEvaluation = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("rotationEvaluation") || "null");
+    } catch {
+      return null;
+    }
+  })();
+
+  const result = state?.result ?? savedEvaluation?.result ?? null;
+  const payload = state?.payload ?? savedEvaluation?.payload ?? null;
+
+  const selectedStrategy =
+    state?.selectedStrategy || asArray(result?.strategies)[0] || null;
+
+  const alternatives = asArray(result?.alternativesConsidered);
+  const sequence = getSequence(selectedStrategy);
+  const score = selectedStrategy?.score ?? selectedStrategy?.rankingScore;
+  const reasons =
+    selectedStrategy?.reasons ??
+    selectedStrategy?.explanations ??
+    selectedStrategy?.benefits;
 
   return (
     <>
@@ -104,86 +163,112 @@ const RecommendationPage = () => {
         description={t.description}
       />
 
-      <Card className="recommendation-hero">
-        <div className="recommendation-badge">
-          <CheckCircle2 size={16} /> {t.topOption}
-        </div>
-
-        <h2>{t.cropSequence}</h2>
-
-        <p>{t.candidateDescription}</p>
-
-        <div className="recommendation-score">
-          <b>87</b>
-          <span>
-            / 100
-            <br />
-            {t.score}
-          </span>
-        </div>
-      </Card>
-
-      <div className="recommendation-grid">
-        <Card>
-          <SectionHeading title={t.whyTitle} />
-
-          <ul className="reason-list">
-            {t.reasons.map((reason, index) => (
-              <li key={index}>
-                <CheckCircle2 />
-                {reason}
-              </li>
-            ))}
-          </ul>
+      {!result || !selectedStrategy ? (
+        <Card className="p-6">
+          <p className="text-slate-700">{t.noResult}</p>
+          <Link
+            className="mt-4 inline-flex text-sm font-medium text-green-700 hover:underline"
+            to="/planner"
+          >
+            {t.goPlanner}
+          </Link>
         </Card>
+      ) : (
+        <>
+          <Card className="border-green-200 bg-green-50/50 p-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+              <CheckCircle2 size={15} />
+              {t.topOption}
+            </div>
 
-        <Card>
-          <SectionHeading title={t.tradeoffsTitle} />
+            <h2 className="mt-4 text-2xl font-semibold text-slate-900">
+              {getStrategyName(selectedStrategy) || t.sequence}
+            </h2>
 
-          <ul className="reason-list caution">
-            {t.tradeoffs.map((tradeoff, index) => (
-              <li key={index}>
-                <AlertTriangle />
-                {tradeoff}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
+            {sequence.length > 0 && (
+              <p className="mt-2 text-slate-700">{sequence.join(" → ")}</p>
+            )}
 
-      <Card className="evidence-card">
-        <SectionHeading
-          title={t.evidenceTitle}
-          description={t.evidenceDescription}
-        />
+            {score != null && (
+              <div className="mt-5 inline-flex items-baseline gap-2">
+                <strong className="text-3xl text-green-800">{score}</strong>
+                <span className="text-sm text-slate-600">{t.score}</span>
+              </div>
+            )}
 
-        <div className="audit-items">
-          <span>
-            <Satellite /> {t.evidenceItems[0]}
-          </span>
+            <p className="mt-4 flex gap-2 text-sm text-amber-900">
+              <AlertTriangle size={17} className="mt-0.5 shrink-0" />
+              {t.caveat}
+            </p>
+          </Card>
 
-          <span>
-            <Info /> {t.evidenceItems[1]}
-          </span>
+          <div className="mt-5 grid gap-5 lg:grid-cols-2">
+            <Card className="p-5">
+              <SectionHeading title={t.whyTitle} />
+              {renderValue(reasons, t.none)}
+            </Card>
 
-          <span>
-            <AlertTriangle /> {t.evidenceItems[2]}
-          </span>
-        </div>
+            <Card className="p-5">
+              <SectionHeading title={t.alternativesTitle} />
+              {renderValue(
+                alternatives.map((item, index) => {
+                  const name = getStrategyName(item);
+                  const crops = getSequence(item);
+                  const itemScore = item?.score ?? item?.rankingScore;
+                  return [
+                    name ||
+                      crops.join(" → ") ||
+                      `${t.alternativesTitle} ${index + 1}`,
+                    itemScore != null ? `(${t.score}: ${itemScore})` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
+                }),
+                t.none,
+              )}
+            </Card>
+          </div>
 
-        <p className="muted">{t.evidenceNote}</p>
-      </Card>
+          <Card className="mt-5 p-5">
+            <SectionHeading title={t.evidenceTitle} />
 
-      <div className="bottom-action">
-        <p>{t.bottomText}</p>
+            <div className="grid gap-5 sm:grid-cols-2">
+              {[
+                [t.climate, result.climate],
+                [t.soilBasis, result.soilBasis],
+                [t.stability, result.stability],
+                [t.limitations, result.limitations],
+                [t.notModeled, result.notModeled],
+                [t.disclaimer, result.disclaimer],
+              ].map(([label, value]) => (
+                <section className="rounded-lg bg-slate-50 p-4" key={label}>
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <Info size={16} className="text-slate-500" />
+                    {label}
+                  </h3>
+                  {renderValue(value, t.none)}
+                </section>
+              ))}
+            </div>
+          </Card>
 
-        <Link className="button primary" to="/advisory">
-          {t.advisoryButton}
-          <ArrowRight size={16} />
-        </Link>
-      </div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-slate-600">
+              {language === "bn"
+                ? "জেলা ও ফসলের রোপণ-সময়ের প্রসঙ্গ পর্যালোচনা করুন।"
+                : "Review planting-window context for a district and crop."}
+            </p>
+            <Link
+              className="inline-flex items-center gap-2 rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800"
+              to="/advisory"
+              state={{ payload, result }}
+            >
+              {t.advisoryButton}
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </>
+      )}
     </>
   );
-};
-
-export default RecommendationPage;
+}

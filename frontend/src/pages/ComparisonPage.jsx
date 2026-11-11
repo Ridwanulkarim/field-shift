@@ -1,64 +1,133 @@
+import { Link, useLocation, useNavigate } from "react-router";
+import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 
-import { Link } from "react-router";
-import { ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
-import { rotations } from "../data/mockData";
-import {
-  PageHeading,
-  Card,
-  SectionHeading,
-} from "../components/UI";
+import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
-
 
 const translations = {
   en: {
     eyebrow: "EVALUATE OPTIONS",
     title: "Rotation comparison",
-    description:
-      "Compare candidate crop sequences using their relative scores, benefits and risks.",
+    description: "Compare the strategies returned by the rotation evaluation.",
     editPlan: "Edit plan",
-    candidateTitle: "Candidate rotations",
+    candidateTitle: "Evaluated strategies",
     candidateDescription:
-      "Illustrative results for interface preview only.",
-    topScore: "Top illustrative score",
+      "These are the strategies returned for your submitted inputs.",
+    recommended: "Selected strategy",
     alternative: "Alternative",
-    riskProfile: "Risk profile",
-    recommendedInsight:
-      "Review this option against local conditions.",
-    alternativeInsight:
-      "Review the trade-offs before selecting.",
-    bottomText:
-      "Want to review the evidence and limitations behind the leading option?",
-    recommendation: "View recommendation",
+    noResult: "No evaluation result was passed to this page.",
+    goPlanner: "Return to planner",
     score: "Score",
+    reasons: "Reasons",
+    limitations: "Limitations",
+    select: "View recommendation",
+    disclaimer:
+      "Model scores are not validated yield or profitability predictions.",
   },
-
   bn: {
     eyebrow: "বিকল্প মূল্যায়ন",
     title: "শস্য পর্যায় তুলনা",
-    description:
-      "আপেক্ষিক স্কোর, সুবিধা এবং ঝুঁকির ভিত্তিতে সম্ভাব্য শস্য পর্যায়গুলোর তুলনা করুন।",
+    description: "শস্য পর্যায় মূল্যায়ন থেকে পাওয়া কৌশলগুলো তুলনা করুন।",
     editPlan: "পরিকল্পনা সম্পাদনা",
-    candidateTitle: "সম্ভাব্য শস্য পর্যায়",
+    candidateTitle: "মূল্যায়িত কৌশল",
     candidateDescription:
-      "শুধুমাত্র ইন্টারফেসের প্রিভিউর জন্য নমুনা ফলাফল।",
-    topScore: "সর্বোচ্চ নমুনা স্কোর",
+      "আপনার দেওয়া তথ্যের ভিত্তিতে API থেকে পাওয়া কৌশলগুলো।",
+    recommended: "নির্বাচিত কৌশল",
     alternative: "বিকল্প",
-    riskProfile: "ঝুঁকির ধরন",
-    recommendedInsight:
-      "স্থানীয় পরিস্থিতির সঙ্গে এই বিকল্পটি পর্যালোচনা করুন।",
-    alternativeInsight:
-      "নির্বাচনের আগে সুবিধা ও অসুবিধাগুলো পর্যালোচনা করুন।",
-    bottomText:
-      "সেরা বিকল্পটির প্রমাণ এবং সীমাবদ্ধতা পর্যালোচনা করতে চান?",
-    recommendation: "সুপারিশ দেখুন",
+    noResult: "এই পৃষ্ঠায় কোনো মূল্যায়নের ফলাফল পাওয়া যায়নি।",
+    goPlanner: "পরিকল্পনায় ফিরুন",
     score: "স্কোর",
+    reasons: "কারণ",
+    limitations: "সীমাবদ্ধতা",
+    select: "সুপারিশ দেখুন",
+    disclaimer: "মডেলের স্কোর যাচাইকৃত ফলন বা লাভের পূর্বাভাস নয়।",
   },
 };
 
-const ComparisonPage = () => {
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
+function getSequence(strategy) {
+  const sequence =
+    strategy?.cropSequence ??
+    strategy?.sequence ??
+    strategy?.crops ??
+    strategy?.rotation;
+
+  if (Array.isArray(sequence)) {
+    return sequence.map((crop) =>
+      typeof crop === "string"
+        ? crop
+        : crop?.nameEn || crop?.name || crop?.slug || String(crop),
+    );
+  }
+
+  return [];
+}
+
+function getStrategyName(strategy, index, language) {
+  return (
+    strategy?.nameEn ||
+    strategy?.name ||
+    strategy?.title ||
+    (getSequence(strategy).length
+      ? getSequence(strategy).join(" → ")
+      : `${language === "bn" ? "কৌশল" : "Strategy"} ${index + 1}`)
+  );
+}
+
+function getReasons(strategy) {
+  return asArray(
+    strategy?.reasons ?? strategy?.explanations ?? strategy?.benefits,
+  );
+}
+
+function getText(value) {
+  if (typeof value === "string" || typeof value === "number")
+    return String(value);
+  if (value && typeof value === "object") {
+    return value.message || value.text || value.description || "";
+  }
+  return "";
+}
+
+export default function ComparisonPage() {
   const { language } = useLanguage();
   const t = translations[language] || translations.en;
+  const { state } = useLocation();
+
+  const savedEvaluation = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("rotationEvaluation") || "null");
+    } catch {
+      return null;
+    }
+  })();
+
+  const result = state?.result ?? savedEvaluation?.result ?? null;
+  const payload = state?.payload ?? savedEvaluation?.payload ?? null;
+
+  console.log("RECEIVED STATE:", state);
+  console.log("RECEIVED RESULT:", state?.result);
+  console.log("STRATEGIES:", state?.result?.strategies);
+
+  const navigate = useNavigate();
+
+  const strategies = asArray(result?.strategies);
+  const alternatives = asArray(result?.alternativesConsidered);
+
+  // Show strategies first, then alternatives, without claiming an exhaustive search.
+  const items = [...strategies, ...alternatives];
+
+  const chooseStrategy = (strategy, index) => {
+    navigate("/recommendation", {
+      state: {
+        result,
+        payload,
+        selectedStrategy: strategy,
+        selectedIndex: index,
+      },
+    });
+  };
 
   return (
     <>
@@ -67,84 +136,142 @@ const ComparisonPage = () => {
         title={t.title}
         description={t.description}
         action={
-          <Link className="button secondary" to="/planner">
+          <Link
+            className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            to="/planner"
+          >
             {t.editPlan}
           </Link>
         }
       />
 
-      <Card>
-        <SectionHeading
-          title={t.candidateTitle}
-          description={t.candidateDescription}
-        />
+      {!result ? (
+        <Card className="p-6">
+          <p className="text-slate-700">{t.noResult}</p>
+          <Link
+            className="mt-4 inline-flex text-sm font-medium text-green-700 hover:underline"
+            to="/planner"
+          >
+            {t.goPlanner}
+          </Link>
+        </Card>
+      ) : items.length === 0 ? (
+        <Card className="p-6">
+          <SectionHeading title={t.candidateTitle} />
+          <p className="text-slate-600">
+            {result.message || result.disclaimer || t.noResult}
+          </p>
+        </Card>
+      ) : (
+        <>
+          <Card className="p-5">
+            <SectionHeading
+              title={t.candidateTitle}
+              description={t.candidateDescription}
+            />
 
-        <div className="comparison-grid">
-          {rotations.map((item, i) => (
-            <article
-              className={`rotation-card ${i === 0 ? "recommended" : ""}`}
-              key={item.name}
-            >
-              <div className="rotation-top">
-                <span className="pill">
-                  {i === 0 ? t.topScore : t.alternative}
-                </span>
+            <div className="grid gap-4 md:grid-cols-2">
+              {items.map((strategy, index) => {
+                const score = strategy.score ?? strategy.rankingScore;
+                const reasons = getReasons(strategy);
+                const isPrimary = index === 0;
 
-                <span className="score">
-                  {item.score}
-                  <small>/100</small>
-                </span>
+                return (
+                  <article
+                    className="rounded-xl border border-slate-200 p-5"
+                    key={
+                      strategy.id ??
+                      `${getStrategyName(strategy, index, language)}-${index}`
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          isPrimary
+                            ? "bg-green-50 text-green-800"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {isPrimary ? t.recommended : t.alternative}
+                      </span>
+
+                      {score != null && (
+                        <span className="text-right text-lg font-semibold text-slate-900">
+                          {score}
+                          <small className="ml-1 text-xs font-normal text-slate-500">
+                            {t.score}
+                          </small>
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                      {getStrategyName(strategy, index, language)}
+                    </h3>
+
+                    {getSequence(strategy).length > 0 && (
+                      <p className="mt-2 text-sm text-slate-600">
+                        {getSequence(strategy).join(" → ")}
+                      </p>
+                    )}
+
+                    {score != null && (
+                      <div
+                        className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"
+                        aria-label={`${t.score}: ${score}`}
+                      >
+                        <div
+                          className="h-full rounded-full bg-green-600"
+                          style={{
+                            width: `${Math.max(0, Math.min(100, Number(score)))}%`,
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {reasons.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-slate-800">
+                          {t.reasons}
+                        </p>
+                        <ul className="mt-2 space-y-1 text-sm text-slate-600">
+                          {reasons.map((reason, reasonIndex) => (
+                            <li key={reasonIndex}>• {getText(reason)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <Button
+                      className="mt-5"
+                      onClick={() => chooseStrategy(strategy, index)}
+                    >
+                      {t.select}
+                      <ArrowRight size={16} />
+                    </Button>
+                  </article>
+                );
+              })}
+            </div>
+          </Card>
+
+          {result.limitations && (
+            <div className="mt-4 flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">{t.limitations}</p>
+                <p className="mt-1">
+                  {Array.isArray(result.limitations)
+                    ? result.limitations.map(getText).filter(Boolean).join(" ")
+                    : getText(result.limitations)}
+                </p>
               </div>
+            </div>
+          )}
 
-              <h3>{item.name}</h3>
-
-              <p>
-                {language === "bn"
-                  ? item.noteBn || item.note
-                  : item.note}
-              </p>
-
-              <div className="progress">
-                <i style={{ width: `${item.score}%` }} />
-              </div>
-
-              <div className="risk-row">
-                <span>{t.riskProfile}</span>
-                <b>
-                  {language === "bn"
-                    ? item.riskBn || item.risk
-                    : item.risk}
-                </b>
-              </div>
-
-              <div className="rotation-insight">
-                {i === 0 ? (
-                  <CheckCircle2 size={16} />
-                ) : (
-                  <AlertTriangle size={16} />
-                )}
-
-                <span>
-                  {i === 0
-                    ? t.recommendedInsight
-                    : t.alternativeInsight}
-                </span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </Card>
-
-      <div className="bottom-action">
-        <p>{t.bottomText}</p>
-
-        <Link className="button primary" to="/recommendation">
-          {t.recommendation}
-          <ArrowRight size={16} />
-        </Link>
-      </div>
+          <p className="mt-4 text-sm text-slate-500">{t.disclaimer}</p>
+        </>
+      )}
     </>
   );
-};
-
-export default ComparisonPage;
+}
