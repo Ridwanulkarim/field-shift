@@ -1,115 +1,250 @@
-import { useState } from "react";
-import { Copy, CalendarDays, Info } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  Copy,
+  Info,
+  LoaderCircle,
+} from "lucide-react";
 import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
-
-
-const districts = [
-  { en: "Rajshahi", bn: "রাজশাহী" },
-  { en: "Dinajpur", bn: "দিনাজপুর" },
-  { en: "Mymensingh", bn: "ময়মনসিংহ" },
-  { en: "Jessore", bn: "যশোর" },
-  { en: "Satkhira", bn: "সাতক্ষীরা" },
-];
-
-const crops = [
-  { en: "Aman Rice", bn: "আমন ধান" },
-  { en: "Aus Rice", bn: "আউশ ধান" },
-  { en: "Boro Rice", bn: "বোরো ধান" },
-  { en: "Wheat", bn: "গম" },
-  { en: "Chickpea", bn: "ছোলা" },
-];
+import useAxios from "../hooks/useAxios";
 
 const translations = {
   en: {
     eyebrow: "SEASONAL CONTEXT",
     title: "Planting window advisory",
     description:
-      "Explore planting-window analysis by district and crop, including sensitivity and method details.",
+      "Review district-level planting guidance, evidence, uncertainty, and data provenance.",
     selectTitle: "Select your location and crop",
-    selectDescription:
-      "Choose a district and crop to inspect the advisory context.",
+    selectDescription: "Choose a district and crop to request an advisory.",
     district: "District",
     crop: "Crop",
-    update: "Update advisory preview",
-    preview: "PLANTING WINDOW PREVIEW",
-    previewDescription:
-      "Review the locally relevant planting window and its uncertainty before making a decision.",
-    smsTitle: "SMS-ready summary",
-    smsDescription: "Keep the message concise for sharing.",
+    selectDistrict: "Select a district",
+    selectCrop: "Select a crop",
+    getAdvisory: "Get advisory",
+    loadingOptions: "Loading districts and crops…",
+    loadingAdvisory: "Loading advisory…",
+    resultTitle: "Advisory",
+    resultDescription: "The advisory and supporting information returned by the backend.",
+    evidence: "Evidence",
+    uncertainty: "Uncertainty",
+    limitations: "Limitations",
+    provenance: "Data provenance",
+    disclaimer: "Disclaimer",
+    copy: "Copy advisory",
     copied: "Copied",
-    copy: "Copy SMS",
-    methodTitle: "Method and sensitivity",
-    methodDescription: "Interpret the advisory with its assumptions visible.",
-    info: "Planting-window outputs are analytical guidance, not a guarantee of weather conditions or crop outcomes. Sensitivity to input data and method assumptions should be reviewed.",
-    audit: [
-      "District and crop selection",
-      "Input data coverage",
-      "Method assumptions",
-      "Uncertainty disclosure",
-    ],
-    sms: (crop, district) =>
-      `Field Shift: Review the planting window for ${crop} in ${district}. Check local field conditions and updated guidance before planting.`,
+    empty: "Select a district and crop to request an advisory.",
+    noAdvisory: "The endpoint did not return an advisory sentence.",
+    noDetails: "No additional details were returned.",
+    optionsError: "Could not load districts or crops.",
+    advisoryError: "Could not load the advisory.",
+    retry: "Retry",
+    infoTitle: "Use as evidence-based guidance",
+    info:
+      "Advisory results depend on available climate data and the backend method. They are not a guarantee of weather conditions or crop outcomes.",
   },
-
   bn: {
     eyebrow: "মৌসুমি প্রেক্ষাপট",
-    title: "ফসল রোপণের সময়সূচি পরামর্শ",
+    title: "রোপণের সময়সূচি পরামর্শ",
     description:
-      "জেলা ও ফসল অনুযায়ী রোপণের সময় বিশ্লেষণ, সংবেদনশীলতা এবং পদ্ধতির বিস্তারিত দেখুন।",
+      "জেলাভিত্তিক রোপণ পরামর্শ, প্রমাণ, অনিশ্চয়তা এবং ডেটার উৎস পর্যালোচনা করুন।",
     selectTitle: "আপনার অবস্থান ও ফসল নির্বাচন করুন",
-    selectDescription:
-      "পরামর্শের প্রেক্ষাপট দেখতে একটি জেলা ও ফসল নির্বাচন করুন।",
+    selectDescription: "পরামর্শ পেতে একটি জেলা ও ফসল নির্বাচন করুন।",
     district: "জেলা",
     crop: "ফসল",
-    update: "পরামর্শ আপডেট করুন",
-    preview: "রোপণের সময়সূচির প্রিভিউ",
-    previewDescription:
-      "সিদ্ধান্ত নেওয়ার আগে স্থানীয় রোপণের উপযুক্ত সময় ও এর অনিশ্চয়তা পর্যালোচনা করুন।",
-    smsTitle: "এসএমএসের জন্য প্রস্তুত বার্তা",
-    smsDescription: "শেয়ার করার জন্য বার্তাটি সংক্ষিপ্ত রাখুন।",
+    selectDistrict: "জেলা নির্বাচন করুন",
+    selectCrop: "ফসল নির্বাচন করুন",
+    getAdvisory: "পরামর্শ দেখুন",
+    loadingOptions: "জেলা ও ফসল লোড হচ্ছে…",
+    loadingAdvisory: "পরামর্শ লোড হচ্ছে…",
+    resultTitle: "পরামর্শ",
+    resultDescription: "ব্যাকএন্ড থেকে পাওয়া পরামর্শ ও সহায়ক তথ্য।",
+    evidence: "প্রমাণ",
+    uncertainty: "অনিশ্চয়তা",
+    limitations: "সীমাবদ্ধতা",
+    provenance: "ডেটার উৎস",
+    disclaimer: "দায়মুক্তি",
+    copy: "পরামর্শ কপি করুন",
     copied: "কপি হয়েছে",
-    copy: "এসএমএস কপি করুন",
-    methodTitle: "পদ্ধতি ও সংবেদনশীলতা",
-    methodDescription: "অনুমান ও শর্তাবলি বিবেচনা করে পরামর্শটি ব্যাখ্যা করুন।",
-    info: "রোপণের সময়সূচির ফলাফল বিশ্লেষণভিত্তিক নির্দেশনা, আবহাওয়া বা ফসলের ফলনের নিশ্চয়তা নয়। ইনপুট ডেটা এবং পদ্ধতিগত অনুমানের সংবেদনশীলতা পর্যালোচনা করা উচিত।",
-    audit: [
-      "জেলা ও ফসল নির্বাচন",
-      "ইনপুট ডেটার পরিধি",
-      "পদ্ধতিগত অনুমান",
-      "অনিশ্চয়তার বিবরণ",
-    ],
-    sms: (crop, district) =>
-      `ফিল্ড শিফট: ${district} জেলায় ${crop} রোপণের উপযুক্ত সময় পর্যালোচনা করুন। রোপণের আগে স্থানীয় জমির অবস্থা ও হালনাগাদ পরামর্শ যাচাই করুন।`,
+    empty: "পরামর্শ পেতে একটি জেলা ও ফসল নির্বাচন করুন।",
+    noAdvisory: "এন্ডপয়েন্ট থেকে কোনো পরামর্শ বাক্য পাওয়া যায়নি।",
+    noDetails: "অতিরিক্ত কোনো বিবরণ পাওয়া যায়নি।",
+    optionsError: "জেলা বা ফসল লোড করা যায়নি।",
+    advisoryError: "পরামর্শ লোড করা যায়নি।",
+    retry: "আবার চেষ্টা করুন",
+    infoTitle: "প্রমাণভিত্তিক নির্দেশনা হিসেবে ব্যবহার করুন",
+    info:
+      "পরামর্শের ফলাফল উপলভ্য জলবায়ু তথ্য ও ব্যাকএন্ডের পদ্ধতির ওপর নির্ভর করে। এটি আবহাওয়া বা ফসলের ফলনের নিশ্চয়তা নয়।",
   },
+};
+
+const getList = (data, key) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.[key])) return data[key];
+  return [];
+};
+
+const getLocalizedName = (item, language) => {
+  if (language === "bn") {
+    return item.nameBn ?? item.nameEn ?? item.name ?? item.slug ?? "";
+  }
+  return item.nameEn ?? item.name ?? item.slug ?? "";
+};
+
+const toDisplayText = (value) => {
+  if (value == null || value === "") return "";
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(toDisplayText).filter(Boolean).join("; ");
+  }
+  if (typeof value === "object") {
+    return Object.entries(value)
+      .map(([key, item]) => {
+        const text = toDisplayText(item);
+        return text ? `${key}: ${text}` : "";
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+  return "";
+};
+
+const DetailSection = ({ title, value, emptyText }) => {
+  const content = toDisplayText(value);
+
+  return (
+    <section className="border-t border-gray-200 pt-4 first:border-0 first:pt-0">
+      <h3 className="font-semibold text-gray-900">{title}</h3>
+      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-gray-700">
+        {content || emptyText}
+      </p>
+    </section>
+  );
 };
 
 const AdvisoryPage = () => {
   const { language } = useLanguage();
-  const t = translations[language] || translations.en;
+  const t = translations[language] ?? translations.en;
+  const api = useAxios();
 
-  const [district, setDistrict] = useState("Rajshahi");
-  const [crop, setCrop] = useState("Aman Rice");
-
-  const [sms, setSms] = useState(translations.en.sms("Aman Rice", "Rajshahi"));
-
+  const [districts, setDistricts] = useState([]);
+  const [crops, setCrops] = useState([]);
+  const [district, setDistrict] = useState("");
+  const [crop, setCrop] = useState("");
+  const [advisory, setAdvisory] = useState(null);
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [advisoryLoading, setAdvisoryLoading] = useState(false);
+  const [optionsError, setOptionsError] = useState("");
+  const [advisoryError, setAdvisoryError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const getDistrict = (value) =>
-    districts.find((x) => x.en === value)?.[language] || value;
+  const selectedDistrict = useMemo(
+    () => districts.find((item) => item.slug === district),
+    [districts, district]
+  );
 
-  const getCrop = (value) =>
-    crops.find((x) => x.en === value)?.[language] || value;
+  const selectedCrop = useMemo(
+    () => crops.find((item) => item.slug === crop),
+    [crops, crop]
+  );
 
-  const updateAdvisory = () => {
-    setSms(t.sms(getCrop(crop), getDistrict(district)));
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadOptions = async () => {
+      setOptionsLoading(true);
+      setOptionsError("");
+
+      const [districtResult, cropResult] = await Promise.allSettled([
+        api.get("/districts"),
+        api.get("/crops"),
+      ]);
+
+      if (cancelled) return;
+
+      if (districtResult.status === "fulfilled") {
+        const items = getList(districtResult.value.data, "districts");
+        setDistricts(items);
+        setDistrict((current) =>
+          items.some((item) => item.slug === current)
+            ? current
+            : items[0]?.slug ?? ""
+        );
+      } else {
+        setDistricts([]);
+      }
+
+      if (cropResult.status === "fulfilled") {
+        const items = getList(cropResult.value.data, "crops");
+        setCrops(items);
+        setCrop((current) =>
+          items.some((item) => item.slug === current)
+            ? current
+            : items[0]?.slug ?? ""
+        );
+      } else {
+        setCrops([]);
+      }
+
+      setOptionsError(
+        districtResult.status === "rejected" || cropResult.status === "rejected"
+          ? t.optionsError
+          : ""
+      );
+      setOptionsLoading(false);
+    };
+
+    loadOptions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [api, t.optionsError]);
+
+  const requestAdvisory = async () => {
+    if (!district || !crop) return;
+
+    setAdvisoryLoading(true);
+    setAdvisoryError("");
+    setAdvisory(null);
+
+    try {
+      const params = new URLSearchParams({
+        crop,
+        lang: language === "bn" ? "bn" : "en",
+      });
+
+      const response = await api.get(
+        `/districts/${encodeURIComponent(district)}/advisory?${params.toString()}`
+      );
+
+      setAdvisory(response.data);
+    } catch (error) {
+      setAdvisoryError(
+        error?.response?.data?.error?.message ?? t.advisoryError
+      );
+    } finally {
+      setAdvisoryLoading(false);
+    }
   };
 
-  const copy = async () => {
+  const advisorySentence =
+    advisory?.advisory ??
+    advisory?.sentence ??
+    advisory?.message ??
+    advisory?.summary;
+
+  const copyAdvisory = async () => {
+    const textToCopy = toDisplayText(advisorySentence);
+    if (!textToCopy) return;
+
     try {
-      await navigator.clipboard.writeText(sms);
+      await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
+      window.setTimeout(() => setCopied(false), 1800);
     } catch {
       setCopied(false);
     }
@@ -123,95 +258,184 @@ const AdvisoryPage = () => {
         description={t.description}
       />
 
-      <div className="advisory-layout">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <SectionHeading
             title={t.selectTitle}
             description={t.selectDescription}
           />
 
-          <div className="form-grid">
-            <label>
-              {t.district}
-              <select
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-              >
-                {districts.map((x) => (
-                  <option key={x.en} value={x.en}>
-                    {x[language]}
-                  </option>
-                ))}
-              </select>
-            </label>
+          {optionsLoading ? (
+            <p className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+              <LoaderCircle className="animate-spin" size={17} />
+              {t.loadingOptions}
+            </p>
+          ) : (
+            <>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {t.district}
+                  <select
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                    value={district}
+                    onChange={(event) => {
+                      setDistrict(event.target.value);
+                      setAdvisory(null);
+                      setAdvisoryError("");
+                    }}
+                    disabled={districts.length === 0}
+                  >
+                    <option value="">{t.selectDistrict}</option>
+                    {districts.map((item) => (
+                      <option key={item.slug} value={item.slug}>
+                        {getLocalizedName(item, language)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-            <label>
-              {t.crop}
-              <select value={crop} onChange={(e) => setCrop(e.target.value)}>
-                {crops.map((x) => (
-                  <option key={x.en} value={x.en}>
-                    {x[language]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+                <label className="block text-sm font-medium text-gray-700">
+                  {t.crop}
+                  <select
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                    value={crop}
+                    onChange={(event) => {
+                      setCrop(event.target.value);
+                      setAdvisory(null);
+                      setAdvisoryError("");
+                    }}
+                    disabled={crops.length === 0}
+                  >
+                    <option value="">{t.selectCrop}</option>
+                    {crops.map((item) => (
+                      <option key={item.slug} value={item.slug}>
+                        {getLocalizedName(item, language)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
 
-          <Button className="advisory-submit" onClick={updateAdvisory}>
-            {t.update}
-          </Button>
+              {optionsError && (
+                <div
+                  className="mt-4 flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+                  role="alert"
+                >
+                  <span className="flex items-center gap-2">
+                    <AlertTriangle size={17} />
+                    {optionsError}
+                  </span>
+                </div>
+              )}
 
-          <div className="window-result">
-            <div className="window-icon">
-              <CalendarDays />
-            </div>
+              <div className="mt-5">
+                <Button
+                  onClick={requestAdvisory}
+                  disabled={!district || !crop || advisoryLoading}
+                >
+                  {advisoryLoading ? t.loadingAdvisory : t.getAdvisory}
+                </Button>
+              </div>
 
-            <div>
-              <small>{t.preview}</small>
-              <h3>
-                {getCrop(crop)} · {getDistrict(district)}
-              </h3>
-              <p>{t.previewDescription}</p>
-            </div>
-          </div>
+              {selectedDistrict && selectedCrop && (
+                <div className="mt-5 flex items-start gap-3 rounded-xl bg-green-50 p-4">
+                  <CalendarDays
+                    className="mt-0.5 shrink-0 text-green-700"
+                    size={20}
+                  />
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {getLocalizedName(selectedCrop, language)} ·{" "}
+                      {getLocalizedName(selectedDistrict, language)}
+                    </p>
+                    <p className="mt-1 text-sm text-gray-600">
+                      {t.resultDescription}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </Card>
 
         <Card>
-          <SectionHeading title={t.smsTitle} description={t.smsDescription} />
-
-          <textarea
-            className="sms-box"
-            maxLength={160}
-            value={sms}
-            onChange={(e) => setSms(e.target.value)}
+          <SectionHeading
+            title={t.resultTitle}
+            description={t.resultDescription}
           />
 
-          <div className="sms-footer">
-            <span>{sms.length}/160 characters</span>
+          {advisoryLoading ? (
+            <p className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+              <LoaderCircle className="animate-spin" size={17} />
+              {t.loadingAdvisory}
+            </p>
+          ) : advisoryError ? (
+            <div
+              className="mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+              role="alert"
+            >
+              <AlertTriangle size={17} />
+              {advisoryError}
+            </div>
+          ) : advisory ? (
+            <div className="mt-4 space-y-4">
+              <div className="rounded-lg bg-green-50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800">
+                    {toDisplayText(advisorySentence) || t.noAdvisory}
+                  </p>
+                  {advisorySentence && (
+                    <button
+                      type="button"
+                      onClick={copyAdvisory}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      <Copy size={14} />
+                      {copied ? t.copied : t.copy}
+                    </button>
+                  )}
+                </div>
+              </div>
 
-            <Button variant="secondary" onClick={copy}>
-              <Copy size={15} />
-              {copied ? t.copied : t.copy}
-            </Button>
-          </div>
+              <DetailSection
+                title={t.evidence}
+                value={advisory.evidence}
+                emptyText={t.noDetails}
+              />
+              <DetailSection
+                title={t.uncertainty}
+                value={advisory.uncertainty}
+                emptyText={t.noDetails}
+              />
+              <DetailSection
+                title={t.limitations}
+                value={advisory.limitations}
+                emptyText={t.noDetails}
+              />
+              <DetailSection
+                title={t.provenance}
+                value={advisory.provenance}
+                emptyText={t.noDetails}
+              />
+              <DetailSection
+                title={t.disclaimer}
+                value={advisory.disclaimer}
+                emptyText={t.noDetails}
+              />
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-gray-500">{t.empty}</p>
+          )}
         </Card>
       </div>
 
-      <Card className="method-card">
-        <SectionHeading
-          title={t.methodTitle}
-          description={t.methodDescription}
-        />
-
-        <div className="info-banner">
-          <Info size={18} />
-          <p>{t.info}</p>
-        </div>
-
-        <div className="audit-items">
-          {t.audit.map((item) => (
-            <span key={item}>{item}</span>
-          ))}
+      <Card className="mt-6">
+        <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-950">
+          <Info className="mt-0.5 shrink-0" size={19} />
+          <div>
+            <h3 className="font-semibold">{t.infoTitle}</h3>
+            <p className="mt-1 text-sm leading-6">{t.info}</p>
+          </div>
         </div>
       </Card>
     </>
