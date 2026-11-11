@@ -49,9 +49,10 @@ const MainLayout = () => {
             className="h-10 w-10 rounded-xl bg-white"
           />
 
-          <h1 className="font-extrabold text-[#26734a] text-2xl font-montserrat">
-            {language == "en" ? "Aboho" : "আবহ"}
+          <h1 className="font-extrabold text-[#26734a] ">
+            {language == "en" ?<span className="font-montserrat text-2xl">Aboho</span> : <span className="font-kalpurush text-3xl">আবহ</span>}
           </h1>
+          
         </NavLink>
 
         <nav className="side-nav">
