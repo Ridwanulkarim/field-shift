@@ -37,7 +37,7 @@ export function createApp(config, { repository, fieldService } = {}) {
 
   app.use(helmet());
   app.use(compression());
-  app.use(cors({ origin: config.corsOrigin, credentials: true }));
+  app.use(cors({ origin: config.corsOrigins, credentials: true }));
   app.use(express.json({ limit: '100kb' }));
   app.use((req, res, next) => {
     const supplied = req.get('Cookie')?.match(/(?:^|;\s*)field_shift_session=([^;]+)/)?.[1] ?? null;
@@ -62,7 +62,7 @@ export function createApp(config, { repository, fieldService } = {}) {
       const origin = req.get('Origin');
       // Allowed: the configured dev origin, or the page this same server served (single-server demo: Origin host = Host).
       const sameServer = origin && req.get('Host') && (() => { try { return new URL(origin).host === req.get('Host'); } catch { return false; } })();
-      if (origin && origin !== config.corsOrigin && !sameServer) {
+      if (origin && !config.corsOrigins.includes(origin) && !sameServer) {
         return res.status(403).json({ error: { code: 'ORIGIN_NOT_ALLOWED', message: 'The request origin is not allowed.' } });
       }
     }
