@@ -11,14 +11,14 @@ const translations = {
     prototype: "Prototype interface",
     dataAvailable: "Data context available",
     notifications: "Notifications",
-    fieldShift: "Field Shift",
+    fieldShift: "Aboho",
   },
   bn: {
     decisionWorkspace: "সিদ্ধান্ত সহায়তা কর্মক্ষেত্র",
     prototype: "প্রোটোটাইপ ইন্টারফেস",
     dataAvailable: "ডেটা প্রসঙ্গ উপলব্ধ",
     notifications: "নোটিফিকেশন",
-    fieldShift: "ফিল্ড শিফট",
+    fieldShift: "আবহ",
   },
 };
 
@@ -50,9 +50,12 @@ const MainLayout = () => {
           />
 
           <h1 className="font-extrabold text-[#26734a] ">
-            {language == "en" ?<span className="font-montserrat text-2xl">Aboho</span> : <span className="font-kalpurush text-3xl">আবহ</span>}
+            {language == "en" ? (
+              <span className="font-montserrat text-2xl">Aboho</span>
+            ) : (
+              <span className="font-kalpurush text-3xl">আবহ</span>
+            )}
           </h1>
-          
         </NavLink>
 
         <nav className="side-nav">
