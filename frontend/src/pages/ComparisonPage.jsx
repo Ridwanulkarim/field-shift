@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 
 import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
@@ -46,31 +46,39 @@ const translations = {
 
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
-function getSequence(strategy) {
+function getSequence(strategy, language) {
   const sequence =
     strategy?.cropSequence ??
     strategy?.sequence ??
     strategy?.crops ??
     strategy?.rotation;
 
-  if (Array.isArray(sequence)) {
-    return sequence.map((crop) =>
-      typeof crop === "string"
-        ? crop
-        : crop?.nameEn || crop?.name || crop?.slug || String(crop),
-    );
-  }
+  if (!Array.isArray(sequence)) return [];
 
-  return [];
+  return sequence
+    .map((crop) => {
+      if (typeof crop === "string") return crop;
+
+      return (
+        (language === "bn" ? crop?.labelBn : crop?.label) ??
+        crop?.label ??
+        crop?.labelBn ??
+        crop?.nameEn ??
+        crop?.name ??
+        crop?.slug ??
+        ""
+      );
+    })
+    .filter(Boolean);
 }
 
 function getStrategyName(strategy, index, language) {
   return (
-    strategy?.nameEn ||
-    strategy?.name ||
-    strategy?.title ||
-    (getSequence(strategy).length
-      ? getSequence(strategy).join(" → ")
+    (language === "bn" ? strategy?.labelBn : strategy?.label) ??
+    strategy?.label ??
+    strategy?.labelBn ??
+    (getSequence(strategy, language).length
+      ? getSequence(strategy, language).join(" → ")
       : `${language === "bn" ? "কৌশল" : "Strategy"} ${index + 1}`)
   );
 }
@@ -106,17 +114,28 @@ export default function ComparisonPage() {
   const result = state?.result ?? savedEvaluation?.result ?? null;
   const payload = state?.payload ?? savedEvaluation?.payload ?? null;
 
-  console.log("RECEIVED STATE:", state);
-  console.log("RECEIVED RESULT:", state?.result);
-  console.log("STRATEGIES:", state?.result?.strategies);
-
   const navigate = useNavigate();
 
-  const strategies = asArray(result?.strategies);
+  const strategies = [...asArray(result?.strategies)].sort((a, b) => {
+    const rankA = Number(a.rank ?? a.ranking ?? a.rankScore);
+    const rankB = Number(b.rank ?? b.ranking ?? b.rankScore);
+
+    // Put strategies with an explicit rank first; lower rank is better.
+    if (Number.isFinite(rankA) && !Number.isFinite(rankB)) return -1;
+    if (!Number.isFinite(rankA) && Number.isFinite(rankB)) return 1;
+    if (Number.isFinite(rankA) && Number.isFinite(rankB)) return rankA - rankB;
+
+    // Fall back to a score only if the API provides one.
+    const scoreA = Number(a.score ?? a.rankingScore);
+    const scoreB = Number(b.score ?? b.rankingScore);
+    if (Number.isFinite(scoreA) && Number.isFinite(scoreB))
+      return scoreB - scoreA;
+
+    return 0;
+  });
   const alternatives = asArray(result?.alternativesConsidered);
 
-  // Show strategies first, then alternatives, without claiming an exhaustive search.
-  const items = [...strategies, ...alternatives];
+  const items = strategies;
 
   const chooseStrategy = (strategy, index) => {
     navigate("/recommendation", {
@@ -175,6 +194,7 @@ export default function ComparisonPage() {
                 const score = strategy.score ?? strategy.rankingScore;
                 const reasons = getReasons(strategy);
                 const isPrimary = index === 0;
+                const sequence = getSequence(strategy, language);
 
                 return (
                   <article
@@ -209,9 +229,9 @@ export default function ComparisonPage() {
                       {getStrategyName(strategy, index, language)}
                     </h3>
 
-                    {getSequence(strategy).length > 0 && (
+                    {sequence.length > 0 && (
                       <p className="mt-2 text-sm text-slate-600">
-                        {getSequence(strategy).join(" → ")}
+                        {sequence.join(" → ")}
                       </p>
                     )}
 

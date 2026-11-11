@@ -56,7 +56,7 @@ const translations = {
 
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
-function getSequence(strategy) {
+function getSequence(strategy, language) {
   const sequence =
     strategy?.cropSequence ??
     strategy?.sequence ??
@@ -65,11 +65,21 @@ function getSequence(strategy) {
 
   if (!Array.isArray(sequence)) return [];
 
-  return sequence.map((crop) =>
-    typeof crop === "string"
-      ? crop
-      : crop?.nameEn || crop?.name || crop?.slug || String(crop),
-  );
+  return sequence
+    .map((crop) => {
+      if (typeof crop === "string") return crop;
+
+      return (
+        (language === "bn" ? crop?.labelBn : crop?.label) ??
+        crop?.label ??
+        crop?.labelBn ??
+        crop?.nameEn ??
+        crop?.name ??
+        crop?.slug ??
+        ""
+      );
+    })
+    .filter(Boolean);
 }
 
 function getText(value) {
@@ -119,12 +129,13 @@ function renderValue(value, emptyText) {
   return <p className="mt-2 text-sm text-slate-700">{String(value)}</p>;
 }
 
-function getStrategyName(strategy) {
+function getStrategyName(strategy, index, language) {
   return (
-    strategy?.nameEn ||
-    strategy?.name ||
-    strategy?.title ||
-    getSequence(strategy).join(" → ")
+    (language === "bn" ? strategy?.labelBn : strategy?.label) ??
+    strategy?.label ??
+    strategy?.labelBn ??
+    getSequence(strategy, language).join(" → ") ??
+    `${language === "bn" ? "কৌশল" : "Strategy"} ${index + 1}`
   );
 }
 
@@ -144,12 +155,39 @@ export default function RecommendationPage() {
   const result = state?.result ?? savedEvaluation?.result ?? null;
   const payload = state?.payload ?? savedEvaluation?.payload ?? null;
 
-  const selectedStrategy =
-    state?.selectedStrategy || asArray(result?.strategies)[0] || null;
+  const strategies = [...asArray(result?.strategies)].sort((a, b) => {
+    const rankA = Number(a.rank ?? a.ranking ?? a.rankScore);
+    const rankB = Number(b.rank ?? b.ranking ?? b.rankScore);
 
-  const alternatives = asArray(result?.alternativesConsidered);
-  const sequence = getSequence(selectedStrategy);
+    if (Number.isFinite(rankA) && !Number.isFinite(rankB)) return -1;
+    if (!Number.isFinite(rankA) && Number.isFinite(rankB)) return 1;
+
+    if (Number.isFinite(rankA) && Number.isFinite(rankB)) {
+      return rankA - rankB;
+    }
+
+    const scoreA = Number(a.score ?? a.rankingScore);
+    const scoreB = Number(b.score ?? b.rankingScore);
+
+    if (Number.isFinite(scoreA) && Number.isFinite(scoreB)) {
+      return scoreB - scoreA;
+    }
+
+    return 0;
+  });
+
+  const selectedStrategy = state?.selectedStrategy ?? strategies[0] ?? null;
+
+  const selectedIndex = strategies.findIndex(
+    (item) => item === selectedStrategy,
+  );
+
+  const alternatives = strategies.filter((_, index) => index !== selectedIndex);
+
+  const sequence = getSequence(selectedStrategy, language);
+
   const score = selectedStrategy?.score ?? selectedStrategy?.rankingScore;
+
   const reasons =
     selectedStrategy?.reasons ??
     selectedStrategy?.explanations ??
@@ -182,7 +220,8 @@ export default function RecommendationPage() {
             </div>
 
             <h2 className="mt-4 text-2xl font-semibold text-slate-900">
-              {getStrategyName(selectedStrategy) || t.sequence}
+              {getStrategyName(selectedStrategy, selectedIndex, language) ||
+                t.sequence}
             </h2>
 
             {sequence.length > 0 && (
@@ -212,17 +251,11 @@ export default function RecommendationPage() {
               <SectionHeading title={t.alternativesTitle} />
               {renderValue(
                 alternatives.map((item, index) => {
-                  const name = getStrategyName(item);
-                  const crops = getSequence(item);
+                  const name = getStrategyName(item, index, language);
                   const itemScore = item?.score ?? item?.rankingScore;
-                  return [
-                    name ||
-                      crops.join(" → ") ||
-                      `${t.alternativesTitle} ${index + 1}`,
-                    itemScore != null ? `(${t.score}: ${itemScore})` : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ");
+                  return itemScore != null
+                    ? `${name} (${t.score}: ${itemScore})`
+                    : name;
                 }),
                 t.none,
               )}
@@ -231,14 +264,12 @@ export default function RecommendationPage() {
 
           <Card className="mt-5 p-5">
             <SectionHeading title={t.evidenceTitle} />
-
             <div className="grid gap-5 sm:grid-cols-2">
               {[
-                [t.climate, result.climate],
-                [t.soilBasis, result.soilBasis],
-                [t.stability, result.stability],
+                [t.whyTitle, result.decision],
+                [t.climate, result.window],
+                [t.evidenceTitle, result.evidence?.distributions],
                 [t.limitations, result.limitations],
-                [t.notModeled, result.notModeled],
                 [t.disclaimer, result.disclaimer],
               ].map(([label, value]) => (
                 <section className="rounded-lg bg-slate-50 p-4" key={label}>

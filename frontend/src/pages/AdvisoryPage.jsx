@@ -115,11 +115,7 @@ const toDisplayText = (value) => {
 };
 
 const getAdvisoryText = (advisory, language) => {
-  const value =
-    advisory?.advisory ??
-    advisory?.sentence ??
-    advisory?.message ??
-    advisory?.summary;
+  const value = advisory?.decision;
 
   if (typeof value === "string" || typeof value === "number") {
     return String(value);
@@ -137,6 +133,45 @@ const getErrorMessage = (error, fallback) =>
   error?.response?.data?.message ??
   error?.message ??
   fallback;
+const StructuredValue = ({ value, emptyText }) => {
+  if (value == null || value === "") {
+    return <p className="text-sm text-gray-500">{emptyText}</p>;
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? (
+      <ul className="mt-2 space-y-2">
+        {value.map((item, index) => (
+          <li className="rounded-md bg-gray-50 p-3" key={index}>
+            <StructuredValue value={item} emptyText={emptyText} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-sm text-gray-500">{emptyText}</p>
+    );
+  }
+
+  if (typeof value === "object") {
+    return (
+      <dl className="mt-2 space-y-2">
+        {Object.entries(value).map(([key, item]) => (
+          <div
+            className="grid gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr]"
+            key={key}
+          >
+            <dt className="text-sm font-medium text-gray-700">{key}</dt>
+            <dd className="text-sm text-gray-600">
+              <StructuredValue value={item} emptyText={emptyText} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+
+  return <p className="text-sm text-gray-700">{String(value)}</p>;
+};
 
 const DetailSection = ({ title, value, emptyText }) => (
   <section className="border-t border-gray-200 pt-4 first:border-0 first:pt-0">
@@ -469,10 +504,19 @@ const AdvisoryPage = () => {
               </div>
 
               <DetailSection
-                title={t.evidence}
-                value={advisory.evidence}
+                title={t.window}
+                value={advisory.window}
                 emptyText={t.noDetails}
               />
+
+              <section className="border-t border-gray-200 pt-4">
+                <h3 className="font-semibold text-gray-900">{t.evidence}</h3>
+                <StructuredValue
+                  value={advisory.evidence?.distributions}
+                  emptyText={t.noDetails}
+                />
+              </section>
+
               <DetailSection
                 title={t.uncertainty}
                 value={advisory.uncertainty}

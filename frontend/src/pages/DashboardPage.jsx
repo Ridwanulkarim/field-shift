@@ -144,6 +144,7 @@ const Detail = ({ label, value }) => (
 
 const DashboardPage = () => {
   const { language } = useLanguage();
+
   const t = translations[language] ?? translations.en;
   const api = useAxios();
 
@@ -249,9 +250,7 @@ const DashboardPage = () => {
     : [];
   const tally = dataHealth?.tally ?? {};
   const degraded = Boolean(dataHealth?.degraded || health?.degraded);
-  const availableCount = healthDistricts.filter(
-    (district) => district.dataStatus === "available",
-  ).length;
+  const availableCount = Number(tally.nasa ?? 0) + Number(tally.synthetic ?? 0);
 
   const stats = [
     {
@@ -394,7 +393,8 @@ const DashboardPage = () => {
         ) : (
           <div className="mt-4 divide-y divide-gray-200">
             {healthDistricts.map((district, index) => {
-              const isAvailable = district.dataStatus === "available";
+              const status = district.dataStatus;
+              const isAvailable = status === "nasa" || status === "synthetic";
               const districtName =
                 district.name ??
                 district.slug ??
