@@ -1,4 +1,3 @@
-
 import { NavLink, Outlet, useLocation } from "react-router";
 import { Menu, Bell, ChevronRight } from "lucide-react";
 import { useState } from "react";
@@ -28,12 +27,11 @@ const MainLayout = () => {
 
   const { language, setLanguage } = useLanguage();
   const t = translations[language] || translations.en;
-
+  console.log(language);
   const location = useLocation();
 
   const current =
-    navigation.find((item) => item.path === location.pathname) ??
-    navigation[0];
+    navigation.find((item) => item.path === location.pathname) ?? navigation[0];
 
   const groups = [...new Set(navigation.map((item) => item.group))];
 
@@ -51,9 +49,8 @@ const MainLayout = () => {
             className="h-10 w-10 rounded-xl bg-white"
           />
 
-          <h1 className="font-extrabold text-2xl font-montserrat">
-            Field
-            <span className="text-[#26734a]">Shift</span>
+          <h1 className="font-extrabold text-[#26734a] text-2xl font-montserrat">
+            {language == "en" ? "Aboho" : "আবহ"}
           </h1>
         </NavLink>
 
@@ -61,7 +58,8 @@ const MainLayout = () => {
           {groups.map((group) => (
             <div className="nav-group" key={group}>
               <div className="nav-label">
-                {navigation.find((item) => item.group === group)?.groupTranslations?.[language] || group}
+                {navigation.find((item) => item.group === group)
+                  ?.groupTranslations?.[language] || group}
               </div>
 
               {navigation
@@ -80,9 +78,7 @@ const MainLayout = () => {
                       }
                     >
                       <Icon size={17} />
-                      <span>
-                        {item.translations?.[language] || item.label}
-                      </span>
+                      <span>{item.translations?.[language] || item.label}</span>
                     </NavLink>
                   );
                 })}
@@ -118,9 +114,7 @@ const MainLayout = () => {
           <div className="breadcrumbs">
             {t.fieldShift}
             <ChevronRight size={14} />
-            <b>
-              {current.translations?.[language] || current.label}
-            </b>
+            <b>{current.translations?.[language] || current.label}</b>
           </div>
 
           <div className="topbar-actions">
