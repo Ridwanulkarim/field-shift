@@ -46,9 +46,13 @@ export function createApp(config, { repository, fieldService } = {}) {
     if (sessionId !== supplied) {
       const maxAge = config.anonymousSessionMaxAgeMs;
       const secure = config.nodeEnv === 'production' ? '; Secure' : '';
+
+      const isProduction = config.nodeEnv === 'production';
+      const cookieOptions = isProduction ? 'SameSite=None; Secure' : 'SameSite=Lax';
+
       res.setHeader(
         'Set-Cookie',
-        `field_shift_session=${sessionId}; Max-Age=${Math.floor(maxAge / 1000)}; Path=/; HttpOnly; SameSite=Lax${secure}`,
+        `field_shift_session=${sessionId}; Max-Age=${Math.floor(maxAge / 1000)}; Path=/; HttpOnly; ${cookieOptions}`,
       );
     }
     next();
