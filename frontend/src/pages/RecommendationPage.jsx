@@ -1,4 +1,3 @@
-
 import { Link } from "react-router";
 import {
   ArrowRight,
@@ -9,8 +8,6 @@ import {
 } from "lucide-react";
 import { PageHeading, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
-;
-
 const translations = {
   en: {
     eyebrow: "DECISION SUPPORT",
