@@ -57,8 +57,8 @@ export function loadConfig(env = process.env) {
   return {
     port: parsePort(env.PORT),
     nodeEnv,
-    // Browser origin allowed to call this API (the Vite dev server).
-    corsOrigin: env.CORS_ORIGIN || 'http://localhost:5173',
+    // Browser origins allowed to call this API (comma-separated; default is the Vite dev server).
+    corsOrigins: (env.CORS_ORIGIN || 'http://localhost:5173').split(',').map((o) => o.trim().replace(/\/+$/, '')).filter(Boolean),
     anonymousSessionSecret,
     sessionSecretIsEphemeral: !env.ANONYMOUS_SESSION_SECRET,
     // Number of reverse-proxy hops to trust for req.ip (0 = none). See app.js.
