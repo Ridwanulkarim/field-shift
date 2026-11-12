@@ -584,7 +584,15 @@ export default function FieldsPage() {
 
             <div className="mt-5">
               <p className="mb-2 text-sm font-medium text-slate-700">
-                {t.drawBoundary} ({t.points}: {boundaryPoints.length})
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-sm font-medium text-slate-700">
+                    {t.drawBoundary}
+                  </p>
+
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                    {boundaryPoints.length} / 3+
+                  </span>
+                </div>
               </p>
               <MapContainer
                 center={[24.0, 90.0]}
