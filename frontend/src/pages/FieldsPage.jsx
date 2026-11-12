@@ -9,6 +9,8 @@ import {
   TileLayer,
   useMap,
   useMapEvents,
+  CircleMarker,
+  Tooltip,
 } from "react-leaflet";
 
 const blank = {
@@ -105,7 +107,39 @@ function BoundaryClickHandler({ positions, onChange }) {
     },
   });
 
-  return positions.length >= 3 ? <Polygon positions={positions} /> : null;
+  return (
+    <>
+      {positions.length >= 3 && (
+        <Polygon
+          positions={positions}
+          pathOptions={{
+            color: "#16a34a",
+            fillColor: "#22c55e",
+            fillOpacity: 0.2,
+            weight: 3,
+          }}
+        />
+      )}
+
+      {positions.map((position, index) => (
+        <CircleMarker
+          key={`${position[0]}-${position[1]}-${index}`}
+          center={position}
+          radius={8}
+          pathOptions={{
+            color: "#ffffff",
+            weight: 3,
+            fillColor: "#16a34a",
+            fillOpacity: 1,
+          }}
+        >
+          <Tooltip permanent direction="top" offset={[0, -8]}>
+            Point {index + 1}
+          </Tooltip>
+        </CircleMarker>
+      ))}
+    </>
+  );
 }
 
 function DistrictMapFocus({ district }) {
