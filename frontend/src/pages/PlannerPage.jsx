@@ -92,12 +92,6 @@ function getDistrictLabel(district, language) {
   return district.nameEn || district.name || district.slug;
 }
 
-/*
- * Adjust this helper if your actual /api/meta response uses another shape.
- * It supports common forms such as:
- *   { salinity: ["low", "moderate", "high"] }
- *   { options: { salinity: [...] } }
- */
 function getMetaOptions(meta, key) {
   const value = meta?.[key] ?? meta?.options?.[key];
 
@@ -247,7 +241,7 @@ export default function PlannerPage() {
     };
 
     setSubmitting(true);
-    console.log("SUBMITTED PAYLOAD:", JSON.stringify(payload, null, 2));
+
     try {
       const response = await axios.post("/evaluate", payload);
 

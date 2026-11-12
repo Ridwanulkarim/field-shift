@@ -226,24 +226,7 @@ export default function FieldsPage() {
         axios.get("/districts"),
       ]);
 
-      console.log("FIELDS API RESPONSE:", fieldsResponse.data);
-      console.log("DISTRICTS API RESPONSE:", districtsResponse.data);
-      console.log(
-        "FIRST DISTRICT FULL DATA:",
-        JSON.stringify(districtsResponse.data.districts[0], null, 2),
-      );
-      console.log(
-        "DISTRICT GEOMETRY:",
-        districtsResponse.data.districts.map((district) => ({
-          id: district.id,
-          name: district.nameEn,
-          geometry: district.geometry,
-          boundary: district.boundary,
-        })),
-      );
       const loadedFields = fieldsResponse.data.fields ?? [];
-
-      console.log("LOADED FIELDS:", loadedFields);
 
       setFields(loadedFields);
       setDistricts(districtsResponse.data.districts ?? []);

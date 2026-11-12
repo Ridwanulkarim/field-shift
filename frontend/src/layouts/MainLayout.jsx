@@ -27,7 +27,6 @@ const MainLayout = () => {
 
   const { language, setLanguage } = useLanguage();
   const t = translations[language] || translations.en;
-  console.log(language);
   const location = useLocation();
 
   const current =
