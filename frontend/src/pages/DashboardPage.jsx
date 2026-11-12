@@ -120,20 +120,22 @@ const translations = {
   },
 };
 
-const formatDate = (value) => {
+const formatDate = (value, language) => {
   if (!value) return "—";
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(language === "bn" ? "bn-BD" : "en-GB", {
     dateStyle: "medium",
     timeZone: "UTC",
   }).format(date);
 };
 
-const formatNumber = (value) =>
-  typeof value === "number" ? value.toLocaleString() : "—";
+const formatNumber = (value, language) =>
+  typeof value === "number"
+    ? value.toLocaleString(language === "bn" ? "bn-BD" : "en-GB")
+    : "—";
 
 const Detail = ({ label, value }) => (
   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -241,6 +243,21 @@ const DashboardPage = () => {
 
   const { health, dataHealth, meta } = dashboard;
 
+  const localizedValue = (value) => ({
+    database: "ডেটাবেস",
+    "offline-files": "অফলাইন ফাইল",
+    "database-with-offline-fallback": "ডেটাবেস ও অফলাইন বিকল্প",
+    nasa: "NASA",
+    synthetic: "সিন্থেটিক",
+    none: "কোনোটিই নয়",
+    cached: "ক্যাশ করা",
+    demo: "ডেমো",
+    unavailable: "উপলভ্য নয়",
+    not_checked: "পরীক্ষা করা হয়নি",
+    ok: "ঠিক আছে",
+    "field-shift-backend": "ফিল্ড শিফট ব্যাকএন্ড",
+  }[value] ?? value);
+
   // These records contain latestObservationDate, missingCount, rowCount, etc.
   const healthDistricts = Array.isArray(dataHealth?.districts)
     ? dataHealth.districts
@@ -255,29 +272,29 @@ const DashboardPage = () => {
   const stats = [
     {
       label: t.backendStatus,
-      value: health?.status ?? (loading ? t.loading : t.unavailable),
-      detail: health?.service ?? t.healthEndpoint,
+      value: localizedValue(health?.status ?? (loading ? t.loading : t.unavailable)),
+      detail: localizedValue(health?.service ?? t.healthEndpoint),
       icon: Activity,
       tone: health?.status === "ok" ? "blue" : "amber",
     },
     {
       label: t.dataMode,
-      value: dataHealth?.dataMode ?? health?.dataMode ?? "—",
-      detail: degraded ? "Degraded / fallback" : t.operatingMode,
+      value: localizedValue(dataHealth?.dataMode ?? health?.dataMode ?? "—"),
+      detail: degraded ? "সীমিত / বিকল্প মোড" : t.operatingMode,
       icon: Database,
       tone: degraded ? "amber" : undefined,
     },
     {
       label: t.districtCoverage,
       value: healthDistricts.length
-        ? `${availableCount} / ${healthDistricts.length}`
+        ? `${formatNumber(availableCount, language)} / ${formatNumber(healthDistricts.length, language)}`
         : "—",
       detail: t.availableDistricts,
       icon: MapPinned,
     },
     {
       label: t.failedRuns,
-      value: formatNumber(failedRuns.length),
+      value: formatNumber(failedRuns.length, language),
       detail: t.reportedByEndpoint,
       icon: CloudRain,
       tone: failedRuns.length ? "amber" : undefined,
@@ -331,23 +348,25 @@ const DashboardPage = () => {
           <div className="mt-4 space-y-3 text-sm">
             <Detail
               label={t.upstreamService}
-              value={dataHealth?.upstream?.service ?? "—"}
+              value={localizedValue(dataHealth?.upstream?.service ?? "—")}
             />
             <Detail
               label={t.upstreamStatus}
               value={
-                dataHealth?.upstream?.status ??
-                (dataHealth?.upstream?.checked === false ? "Not checked" : "—")
+                localizedValue(
+                  dataHealth?.upstream?.status ??
+                    (dataHealth?.upstream?.checked === false ? "not_checked" : "—"),
+                )
               }
             />
-            <Detail label={t.nasaDistricts} value={formatNumber(tally.nasa)} />
+            <Detail label={t.nasaDistricts} value={formatNumber(tally.nasa, language)} />
             <Detail
               label={t.syntheticDistricts}
-              value={formatNumber(tally.synthetic)}
+              value={formatNumber(tally.synthetic, language)}
             />
             <Detail
               label={t.noDataDistricts}
-              value={formatNumber(tally.none)}
+              value={formatNumber(tally.none, language)}
             />
           </div>
 
@@ -363,14 +382,17 @@ const DashboardPage = () => {
           />
 
           <div className="mt-4 space-y-3 text-sm">
-            <Detail label={t.service} value={health?.service ?? "—"} />
+            <Detail
+              label={t.service}
+              value={localizedValue(health?.service ?? "—")}
+            />
             <Detail
               label={t.lastHealthCheck}
-              value={formatDate(health?.timestamp)}
+              value={formatDate(health?.timestamp, language)}
             />
             <Detail
               label={t.operatingMode}
-              value={dataHealth?.dataMode ?? health?.dataMode ?? "—"}
+              value={localizedValue(dataHealth?.dataMode ?? health?.dataMode ?? "—")}
             />
             <Detail
               label={t.configuration}
@@ -396,6 +418,7 @@ const DashboardPage = () => {
               const status = district.dataStatus;
               const isAvailable = status === "nasa" || status === "synthetic";
               const districtName =
+                district.nameBn ??
                 district.name ??
                 district.slug ??
                 `${t.districtTitle} ${index + 1}`;
@@ -411,9 +434,11 @@ const DashboardPage = () => {
                         {districtName}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {district.dataStatus ??
-                          district.climateData ??
-                          t.unknown}
+                        {                        localizedValue(
+                          district.dataStatus ??
+                            district.climateData ??
+                            t.unknown,
+                        )}
                       </p>
                     </div>
 
@@ -435,23 +460,23 @@ const DashboardPage = () => {
                   <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                     <Detail
                       label={t.observation}
-                      value={formatDate(district.latestObservationDate)}
+                      value={formatDate(district.latestObservationDate, language)}
                     />
                     <Detail
                       label={t.missingRecords}
-                      value={formatNumber(district.missingCount)}
+                      value={formatNumber(district.missingCount, language)}
                     />
                     <Detail
                       label={t.rows}
-                      value={formatNumber(district.rowCount)}
+                      value={formatNumber(district.rowCount, language)}
                     />
                     <Detail
                       label={t.daysSince}
-                      value={formatNumber(district.daysSinceLatest)}
+                      value={formatNumber(district.daysSinceLatest, language)}
                     />
                     <Detail
                       label={t.dataSource}
-                      value={district.climateData ?? "—"}
+                      value={localizedValue(district.climateData ?? "—")}
                     />
                   </div>
                 </article>
@@ -486,7 +511,7 @@ const DashboardPage = () => {
                 />
                 <span>
                   {run.message ?? run.error ?? run.status ?? t.failedRun}
-                  {run.timestamp && ` — ${formatDate(run.timestamp)}`}
+                  {run.timestamp && ` — ${formatDate(run.timestamp, language)}`}
                 </span>
               </li>
             ))}

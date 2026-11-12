@@ -89,6 +89,17 @@ const fallbackMeta = {
   irrigation: ["none", "limited", "reliable"],
 };
 
+const optionLabelsBn = {
+  none: "নেই",
+  slight: "সামান্য",
+  moderate: "মাঝারি",
+  high: "বেশি",
+  good: "ভালো",
+  poor: "খারাপ",
+  limited: "সীমিত",
+  reliable: "নির্ভরযোগ্য",
+};
+
 function getDistrictSlug(district) {
   return district.slug ?? district.code ?? "";
 }
@@ -494,7 +505,7 @@ export default function PlannerPage() {
                   >
                     {salinityOptions.map((option) => (
                       <option key={option} value={option}>
-                        {option}
+                        {language === "bn" ? optionLabelsBn[option] ?? option : option}
                       </option>
                     ))}
                   </select>
@@ -511,7 +522,7 @@ export default function PlannerPage() {
                   >
                     {drainageOptions.map((option) => (
                       <option key={option} value={option}>
-                        {option}
+                        {language === "bn" ? optionLabelsBn[option] ?? option : option}
                       </option>
                     ))}
                   </select>
@@ -526,7 +537,7 @@ export default function PlannerPage() {
                   >
                     {irrigationOptions.map((option) => (
                       <option key={option} value={option}>
-                        {option}
+                        {language === "bn" ? optionLabelsBn[option] ?? option : option}
                       </option>
                     ))}
                   </select>

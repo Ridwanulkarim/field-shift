@@ -48,6 +48,8 @@ export function createHealthRouter(repository) {
       upstream: { service: 'NASA POWER', checked: false, status: 'not_checked' },
       districts: districts.map((d) => ({
         slug: d.slug,
+        nameEn: d.nameEn,
+        nameBn: d.nameBn,
         climateData: d.climateData,
         dataStatus: d.dataStatus,
         latestObservationDate: d.latestObservationDate,

@@ -99,8 +99,14 @@ const copy = {
 };
 
 const soilOptions = ["Loamy", "Silty loam", "Clay", "Sandy"];
+const soilLabelsBn = {
+  Loamy: "দোআঁশ",
+  "Silty loam": "পলিমাটি দোআঁশ",
+  Clay: "এঁটেল",
+  Sandy: "বেলে",
+};
 
-function BoundaryClickHandler({ positions, onChange }) {
+function BoundaryClickHandler({ positions, onChange, language }) {
   useMapEvents({
     click(event) {
       onChange([...positions, [event.latlng.lat, event.latlng.lng]]);
@@ -134,7 +140,7 @@ function BoundaryClickHandler({ positions, onChange }) {
           }}
         >
           <Tooltip permanent direction="top" offset={[0, -8]}>
-            Point {index + 1}
+            {language === "bn" ? "পয়েন্ট" : "Point"} {index + 1}
           </Tooltip>
         </CircleMarker>
       ))}
@@ -530,7 +536,7 @@ export default function FieldsPage() {
                   >
                     {soilOptions.map((soil) => (
                       <option key={soil} value={soil}>
-                        {soil}
+                        {language === "bn" ? soilLabelsBn[soil] : soil}
                       </option>
                     ))}
                   </select>
@@ -618,6 +624,7 @@ export default function FieldsPage() {
                   <BoundaryClickHandler
                     positions={boundaryPoints}
                     onChange={setBoundaryPoints}
+                    language={language}
                   />
                 </MapContainer>
 
@@ -627,7 +634,7 @@ export default function FieldsPage() {
                     className="mt-2 text-sm text-red-600 underline"
                     onClick={() => setBoundaryPoints([])}
                   >
-                    Clear boundary
+                    {language === "bn" ? "সীমানা মুছুন" : "Clear boundary"}
                   </button>
                 )}
               </div>
