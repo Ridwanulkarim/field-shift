@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router";
-import { Menu, Bell, ChevronRight } from "lucide-react";
+import { Menu, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { navigation } from "../data/navigation";
 import logo from "../assets/logo.png";
@@ -149,14 +149,6 @@ const MainLayout = () => {
               <i />
               {t.dataAvailable}
             </span>
-
-            <button
-              className="icon-button"
-              aria-label={t.notifications}
-              title={t.notifications}
-            >
-              <Bell size={18} />
-            </button>
           </div>
         </header>
 

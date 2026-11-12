@@ -451,195 +451,203 @@ export default function FieldsPage() {
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4"
+          className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            height: "100dvh",
+          }}
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) resetForm();
           }}
         >
-          <form
-            className="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl"
-            onSubmit={saveField}
-          >
-            <div className="mb-5 flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold tracking-wider text-green-700">
-                  {t.profile}
-                </p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-900">
-                  {editingId ? t.editTitle : t.addTitle}
-                </h2>
-              </div>
-              <button
-                type="button"
-                className="rounded p-1 text-2xl leading-none text-slate-500 hover:bg-slate-100"
-                onClick={resetForm}
-                aria-label={t.cancel}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-sm font-medium text-slate-700">
-                {t.fieldName}
-                <input
-                  required
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  value={form.name}
-                  onChange={(event) =>
-                    setForm({ ...form, name: event.target.value })
-                  }
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                {t.district}
-                <select
-                  required
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  value={form.districtId}
-                  onChange={(event) =>
-                    setForm({ ...form, districtId: event.target.value })
-                  }
-                >
-                  <option value="">{t.selectDistrict}</option>
-
-                  {districts.map((district) => (
-                    <option key={district.id} value={district.id}>
-                      {language === "bn"
-                        ? district.nameBn || district.nameEn || district.name
-                        : district.nameEn || district.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                {t.soil}
-                <select
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  value={form.soilType}
-                  onChange={(event) =>
-                    setForm({ ...form, soilType: event.target.value })
-                  }
-                >
-                  {soilOptions.map((soil) => (
-                    <option key={soil} value={soil}>
-                      {soil}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                {t.irrigationSource}
-                <input
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  value={form.irrigationSource}
-                  onChange={(event) =>
-                    setForm({ ...form, irrigationSource: event.target.value })
-                  }
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                {t.soilPh}
-                <input
-                  type="number"
-                  step="any"
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  value={form.soilPh}
-                  onChange={(event) =>
-                    setForm({ ...form, soilPh: event.target.value })
-                  }
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                {t.organicMatter}
-                <input
-                  type="number"
-                  step="any"
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  value={form.organicMatterPct}
-                  onChange={(event) =>
-                    setForm({ ...form, organicMatterPct: event.target.value })
-                  }
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
-                {t.salinity}
-                <input
-                  type="number"
-                  step="any"
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 sm:max-w-xs"
-                  value={form.salinityDsM}
-                  onChange={(event) =>
-                    setForm({ ...form, salinityDsM: event.target.value })
-                  }
-                />
-              </label>
-            </div>
-
-            <div className="mt-5">
-              <p className="mb-2 text-sm font-medium text-slate-700">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-medium text-slate-700">
-                    {t.drawBoundary}
+          <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+            <form
+              className="my-auto w-full max-w-2xl rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+              onSubmit={saveField}
+            >
+              <div className="mb-5 flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold tracking-wider text-green-700">
+                    {t.profile}
                   </p>
-
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                    {boundaryPoints.length} / 3+
-                  </span>
+                  <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                    {editingId ? t.editTitle : t.addTitle}
+                  </h2>
                 </div>
-              </p>
-              <MapContainer
-                center={[24.0, 90.0]}
-                zoom={7}
-                className="h-72 w-full rounded-lg"
-              >
-                <TileLayer
-                  attribution="&copy; OpenStreetMap contributors"
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                {/* Focus on selected district */}
-                <DistrictMapFocus district={selectedDistrict} />
-
-                {/* Draw field boundary */}
-                <BoundaryClickHandler
-                  positions={boundaryPoints}
-                  onChange={setBoundaryPoints}
-                />
-              </MapContainer>
-
-              {boundaryPoints.length > 0 && (
                 <button
                   type="button"
-                  className="mt-2 text-sm text-red-600 underline"
-                  onClick={() => setBoundaryPoints([])}
+                  className="rounded p-1 text-2xl leading-none text-slate-500 hover:bg-slate-100"
+                  onClick={resetForm}
+                  aria-label={t.cancel}
                 >
-                  Clear boundary
+                  ×
                 </button>
+              </div>
+
+              <div className="w-full flex flex-col gap-4 rounded-lg mb-5">
+                <label className="block text-sm font-medium text-slate-700">
+                  {t.fieldName}
+                  <input
+                    required
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={form.name}
+                    onChange={(event) =>
+                      setForm({ ...form, name: event.target.value })
+                    }
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-slate-700">
+                  {t.district}
+                  <select
+                    required
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={form.districtId}
+                    onChange={(event) =>
+                      setForm({ ...form, districtId: event.target.value })
+                    }
+                  >
+                    <option value="">{t.selectDistrict}</option>
+
+                    {districts.map((district) => (
+                      <option key={district.id} value={district.id}>
+                        {language === "bn"
+                          ? district.nameBn || district.nameEn || district.name
+                          : district.nameEn || district.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block text-sm font-medium text-slate-700">
+                  {t.soil}
+                  <select
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={form.soilType}
+                    onChange={(event) =>
+                      setForm({ ...form, soilType: event.target.value })
+                    }
+                  >
+                    {soilOptions.map((soil) => (
+                      <option key={soil} value={soil}>
+                        {soil}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block text-sm font-medium text-slate-700">
+                  {t.irrigationSource}
+                  <input
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={form.irrigationSource}
+                    onChange={(event) =>
+                      setForm({ ...form, irrigationSource: event.target.value })
+                    }
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-slate-700">
+                  {t.soilPh}
+                  <input
+                    type="number"
+                    step="any"
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={form.soilPh}
+                    onChange={(event) =>
+                      setForm({ ...form, soilPh: event.target.value })
+                    }
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-slate-700">
+                  {t.organicMatter}
+                  <input
+                    type="number"
+                    step="any"
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={form.organicMatterPct}
+                    onChange={(event) =>
+                      setForm({ ...form, organicMatterPct: event.target.value })
+                    }
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
+                  {t.salinity}
+                  <input
+                    type="number"
+                    step="any"
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 sm:max-w-xs"
+                    value={form.salinityDsM}
+                    onChange={(event) =>
+                      setForm({ ...form, salinityDsM: event.target.value })
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="mt-6">
+                <div className="mb-2 text-sm font-medium text-slate-700">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium text-slate-700">
+                      {t.drawBoundary}
+                    </p>
+
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                      {boundaryPoints.length} / 3+
+                    </span>
+                  </div>
+                </div>
+                <MapContainer
+                  center={[24.0, 90.0]}
+                  zoom={7}
+                  className="h-56 w-full rounded-lg sm:h-72"
+                  scrollWheelZoom={false}
+                  style={{ zIndex: 0 }}
+                >
+                  <TileLayer
+                    attribution="&copy; OpenStreetMap contributors"
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+
+                  {/* Focus on selected district */}
+                  <DistrictMapFocus district={selectedDistrict} />
+
+                  {/* Draw field boundary */}
+                  <BoundaryClickHandler
+                    positions={boundaryPoints}
+                    onChange={setBoundaryPoints}
+                  />
+                </MapContainer>
+
+                {boundaryPoints.length > 0 && (
+                  <button
+                    type="button"
+                    className="mt-2 text-sm text-red-600 underline"
+                    onClick={() => setBoundaryPoints([])}
+                  >
+                    Clear boundary
+                  </button>
+                )}
+              </div>
+
+              {formError && (
+                <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                  {formError}
+                </p>
               )}
-            </div>
 
-            {formError && (
-              <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                {formError}
-              </p>
-            )}
-
-            <div className="mt-6 flex justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={resetForm}>
-                {t.cancel}
-              </Button>
-              <Button type="submit" disabled={saving}>
-                {saving ? t.saving : t.save}
-              </Button>
-            </div>
-          </form>
+              <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 pb-4 sm:flex-row sm:justify-end sm:pb-0">
+                <Button type="button" variant="secondary" onClick={resetForm}>
+                  {t.cancel}
+                </Button>
+                <Button type="submit" disabled={saving}>
+                  {saving ? t.saving : t.save}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </>
