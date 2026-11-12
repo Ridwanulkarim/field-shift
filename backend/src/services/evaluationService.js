@@ -26,6 +26,8 @@ import {
   NOT_MODELED,
   MAX_CROPS,
   MAX_PAIR_OVERLAP_MONTHS,
+  ONSET_BY_CROP,
+  EXPERIMENTAL_CROPS,
 } from '../science/rules.js';
 
 export const METHOD = {
@@ -194,6 +196,15 @@ export function createEvaluationService(repo) {
     async listCrops() {
       const crops = await repo.listCrops();
       return crops.map(({ id, ...c }) => c);
+    },
+
+    // Crops the planting advisory can answer for: exactly those with a rain-onset rule. Driven by ONSET_BY_CROP so the
+    // list cannot drift from the science.
+    async listAdvisoryCrops() {
+      const crops = await repo.listCrops();
+      return crops
+        .filter((c) => ONSET_BY_CROP[c.slug])
+        .map((c) => ({ slug: c.slug, nameEn: c.nameEn, nameBn: c.nameBn, experimental: Boolean(EXPERIMENTAL_CROPS[c.slug]) }));
     },
 
     async cropCompatibility() {

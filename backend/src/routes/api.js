@@ -82,6 +82,11 @@ export function createApiRouter(service) {
     res.json({ crops: await need().listCrops() });
   });
 
+  // GET /api/crops/advisory-supported : the crops the planting advisory has a rule for (the advisory page's crop list)
+  router.get('/crops/advisory-supported', async (req, res) => {
+    res.json({ crops: await need().listAdvisoryCrops() });
+  });
+
   // GET /api/crops/compatibility : for every crop, the crops that can share a year with it (used to filter the planner's pickers)
   router.get('/crops/compatibility', async (req, res) => {
     res.json(await need().cropCompatibility());

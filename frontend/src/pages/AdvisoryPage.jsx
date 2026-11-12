@@ -5,397 +5,382 @@ import {
   Copy,
   Info,
   LoaderCircle,
+  Printer,
 } from "lucide-react";
-import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
+import { PageHeading, Card, SectionHeading } from "../components/UI";
+import OnsetChart from "../components/OnsetChart";
 import { useLanguage } from "../layouts/context/LanguageContext";
 import useAxios from "../hooks/useAxios";
+
+const MAX_WINDOW_DAYS = 120; // same limit as the backend (MAX_USUAL_WINDOW_DAYS)
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // the analysis uses a 365-day year
 
 const translations = {
   en: {
     eyebrow: "SEASONAL CONTEXT",
     title: "Planting window advisory",
     description:
-      "Review district-level planting guidance, evidence, uncertainty, and data provenance.",
-    selectTitle: "Select your location and crop",
-    selectDescription: "Choose a district and crop to request an advisory.",
+      "See whether the start of usable rain has moved over the last 25 years, and what that means for your planting dates.",
+    selectTitle: "Your location and crop",
+    selectDescription: "The advisory updates as soon as you change a choice.",
     district: "District",
     crop: "Crop",
-    selectDistrict: "Select a district",
-    selectCrop: "Select a crop",
-    getAdvisory: "Get advisory",
+    experimental: "experimental",
+    usualTitle: "Your usual transplanting window (optional)",
+    usualHelp: "Add your usual dates to see them moved by the supported shift.",
+    from: "From",
+    to: "To",
+    month: "Month",
+    day: "Day",
+    clear: "Clear dates",
+    orderError: "The start date must not be after the end date.",
+    longError: `The window can be at most ${MAX_WINDOW_DAYS} days long.`,
     loadingOptions: "Loading districts and crops…",
-    loadingAdvisory: "Loading advisory…",
-    resultTitle: "Advisory",
-    resultDescription:
-      "The advisory and supporting information returned by the backend.",
-    evidence: "Evidence",
-    uncertainty: "Uncertainty",
-    limitations: "Limitations",
-    provenance: "Data provenance",
-    disclaimer: "Disclaimer",
-    copy: "Copy advisory",
-    copied: "Copied",
-    empty: "Select a district and crop to request an advisory.",
-    noAdvisory: "The endpoint did not return an advisory sentence.",
-    noDetails: "No additional details were returned.",
+    loadingAdvisory: "Updating advisory…",
     optionsError: "Could not load districts or crops.",
     advisoryError: "Could not load the advisory.",
     retry: "Retry",
-    usualFrom: "Usual planting window starts",
-    usualTo: "Usual planting window ends",
+    empty: "Choose a district and crop.",
+    resultTitle: "Advice for you",
+    decision: {
+      no_change: "Keep your usual planting time",
+      weak: "No reliable change found: keep your usual time",
+      saturated: "Cannot tell: keep your usual time",
+      insufficient_data: "Not enough data to advise",
+      not_applicable: "No advice for this crop",
+      delay: (n) => `Move planting about ${n} days later`,
+      advance: (n) => `Move planting about ${n} days earlier`,
+    },
+    confidence: {
+      supported: "Clear change",
+      weak: "Not reliable",
+      none: "No clear change",
+      not_applicable: "Not applicable",
+    },
+    windowTitle: "Your planting window",
+    usualLabel: "Your usual",
+    suggestedLabel: "Suggested",
+    unchanged: "unchanged",
+    windowHint: "Enter your usual dates to see them moved.",
+    copySentence: "Copy advice",
+    copySms: "Copy SMS text",
+    copied: "Copied",
+    print: "Print",
+    smsInfo: (len, seg) => `SMS text: ${len} characters, ${seg} message${seg > 1 ? "s" : ""}`,
+    bnDraft:
+      "The Bangla text is a draft that a native speaker has not yet reviewed.",
+    experimentalTitle: "Experimental result",
+    chartTitle: "When usable rain started, year by year",
+    chartIntro:
+      "Each dot is one year. The shaded band covers the middle half of the years; the dashed line is the median.",
+    early: (p) => `${p.from}–${p.to} · ${p.years} years`,
+    late: (p) => `${p.from}–${p.to} · ${p.years} years`,
+    median: "median",
+    censoredNote: (n) =>
+      `${n} year${n > 1 ? "s" : ""} had no usable rain by the end of the search season and ${n > 1 ? "are" : "is"} not plotted.`,
+    numbersTitle: "Show the numbers",
+    colPeriod: "Period",
+    colYears: "Years",
+    colFound: "Start found",
+    colNone: "No usable rain by season end",
+    colUnknown: "Not enough data",
+    colRange: "Middle half of years",
+    colMedian: "Median start",
+    certaintyTitle: "How sure is this?",
+    estimate: (est, lo, hi) =>
+      `Best estimate of the shift: ${est} days. The data cannot rule out anything from ${lo} to ${hi} days (minus = earlier, plus = later).`,
+    meaning: {
+      supported: "A shift was found and most alternative definitions of “usable rain” agree.",
+      weak: "Something was seen, but it depends on how “usable rain” is defined, so no change in planting time is advised.",
+      none: "No change could be told apart from normal year-to-year variation. This does not mean nothing changed.",
+      not_applicable: "No rain-start rule is defined for this crop.",
+    },
+    agreement: (a, b) =>
+      `${a} of ${b} alternative definitions of “usable rain” give the same answer.`,
+    limitsTitle: "Limits to keep in mind",
+    englishOnly: "(shown in English)",
+    provenanceTitle: "Where the data comes from",
+    source: "Source",
+    retrieved: "Retrieved",
+    dataThrough: "Data through",
+    latestObs: (d, ago) => `Latest observation ${d}${ago != null ? ` (${ago} days ago)` : ""}`,
+    storedNote: "Stored NASA POWER data, not a live query.",
+    syntheticNote: "SYNTHETIC test data, not real observations.",
+    offlineNote: "Served from a committed offline file.",
+    gridNote: "Values describe a grid cell of roughly 0.5 degrees, not one farm.",
     infoTitle: "Use as evidence-based guidance",
-    info: "Advisory results depend on available real climate data and the backend method. They are not a guarantee of weather conditions or crop outcomes.",
+    info: "This is decision support, not a forecast. It compares when usable rain started in earlier and later years and does not guarantee weather or crop outcomes. Please check with your local agricultural extension officer.",
   },
   bn: {
     eyebrow: "মৌসুমি প্রেক্ষাপট",
     title: "রোপণের সময়সূচি পরামর্শ",
     description:
-      "জেলাভিত্তিক রোপণ পরামর্শ, প্রমাণ, অনিশ্চয়তা এবং ডেটার উৎস পর্যালোচনা করুন।",
-    selectTitle: "আপনার অবস্থান ও ফসল নির্বাচন করুন",
-    selectDescription: "পরামর্শ পেতে একটি জেলা ও ফসল নির্বাচন করুন।",
+      "গত ২৫ বছরে কার্যকর বৃষ্টি শুরুর সময় সরেছে কি না এবং তাতে আপনার রোপণের তারিখে কী প্রভাব পড়ে তা দেখুন।",
+    selectTitle: "আপনার অবস্থান ও ফসল",
+    selectDescription: "কিছু বদলালেই পরামর্শ নিজে থেকে হালনাগাদ হবে।",
     district: "জেলা",
     crop: "ফসল",
-    selectDistrict: "জেলা নির্বাচন করুন",
-    selectCrop: "ফসল নির্বাচন করুন",
-    getAdvisory: "পরামর্শ দেখুন",
+    experimental: "পরীক্ষামূলক",
+    usualTitle: "আপনার চিরাচরিত রোপণের সময় (ঐচ্ছিক)",
+    usualHelp: "আপনার সাধারণ তারিখ দিলে তা সমর্থিত পরিবর্তন অনুযায়ী সরিয়ে দেখানো হবে।",
+    from: "শুরু",
+    to: "শেষ",
+    month: "মাস",
+    day: "দিন",
+    clear: "তারিখ মুছুন",
+    orderError: "শুরুর তারিখ শেষের তারিখের পরে হতে পারবে না।",
+    longError: `সময়কাল সর্বোচ্চ ${MAX_WINDOW_DAYS} দিনের হতে পারবে।`,
     loadingOptions: "জেলা ও ফসল লোড হচ্ছে…",
-    loadingAdvisory: "পরামর্শ লোড হচ্ছে…",
-    resultTitle: "পরামর্শ",
-    resultDescription: "ব্যাকএন্ড থেকে পাওয়া পরামর্শ ও সহায়ক তথ্য।",
-    evidence: "প্রমাণ",
-    uncertainty: "অনিশ্চয়তা",
-    limitations: "সীমাবদ্ধতা",
-    provenance: "ডেটার উৎস",
-    disclaimer: "দায়মুক্তি",
-    copy: "পরামর্শ কপি করুন",
-    copied: "কপি হয়েছে",
-    empty: "পরামর্শ পেতে একটি জেলা ও ফসল নির্বাচন করুন।",
-    noAdvisory: "এন্ডপয়েন্ট থেকে কোনো পরামর্শ বাক্য পাওয়া যায়নি।",
-    noDetails: "অতিরিক্ত কোনো বিবরণ পাওয়া যায়নি।",
+    loadingAdvisory: "পরামর্শ হালনাগাদ হচ্ছে…",
     optionsError: "জেলা বা ফসল লোড করা যায়নি।",
     advisoryError: "পরামর্শ লোড করা যায়নি।",
     retry: "আবার চেষ্টা করুন",
-    usualFrom: "সাধারণত রোপণ শুরু",
-    usualTo: "সাধারণত রোপণ শেষ",
+    empty: "একটি জেলা ও ফসল নির্বাচন করুন।",
+    resultTitle: "আপনার জন্য পরামর্শ",
+    decision: {
+      no_change: "চিরাচরিত রোপণের সময়ই রাখুন",
+      weak: "নির্ভরযোগ্য পরিবর্তন পাওয়া যায়নি: চিরাচরিত সময়ই রাখুন",
+      saturated: "নিশ্চিত করে বলা যাচ্ছে না: চিরাচরিত সময়ই রাখুন",
+      insufficient_data: "পরামর্শ দেওয়ার মতো তথ্য নেই",
+      not_applicable: "এই ফসলের জন্য কোনো পরামর্শ নেই",
+      delay: (n) => `রোপণ প্রায় ${n} দিন পিছিয়ে নিন`,
+      advance: (n) => `রোপণ প্রায় ${n} দিন এগিয়ে আনুন`,
+    },
+    confidence: {
+      supported: "স্পষ্ট পরিবর্তন",
+      weak: "নির্ভরযোগ্য নয়",
+      none: "স্পষ্ট পরিবর্তন নেই",
+      not_applicable: "প্রযোজ্য নয়",
+    },
+    windowTitle: "আপনার রোপণের সময়",
+    usualLabel: "আপনার চিরাচরিত",
+    suggestedLabel: "প্রস্তাবিত",
+    unchanged: "অপরিবর্তিত",
+    windowHint: "আপনার চিরাচরিত তারিখ দিলে তা সরিয়ে দেখানো হবে।",
+    copySentence: "পরামর্শ কপি করুন",
+    copySms: "SMS লেখা কপি করুন",
+    copied: "কপি হয়েছে",
+    print: "প্রিন্ট",
+    smsInfo: (len, seg) => `SMS লেখা: ${len} অক্ষর, ${seg}টি বার্তা`,
+    bnDraft: "বাংলা লেখাটি একটি খসড়া, যা এখনও কোনো মাতৃভাষী যাচাই করেননি।",
+    experimentalTitle: "পরীক্ষামূলক ফলাফল",
+    chartTitle: "কোন বছর কবে কার্যকর বৃষ্টি শুরু হয়েছে",
+    chartIntro:
+      "প্রতিটি বিন্দু এক বছর। ছায়াযুক্ত অংশে মাঝের অর্ধেক বছর পড়ে; ড্যাশ দেওয়া রেখাটি মধ্যমান।",
+    early: (p) => `${p.from}–${p.to} · ${p.years} বছর`,
+    late: (p) => `${p.from}–${p.to} · ${p.years} বছর`,
+    median: "মধ্যমান",
+    censoredNote: (n) =>
+      `${n}টি বছরে অনুসন্ধানের মৌসুম শেষ পর্যন্ত কার্যকর বৃষ্টি হয়নি, তাই সেগুলো দেখানো হয়নি।`,
+    numbersTitle: "সংখ্যাগুলো দেখুন",
+    colPeriod: "সময়কাল",
+    colYears: "বছর",
+    colFound: "শুরু পাওয়া গেছে",
+    colNone: "মৌসুম শেষ পর্যন্ত কার্যকর বৃষ্টি নেই",
+    colUnknown: "তথ্য অপর্যাপ্ত",
+    colRange: "মাঝের অর্ধেক বছর",
+    colMedian: "মধ্যমান শুরু",
+    certaintyTitle: "কতটা নিশ্চিত?",
+    estimate: (est, lo, hi) =>
+      `পরিবর্তনের সেরা অনুমান: ${est} দিন। তথ্য থেকে ${lo} থেকে ${hi} দিন পর্যন্ত বাদ দেওয়া যায় না (বিয়োগ = আগে, যোগ = পরে)।`,
+    meaning: {
+      supported: "একটি পরিবর্তন পাওয়া গেছে এবং “কার্যকর বৃষ্টি”র বেশিরভাগ বিকল্প সংজ্ঞা একমত।",
+      weak: "কিছু একটা চোখে পড়েছে, তবে তা “কার্যকর বৃষ্টি”র সংজ্ঞার ওপর নির্ভর করে, তাই রোপণের সময় বদলানোর পরামর্শ দেওয়া হচ্ছে না।",
+      none: "বছর থেকে বছরের স্বাভাবিক ওঠানামা থেকে আলাদা করার মতো কোনো পরিবর্তন পাওয়া যায়নি। এর মানে এই নয় যে কিছুই বদলায়নি।",
+      not_applicable: "এই ফসলের জন্য বৃষ্টি শুরুর কোনো নিয়ম নির্ধারিত নেই।",
+    },
+    agreement: (a, b) =>
+      `“কার্যকর বৃষ্টি”র ${b}টি বিকল্প সংজ্ঞার মধ্যে ${a}টি একই উত্তর দেয়।`,
+    limitsTitle: "যা মনে রাখতে হবে",
+    englishOnly: "(ইংরেজিতে দেখানো হয়েছে)",
+    provenanceTitle: "তথ্যের উৎস",
+    source: "উৎস",
+    retrieved: "সংগ্রহের তারিখ",
+    dataThrough: "তথ্য পর্যন্ত",
+    latestObs: (d, ago) => `সর্বশেষ পর্যবেক্ষণ ${d}${ago != null ? ` (${ago} দিন আগে)` : ""}`,
+    storedNote: "সংরক্ষিত NASA POWER তথ্য, সরাসরি অনুসন্ধান নয়।",
+    syntheticNote: "কৃত্রিম পরীক্ষামূলক তথ্য, প্রকৃত পর্যবেক্ষণ নয়।",
+    offlineNote: "সংরক্ষিত অফলাইন ফাইল থেকে দেওয়া হয়েছে।",
+    gridNote: "মানগুলো প্রায় ০.৫ ডিগ্রির একটি গ্রিড সেলের, একটি জমির নয়।",
     infoTitle: "প্রমাণভিত্তিক নির্দেশনা হিসেবে ব্যবহার করুন",
-    info: "পরামর্শের ফলাফল উপলভ্য বাস্তব জলবায়ু তথ্য ও ব্যাকএন্ডের পদ্ধতির ওপর নির্ভর করে। এটি আবহাওয়া বা ফসলের ফলনের নিশ্চয়তা নয়।",
+    info: "এটি সিদ্ধান্ত-সহায়তা, পূর্বাভাস নয়। আগের ও পরের বছরগুলোতে কার্যকর বৃষ্টি কবে শুরু হয়েছে তা তুলনা করা হয়েছে; আবহাওয়া বা ফলনের নিশ্চয়তা নয়। স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।",
   },
 };
 
-const getList = (response, key) => {
-  const data = response?.data ?? response;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.[key])) return data[key];
-  return [];
-};
-
-const getLocalizedName = (item, language) =>
-  language === "bn"
-    ? (item.nameBn ?? item.nameEn ?? item.name ?? item.slug ?? "")
-    : (item.nameEn ?? item.name ?? item.slug ?? "");
-
-const toDisplayText = (value) => {
-  if (value == null || value === "") return "";
-  if (typeof value === "string" || typeof value === "number") {
-    return String(value);
-  }
-  if (Array.isArray(value)) {
-    return value.map(toDisplayText).filter(Boolean).join("; ");
-  }
-  if (typeof value === "object") {
-    return Object.entries(value)
-      .map(([key, item]) => {
-        const text = toDisplayText(item);
-        return text ? `${key}: ${text}` : "";
-      })
-      .filter(Boolean)
-      .join("; ");
-  }
-  return "";
-};
-
-const getAdvisoryText = (advisory, language) => {
-  const value = advisory?.decision;
-
-  if (typeof value === "string" || typeof value === "number") {
-    return String(value);
-  }
-
-  if (value && typeof value === "object") {
-    return value[language] ?? value.text ?? value.en ?? value.bn ?? "";
-  }
-
-  return "";
-};
-
 const getErrorMessage = (error, fallback) =>
-  error?.response?.data?.error?.message ??
-  error?.response?.data?.message ??
-  error?.message ??
-  fallback;
+  error?.response?.data?.error?.message ?? error?.message ?? fallback;
 
-const StructuredValue = ({ value, emptyText }) => {
-  if (value == null || value === "") {
-    return <p className="text-sm text-gray-500 break-words">{emptyText}</p>;
-  }
+const localeOf = (language) => (language === "bn" ? "bn-BD" : "en-GB");
 
-  if (Array.isArray(value)) {
-    return value.length ? (
-      <ul className="mt-2 w-full min-w-0 max-w-full space-y-2">
-        {value.map((item, index) => (
-          <li
-            className="w-full min-w-0 max-w-full overflow-hidden rounded-md bg-gray-50 p-3"
-            key={index}
-          >
-            <StructuredValue value={item} emptyText={emptyText} />
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p className="text-sm text-gray-500">{emptyText}</p>
-    );
-  }
-
-  if (typeof value === "object") {
-    return (
-      <dl className="mt-2 w-full min-w-0 max-w-full space-y-2">
-        {Object.entries(value).map(([key, item]) => (
-          <div
-            className="grid min-w-0 grid-cols-1 gap-1 sm:grid-cols-[minmax(0,8rem)_minmax(0,1fr)]"
-            key={key}
-          >
-            <dt className="min-w-0 break-words text-sm font-semibold text-gray-700">
-              {key}
-            </dt>
-            <dd className="min-w-0 max-w-full break-words text-sm text-gray-600 [overflow-wrap:anywhere]">
-              <StructuredValue value={item} emptyText={emptyText} />
-            </dd>
-          </div>
-        ))}
-      </dl>
-    );
-  }
-
-  return (
-    <p className="max-w-full break-words text-sm text-gray-700 [overflow-wrap:anywhere]">
-      {String(value)}
-    </p>
-  );
+const mdToDate = (md, locale) => {
+  const [m, d] = md.split("-").map(Number);
+  return new Date(Date.UTC(2001, m - 1, d)).toLocaleDateString(locale, {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
 };
 
-const DetailSection = ({ title, value, emptyText }) => (
-  <section className="border-t border-gray-200 pt-4 first:border-0 first:pt-0">
-    <h3 className="font-semibold text-gray-900">{title}</h3>
-    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-gray-700">
-      {toDisplayText(value) || emptyText}
-    </p>
-  </section>
-);
-//Evidence info
-const EvidenceDistribution = ({ evidence }) => {
-  if (!evidence?.distributions) {
-    return (
-      <p className="text-sm text-gray-500">
-        No additional details were returned.
-      </p>
-    );
-  }
+const mdToDay = (md) => {
+  const [m, d] = md.split("-").map(Number);
+  return (Date.UTC(2001, m - 1, d) - Date.UTC(2001, 0, 1)) / 864e5 + 1;
+};
 
-  const distributions = evidence.distributions;
+const pad = (n) => String(n).padStart(2, "0");
 
-  const formatDate = (day) => {
-    if (day == null) return "—";
-
-    const date = new Date(Date.UTC(2025, 0, Number(day)));
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
+const monthNames = (locale) =>
+  Array.from({ length: 12 }, (_, i) =>
+    new Date(Date.UTC(2001, i, 1)).toLocaleDateString(locale, {
+      month: "long",
       timeZone: "UTC",
-    });
-  };
+    }),
+  );
 
-  const groups = [
-    { key: "early", label: "Early years", color: "green" },
-    { key: "late", label: "Late years", color: "blue" },
-  ];
+const localName = (item, language) =>
+  language === "bn"
+    ? (item.nameBn ?? item.nameEn ?? item.slug)
+    : (item.nameEn ?? item.slug);
 
-  const stats = [
-    ["n", "Sample size"],
-    ["min", "Minimum"],
-    ["q1", "Q1"],
-    ["median", "Median"],
-    ["q3", "Q3"],
-    ["max", "Maximum"],
-  ];
-
+// Month + day selects, so the farmer never sees a year. value = { m: "07", d: "15" } (strings, "" = not set).
+function MonthDayPicker({ label, value, onChange, months, t, numberLocale }) {
+  const days = value.m ? DAYS_IN_MONTH[Number(value.m) - 1] : 31;
+  const cls =
+    "block w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20";
   return (
-    <div className="min-w-0 space-y-5">
-      <div className="rounded-lg bg-gray-50 p-3">
-        <p className="text-xs font-medium text-gray-500">Measurement unit</p>
-        <p className="mt-1 text-sm font-medium text-gray-800">
-          {evidence.unit === "day of a 365-day year (1 January = 1)"
-            ? "Day of year (1 January = Day 1)"
-            : evidence.unit || "Not specified"}
-        </p>
+    <fieldset className="min-w-0">
+      <legend className="mb-1 text-sm font-medium text-gray-700">{label}</legend>
+      <div className="grid grid-cols-[1fr_5rem] gap-2">
+        <select
+          aria-label={`${label}: ${t.month}`}
+          className={cls}
+          value={value.m}
+          onChange={(e) => {
+            const m = e.target.value;
+            const max = m ? DAYS_IN_MONTH[Number(m) - 1] : 31;
+            onChange({ m, d: value.d && Number(value.d) > max ? pad(max) : value.d });
+          }}
+        >
+          <option value="">{t.month}</option>
+          {months.map((name, i) => (
+            <option key={i} value={pad(i + 1)}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label={`${label}: ${t.day}`}
+          className={cls}
+          value={value.d}
+          onChange={(e) => onChange({ ...value, d: e.target.value })}
+        >
+          <option value="">{t.day}</option>
+          {Array.from({ length: days }, (_, i) => (
+            <option key={i} value={pad(i + 1)}>
+              {(i + 1).toLocaleString(numberLocale)}
+            </option>
+          ))}
+        </select>
       </div>
+    </fieldset>
+  );
+}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {groups.map(({ key, label, color }) => {
-          const item = distributions[key];
-          if (!item) return null;
-
-          const summary = item.summary || {};
-
-          return (
-            <div
-              key={key}
-              className="min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white"
-            >
-              <div
-                className={`border-b border-gray-200 p-4 ${
-                  color === "green" ? "bg-green-50" : "bg-blue-50"
-                }`}
-              >
-                <p className="text-sm font-semibold text-gray-800">{label}</p>
-                <p className="mt-1 text-3xl font-bold text-gray-900">
-                  {item.years ?? 0}
-                </p>
-                <p className="text-xs text-gray-500">Total years</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 p-4">
-                {[
-                  ["Confirmed", item.confirmedYears],
-                  ["Censored", item.censoredYears],
-                  ["Unknown", item.unknownYears],
-                ].map(([name, value]) => (
-                  <div key={name} className="min-w-0">
-                    <p className="text-xs text-gray-500">{name}</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {value ?? "—"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-gray-200 p-4">
-                <h4 className="mb-3 text-sm font-semibold text-gray-800">
-                  Statistical summary
-                </h4>
-
-                <div className="space-y-2">
-                  {stats.map(([keyName, labelName]) => (
-                    <div
-                      key={keyName}
-                      className="flex items-center justify-between gap-3 text-sm"
-                    >
-                      <span className="text-gray-500">{labelName}</span>
-                      <span className="font-semibold text-gray-800 tabular-nums">
-                        {summary[keyName] ?? "—"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs font-semibold text-gray-600">
-                    Date equivalents
-                  </p>
-                  {[
-                    ["Q1 date", summary.q1Date],
-                    ["Median date", summary.medianDate],
-                    ["Q3 date", summary.q3Date],
-                  ].map(([name, value]) => (
-                    <div
-                      key={name}
-                      className="mt-2 flex justify-between gap-2 text-sm"
-                    >
-                      <span className="text-gray-500">{name}</span>
-                      <span className="font-medium text-gray-800">
-                        {value || "—"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {Array.isArray(item.valuesDayOfYear) && (
-                <div className="border-t border-gray-200 p-4">
-                  <h4 className="text-sm font-semibold text-gray-800">
-                    Observed values
-                  </h4>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {item.valuesDayOfYear.map((value, index) => (
-                      <span
-                        key={`${value}-${index}`}
-                        className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
-                      >
-                        {value}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+// Usual window vs suggested window on one timeline.
+function WindowStrip({ window: w, locale, t }) {
+  const a = mdToDay(w.usual.from);
+  const b = mdToDay(w.usual.to);
+  const c = mdToDay(w.revised.from);
+  const d = mdToDay(w.revised.to);
+  const lo = Math.min(a, c) - 10;
+  const hi = Math.max(b, d) + 10;
+  const pct = (day) => `${((day - lo) / (hi - lo)) * 100}%`;
+  const bar = (from, to, color) => ({
+    left: pct(from),
+    width: `max(6px, calc(${pct(to)} - ${pct(from)}))`,
+    background: color,
+  });
+  const rows = [
+    { label: t.usualLabel, from: a, to: b, text: `${mdToDate(w.usual.from, locale)} – ${mdToDate(w.usual.to, locale)}`, color: "#94a3b8" },
+    {
+      label: t.suggestedLabel,
+      from: c,
+      to: d,
+      text: w.changed ? `${mdToDate(w.revised.from, locale)} – ${mdToDate(w.revised.to, locale)}` : t.unchanged,
+      color: "#15803d",
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      {rows.map((r) => (
+        <div key={r.label}>
+          <div className="mb-1 flex flex-wrap justify-between gap-x-3 text-sm">
+            <span className="font-medium text-gray-800">{r.label}</span>
+            <span className="tabular-nums text-gray-700">{r.text}</span>
+          </div>
+          <div className="relative h-4 rounded-full bg-gray-100">
+            <div className="absolute top-0 h-4 rounded-full" style={bar(r.from, r.to, r.color)} />
+          </div>
+        </div>
+      ))}
     </div>
   );
+}
+
+const TONE = {
+  delay: "border-amber-300 bg-amber-50",
+  advance: "border-amber-300 bg-amber-50",
+  no_change: "border-green-300 bg-green-50",
+  weak: "border-slate-300 bg-slate-50",
+  saturated: "border-slate-300 bg-slate-50",
+  insufficient_data: "border-slate-300 bg-slate-50",
+  not_applicable: "border-slate-300 bg-slate-50",
 };
 
-const AdvisoryPage = () => {
+export default function AdvisoryPage() {
   const { language } = useLanguage();
-  const t = translations[language] ?? translations.en;
+  const lang = language === "bn" ? "bn" : "en";
+  const t = translations[lang];
+  const locale = localeOf(lang);
   const api = useAxios();
+  const months = useMemo(() => monthNames(locale), [locale]);
+  const nf = (n) => Number(n).toLocaleString(locale);
 
   const [districts, setDistricts] = useState([]);
   const [crops, setCrops] = useState([]);
   const [district, setDistrict] = useState("");
   const [crop, setCrop] = useState("");
-  const [usualFrom, setUsualFrom] = useState("");
-  const [usualTo, setUsualTo] = useState("");
+  const [from, setFrom] = useState({ m: "", d: "" });
+  const [to, setTo] = useState({ m: "", d: "" });
   const [advisory, setAdvisory] = useState(null);
   const [optionsLoading, setOptionsLoading] = useState(true);
-  const [advisoryLoading, setAdvisoryLoading] = useState(false);
   const [optionsError, setOptionsError] = useState("");
+  const [advisoryLoading, setAdvisoryLoading] = useState(false);
   const [advisoryError, setAdvisoryError] = useState("");
-  const [copied, setCopied] = useState(false);
-
-  const selectedDistrict = useMemo(
-    () => districts.find((item) => item.slug === district),
-    [districts, district],
-  );
-
-  const selectedCrop = useMemo(
-    () => crops.find((item) => item.slug === crop),
-    [crops, crop],
-  );
+  const [reloadTick, setReloadTick] = useState(0);
+  const [copied, setCopied] = useState("");
 
   const loadOptions = async () => {
     setOptionsLoading(true);
     setOptionsError("");
-
     try {
-      const [districtResponse, cropResponse] = await Promise.all([
+      const [d, c] = await Promise.all([
         api.get("/districts"),
-        api.get("/crops"),
+        api.get("/crops/advisory-supported"),
       ]);
-
-      const districtItems = getList(districtResponse, "districts");
-      const cropItems = getList(cropResponse, "crops");
-
+      const districtItems = d.data?.districts ?? [];
+      const cropItems = c.data?.crops ?? [];
       setDistricts(districtItems);
       setCrops(cropItems);
-      setDistrict((current) =>
-        districtItems.some((item) => item.slug === current)
-          ? current
-          : (districtItems[0]?.slug ?? ""),
+      // Default to the project's demo case when it is available.
+      setDistrict((cur) =>
+        districtItems.some((x) => x.slug === cur)
+          ? cur
+          : (districtItems.find((x) => x.slug === "rajshahi") ?? districtItems[0])?.slug ?? "",
       );
-      setCrop((current) =>
-        cropItems.some((item) => item.slug === current)
-          ? current
-          : (cropItems[0]?.slug ?? ""),
+      setCrop((cur) =>
+        cropItems.some((x) => x.slug === cur)
+          ? cur
+          : (cropItems.find((x) => x.slug === "aman") ?? cropItems[0])?.slug ?? "",
       );
     } catch (error) {
       setOptionsError(getErrorMessage(error, t.optionsError));
@@ -406,302 +391,370 @@ const AdvisoryPage = () => {
 
   useEffect(() => {
     loadOptions();
-    // Load options when the page mounts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const requestAdvisory = async () => {
-    if (!district || !crop) return;
+  // The usual window is sent only when all four parts are set and the window is valid; otherwise an inline message explains.
+  const usual = useMemo(() => {
+    if (!from.m || !from.d || !to.m || !to.d) return { value: null, error: "" };
+    const a = `${from.m}-${from.d}`;
+    const b = `${to.m}-${to.d}`;
+    const span = mdToDay(b) - mdToDay(a);
+    if (span < 0) return { value: null, error: t.orderError };
+    if (span > MAX_WINDOW_DAYS) return { value: null, error: t.longError };
+    return { value: { from: a, to: b }, error: "" };
+  }, [from, to, t.orderError, t.longError]);
 
+  const usualKey = usual.value ? `${usual.value.from}|${usual.value.to}` : "";
+
+  // Fetch automatically whenever the choices change. The response holds BOTH languages, so language is not a dependency.
+  useEffect(() => {
+    if (!district || !crop) return undefined;
+    const controller = new AbortController();
     setAdvisoryLoading(true);
     setAdvisoryError("");
-    setAdvisory(null);
-
-    try {
-      const params = new URLSearchParams({
-        crop,
-        lang: language === "bn" ? "bn" : "en",
-      });
-
-      if (usualFrom && usualTo) {
-        params.set("usualFrom", usualFrom.slice(5)); // YYYY-MM-DD → MM-DD
-        params.set("usualTo", usualTo.slice(5));
-      }
-
-      const response = await api.get(
-        `/districts/${encodeURIComponent(district)}/advisory?${params.toString()}`,
-      );
-
-      setAdvisory(response?.data ?? response);
-    } catch (error) {
-      setAdvisoryError(getErrorMessage(error, t.advisoryError));
-    } finally {
-      setAdvisoryLoading(false);
+    const params = new URLSearchParams({ crop });
+    if (usual.value) {
+      params.set("usualFrom", usual.value.from);
+      params.set("usualTo", usual.value.to);
     }
-  };
+    api
+      .get(`/districts/${encodeURIComponent(district)}/advisory?${params}`, { signal: controller.signal })
+      .then((res) => {
+        setAdvisory(res.data);
+        setAdvisoryLoading(false);
+      })
+      .catch((error) => {
+        if (controller.signal.aborted || error?.code === "ERR_CANCELED") return;
+        setAdvisory(null);
+        setAdvisoryError(getErrorMessage(error, t.advisoryError));
+        setAdvisoryLoading(false);
+      });
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [district, crop, usualKey, reloadTick]);
 
-  const advisorySentence = getAdvisoryText(
-    advisory,
-    language === "bn" ? "bn" : "en",
-  );
-
-  const copyAdvisory = async () => {
-    const text = toDisplayText(advisorySentence);
+  const copy = async (kind, text) => {
     if (!text) return;
-
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
+      setCopied(kind);
+      window.setTimeout(() => setCopied(""), 1800);
     } catch {
-      setCopied(false);
+      setCopied("");
     }
   };
 
-  const clearResult = () => {
-    setAdvisory(null);
-    setAdvisoryError("");
-    setCopied(false);
-  };
+  const decision = advisory?.decision;
+  const kind = decision?.kind;
+  const headline = (() => {
+    if (!kind) return "";
+    const h = t.decision[kind];
+    if (typeof h === "function") return h(nf(decision.shiftDays));
+    return h ?? "";
+  })();
+  const sentence = advisory?.sentence?.[lang] ?? advisory?.sentence?.text ?? "";
+  const sms = advisory?.sentence?.sms;
+  const smsText = sms?.[lang] ?? "";
+  const smsMeta = sms?.meta?.[lang];
+  const dist = advisory?.evidence?.distributions;
+  const periods = advisory?.evidence?.periods;
+  const strength = advisory?.evidence?.strength;
+  const est = strength?.shiftEstimate;
+  const prov = advisory?.provenance;
+  const noUsualHint = advisory && !advisory.window;
+
+  const th = "px-2 py-2 text-left text-xs font-semibold text-gray-600";
+  const td = "px-2 py-2 text-sm tabular-nums text-gray-800";
 
   return (
     <>
-      <PageHeading
-        eyebrow={t.eyebrow}
-        title={t.title}
-        description={t.description}
-      />
+      <PageHeading eyebrow={t.eyebrow} title={t.title} description={t.description} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <SectionHeading
-            title={t.selectTitle}
-            description={t.selectDescription}
-          />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <Card className="print:hidden">
+          <SectionHeading title={t.selectTitle} description={t.selectDescription} />
 
           {optionsLoading ? (
             <p className="mt-4 flex items-center gap-2 text-sm text-gray-500">
               <LoaderCircle className="animate-spin" size={17} />
               {t.loadingOptions}
             </p>
+          ) : optionsError ? (
+            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={17} />
+                <span>{optionsError}</span>
+              </div>
+              <button type="button" onClick={loadOptions} className="mt-3 rounded-md border border-red-300 px-3 py-1.5 font-medium hover:bg-red-100">
+                {t.retry}
+              </button>
+            </div>
           ) : (
             <>
-              {optionsError ? (
-                <div
-                  className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
-                  role="alert"
-                >
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle size={17} />
-                    <span>{optionsError}</span>
-                  </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  {t.district}
+                  <select
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                  >
+                    {districts.map((item) => (
+                      <option key={item.slug} value={item.slug}>
+                        {localName(item, lang)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block text-sm font-medium text-gray-700">
+                  {t.crop}
+                  <select
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
+                    value={crop}
+                    onChange={(e) => setCrop(e.target.value)}
+                  >
+                    {crops.map((item) => (
+                      <option key={item.slug} value={item.slug}>
+                        {localName(item, lang)}
+                        {item.experimental ? ` (${t.experimental})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="mt-6 border-t border-gray-200 pt-5">
+                <h3 className="flex items-center gap-2 font-semibold text-gray-900">
+                  <CalendarDays size={18} className="text-green-700" />
+                  {t.usualTitle}
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">{t.usualHelp}</p>
+                <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                  <MonthDayPicker label={t.from} value={from} onChange={setFrom} months={months} t={t} numberLocale={locale} />
+                  <MonthDayPicker label={t.to} value={to} onChange={setTo} months={months} t={t} numberLocale={locale} />
+                </div>
+                {usual.error && (
+                  <p className="mt-2 text-sm text-red-700" role="alert">
+                    {usual.error}
+                  </p>
+                )}
+                {(from.m || from.d || to.m || to.d) && (
                   <button
                     type="button"
-                    onClick={loadOptions}
-                    className="mt-3 rounded-md border border-red-300 px-3 py-1.5 font-medium hover:bg-red-100"
+                    className="mt-3 text-sm font-medium text-green-800 underline"
+                    onClick={() => {
+                      setFrom({ m: "", d: "" });
+                      setTo({ m: "", d: "" });
+                    }}
                   >
-                    {t.retry}
+                    {t.clear}
                   </button>
-                </div>
-              ) : (
-                <>
-                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      {t.district}
-                      <select
-                        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
-                        value={district}
-                        onChange={(event) => {
-                          setDistrict(event.target.value);
-                          clearResult();
-                        }}
-                        disabled={districts.length === 0}
-                      >
-                        <option value="">{t.selectDistrict}</option>
-                        {districts.map((item) => (
-                          <option key={item.slug} value={item.slug}>
-                            {getLocalizedName(item, language)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className="block text-sm font-medium text-gray-700">
-                      {t.crop}
-                      <select
-                        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
-                        value={crop}
-                        onChange={(event) => {
-                          setCrop(event.target.value);
-                          clearResult();
-                        }}
-                        disabled={crops.length === 0}
-                      >
-                        <option value="">{t.selectCrop}</option>
-                        {crops.map((item) => (
-                          <option key={item.slug} value={item.slug}>
-                            {getLocalizedName(item, language)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      {t.usualFrom}
-                      <input
-                        type="date"
-                        value={usualFrom}
-                        onChange={(event) => {
-                          setUsualFrom(event.target.value);
-                          clearResult();
-                        }}
-                        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
-                      />
-                    </label>
-                    <label className="block text-sm font-medium text-gray-700">
-                      {t.usualTo}
-                      <input
-                        type="date"
-                        value={usualTo}
-                        onChange={(event) => {
-                          setUsualTo(event.target.value);
-                          clearResult();
-                        }}
-                        className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
-                      />
-                    </label>
-                  </div>
-
-                  {usualFrom && usualTo && usualFrom > usualTo && (
-                    <p className="mt-2 text-sm text-red-700" role="alert">
-                      The start date must be before the end date.
-                    </p>
-                  )}
-
-                  <div className="mt-5">
-                    <Button
-                      onClick={requestAdvisory}
-                      disabled={
-                        !district ||
-                        !crop ||
-                        advisoryLoading ||
-                        (usualFrom && usualTo && usualFrom > usualTo)
-                      }
-                    >
-                      {advisoryLoading ? t.loadingAdvisory : t.getAdvisory}
-                    </Button>
-                  </div>
-
-                  {selectedDistrict && selectedCrop && (
-                    <div className="mt-5 flex items-start gap-3 rounded-xl bg-green-50 p-4">
-                      <CalendarDays
-                        className="mt-0.5 shrink-0 text-green-700"
-                        size={20}
-                      />
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {getLocalizedName(selectedCrop, language)} ·{" "}
-                          {getLocalizedName(selectedDistrict, language)}
-                        </p>
-                        <p className="mt-1 text-sm text-gray-600">
-                          {t.resultDescription}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+                )}
+              </div>
             </>
           )}
         </Card>
 
         <Card>
-          <SectionHeading
-            title={t.resultTitle}
-            description={t.resultDescription}
-          />
+          <SectionHeading title={t.resultTitle} />
 
-          {advisoryLoading ? (
-            <p className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-              <LoaderCircle className="animate-spin" size={17} />
-              {t.loadingAdvisory}
-            </p>
-          ) : advisoryError ? (
-            <div
-              className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
-              role="alert"
-            >
+          {advisoryError ? (
+            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={17} />
                 <span>{advisoryError}</span>
               </div>
-              <button
-                type="button"
-                onClick={requestAdvisory}
-                className="mt-3 rounded-md border border-red-300 px-3 py-1.5 font-medium hover:bg-red-100"
-              >
+              <button type="button" onClick={() => setReloadTick((n) => n + 1)} className="mt-3 rounded-md border border-red-300 px-3 py-1.5 font-medium hover:bg-red-100">
                 {t.retry}
               </button>
             </div>
-          ) : advisory ? (
-            <div className="mt-4 min-w-0 max-w-full space-y-4">
-              <div className="rounded-lg bg-green-50 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800">
-                    {toDisplayText(advisorySentence) || t.noAdvisory}
-                  </p>
-                  {advisorySentence && (
-                    <button
-                      type="button"
-                      onClick={copyAdvisory}
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      <Copy size={14} />
-                      {copied ? t.copied : t.copy}
-                    </button>
+          ) : !advisory ? (
+            <p className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+              {advisoryLoading && <LoaderCircle className="animate-spin" size={17} />}
+              {advisoryLoading ? t.loadingAdvisory : t.empty}
+            </p>
+          ) : (
+            <div className={`mt-4 min-w-0 space-y-6 transition-opacity ${advisoryLoading ? "opacity-60" : ""}`} aria-busy={advisoryLoading}>
+              {advisoryLoading && (
+                <p className="flex items-center gap-2 text-sm text-gray-500" role="status">
+                  <LoaderCircle className="animate-spin" size={16} />
+                  {t.loadingAdvisory}
+                </p>
+              )}
+
+              {/* 1. The decision, then the sentence */}
+              <div className={`rounded-xl border p-4 sm:p-5 ${TONE[kind] ?? TONE.weak}`}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-xs font-semibold text-gray-700 ring-1 ring-gray-300">
+                    {t.confidence[decision.confidence] ?? decision.confidence}
+                  </span>
+                  {decision.experimental && (
+                    <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                      {t.experimentalTitle}
+                    </span>
                   )}
                 </div>
+                <p className="mt-3 text-xl font-bold leading-snug text-gray-900 sm:text-2xl">{headline}</p>
+                <p className="mt-3 text-sm leading-6 text-gray-800 sm:text-base sm:leading-7">{sentence}</p>
+
+                {lang === "bn" && advisory.sentence?.reviewStatus === "BANGLA_DRAFT_NOT_NATIVE_REVIEWED" && (
+                  <p className="mt-3 text-xs text-gray-600">{t.bnDraft}</p>
+                )}
+                {advisory.warnings?.map((w) => (
+                  <p key={w.code} className="mt-3 flex items-start gap-2 rounded-lg bg-amber-100 p-3 text-sm text-amber-950">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                    <span>{lang === "bn" ? (w.messageBn ?? w.message) : w.message}</span>
+                  </p>
+                ))}
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 print:hidden">
+                  <button type="button" onClick={() => copy("sentence", sentence)} className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <Copy size={14} />
+                    {copied === "sentence" ? t.copied : t.copySentence}
+                  </button>
+                  {smsText && (
+                    <button type="button" onClick={() => copy("sms", smsText)} className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      <Copy size={14} />
+                      {copied === "sms" ? t.copied : t.copySms}
+                    </button>
+                  )}
+                  <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <Printer size={14} />
+                    {t.print}
+                  </button>
+                </div>
+                {smsMeta && <p className="mt-2 text-xs text-gray-600">{t.smsInfo(nf(smsMeta.length), nf(smsMeta.segments))}</p>}
               </div>
 
-              <DetailSection
-                title={t.window}
-                value={advisory.window}
-                emptyText={t.noDetails}
-              />
-
-              <section className="min-w-0 border-t border-gray-200 pt-4">
-                <h3 className="font-semibold text-gray-900">{t.evidence}</h3>
-
-                <div className="mt-3 min-w-0">
-                  <EvidenceDistribution evidence={advisory.evidence} />
-                </div>
+              {/* 2. The farmer's window */}
+              <section>
+                <h3 className="mb-2 font-semibold text-gray-900">{t.windowTitle}</h3>
+                {advisory.window ? <WindowStrip window={advisory.window} locale={locale} t={t} /> : noUsualHint && <p className="text-sm text-gray-600">{t.windowHint}</p>}
               </section>
 
-              <DetailSection
-                title={t.uncertainty}
-                value={advisory.uncertainty}
-                emptyText={t.noDetails}
-              />
-              <DetailSection
-                title={t.limitations}
-                value={advisory.limitations}
-                emptyText={t.noDetails}
-              />
-              <DetailSection
-                title={t.provenance}
-                value={advisory.provenance}
-                emptyText={t.noDetails}
-              />
-              <DetailSection
-                title={t.disclaimer}
-                value={advisory.disclaimer}
-                emptyText={t.noDetails}
-              />
+              {/* 3. The evidence, as a picture first */}
+              {dist && periods && (
+                <section className="min-w-0">
+                  <h3 className="font-semibold text-gray-900">{t.chartTitle}</h3>
+                  <p className="mb-2 mt-1 text-sm text-gray-600">{t.chartIntro}</p>
+                  <OnsetChart
+                    distributions={dist}
+                    locale={locale}
+                    numberLocale={locale}
+                    labels={{
+                      early: t.early({ from: periods.early.from, to: periods.early.to, years: nf(dist.early.years) }),
+                      late: t.late({ from: periods.late.from, to: periods.late.to, years: nf(dist.late.years) }),
+                      median: t.median,
+                      chartTitle: t.chartTitle,
+                    }}
+                  />
+                  {(() => {
+                    const n = (dist.early.censoredYears ?? 0) + (dist.late.censoredYears ?? 0);
+                    return n > 0 ? <p className="mt-2 text-xs text-gray-600">{t.censoredNote(nf(n))}</p> : null;
+                  })()}
+
+                  <details className="mt-3 rounded-lg border border-gray-200 p-3">
+                    <summary className="cursor-pointer text-sm font-medium text-gray-800">{t.numbersTitle}</summary>
+                    <div className="mt-3 overflow-x-auto">
+                      <table className="min-w-full">
+                        <thead>
+                          <tr className="border-b border-gray-200">
+                            <th className={th}>{t.colPeriod}</th>
+                            <th className={th}>{t.colYears}</th>
+                            <th className={th}>{t.colFound}</th>
+                            <th className={th}>{t.colNone}</th>
+                            <th className={th}>{t.colUnknown}</th>
+                            <th className={th}>{t.colRange}</th>
+                            <th className={th}>{t.colMedian}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {["early", "late"].map((k) => {
+                            const d = dist[k];
+                            const s = d.summary ?? {};
+                            return (
+                              <tr key={k} className="border-b border-gray-100">
+                                <td className={td}>{`${periods[k].from}–${periods[k].to}`}</td>
+                                <td className={td}>{nf(d.years)}</td>
+                                <td className={td}>{nf(d.confirmedYears)}</td>
+                                <td className={td}>{nf(d.censoredYears)}</td>
+                                <td className={td}>{nf(d.unknownYears)}</td>
+                                <td className={td}>{s.q1Date && s.q3Date ? `${mdToDate(s.q1Date, locale)} – ${mdToDate(s.q3Date, locale)}` : "—"}</td>
+                                <td className={td}>{s.medianDate ? mdToDate(s.medianDate, locale) : "—"}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                </section>
+              )}
+
+              {/* 4. How sure */}
+              {(est || strength?.definitionsUsable || decision) && (
+                <section className="border-t border-gray-200 pt-4">
+                  <h3 className="font-semibold text-gray-900">{t.certaintyTitle}</h3>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-gray-700">
+                    {est && (
+                      <li>
+                        {t.estimate(
+                          nf(est.estimateDays),
+                          nf(Math.floor(est.interval95Days[0])),
+                          nf(Math.ceil(est.interval95Days[1])),
+                        )}
+                      </li>
+                    )}
+                    {strength?.definitionsUsable != null && <li>{t.agreement(nf(strength.definitionsAgreeing), nf(strength.definitionsUsable))}</li>}
+                    {t.meaning[decision.confidence] && <li>{t.meaning[decision.confidence]}</li>}
+                  </ul>
+                </section>
+              )}
+
+              {/* 5. Limits */}
+              {advisory.limitations?.length > 0 && (
+                <details className="border-t border-gray-200 pt-4">
+                  <summary className="cursor-pointer font-semibold text-gray-900">
+                    {t.limitsTitle}
+                    {lang === "bn" ? ` ${t.englishOnly}` : ""}
+                  </summary>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-gray-700">
+                    {advisory.limitations.map((l, i) => (
+                      <li key={i}>{l}</li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+
+              {/* 6. Provenance */}
+              {prov && (
+                <details className="border-t border-gray-200 pt-4">
+                  <summary className="cursor-pointer font-semibold text-gray-900">{t.provenanceTitle}</summary>
+                  <dl className="mt-2 space-y-1 text-sm text-gray-700">
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="font-medium">{t.source}:</dt>
+                      <dd>{prov.source}</dd>
+                    </div>
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="font-medium">{t.retrieved}:</dt>
+                      <dd>{prov.retrievedAt?.slice(0, 10)}</dd>
+                    </div>
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="font-medium">{t.dataThrough}:</dt>
+                      <dd>{prov.endDate}</dd>
+                    </div>
+                  </dl>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+                    <li>{prov.isSynthetic ? t.syntheticNote : t.storedNote}</li>
+                    {prov.servedFrom === "offline-file" && <li>{t.offlineNote}</li>}
+                    <li>{t.gridNote}</li>
+                    {advisory.latestObservationDate && <li>{t.latestObs(advisory.latestObservationDate, advisory.daysSinceLatest)}</li>}
+                  </ul>
+                </details>
+              )}
             </div>
-          ) : (
-            <p className="mt-4 text-sm text-gray-500">{t.empty}</p>
           )}
         </Card>
       </div>
@@ -717,6 +770,4 @@ const AdvisoryPage = () => {
       </Card>
     </>
   );
-};
-
-export default AdvisoryPage;
+}
