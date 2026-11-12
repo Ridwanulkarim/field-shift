@@ -2,7 +2,7 @@
 // No HTTP and no SQL in here.
 
 import { cropClimate, climateIndicators, seriesCoverage } from '../science/climate.js';
-import { evaluateRotations, checkFeasible } from '../science/rotation.js';
+import { evaluateRotations, checkFeasible, compatibilityMap } from '../science/rotation.js';
 import { plantingWindowAnalysis } from '../science/plantingWindow.js';
 import { buildAdvisory } from '../science/plantingAdvisory.js';
 import { buildFarmerAdvisory } from '../science/farmerAdvisory.js';
@@ -24,6 +24,8 @@ import {
   IRRIGATION_ACCESS_FACTOR,
   PLANTING_SPLIT_YEAR,
   NOT_MODELED,
+  MAX_CROPS,
+  MAX_PAIR_OVERLAP_MONTHS,
 } from '../science/rules.js';
 
 export const METHOD = {
@@ -192,6 +194,16 @@ export function createEvaluationService(repo) {
     async listCrops() {
       const crops = await repo.listCrops();
       return crops.map(({ id, ...c }) => c);
+    },
+
+    async cropCompatibility() {
+      const crops = await repo.listCrops();
+      return {
+        maxCrops: MAX_CROPS,
+        maxOverlapMonths: MAX_PAIR_OVERLAP_MONTHS,
+        rule: `Two crops can share a year when they are in the field together for at most ${MAX_PAIR_OVERLAP_MONTHS} month (typical month windows). A rotation may hold 1 to ${MAX_CROPS} crops, and every pair in it must be compatible.`,
+        compatible: compatibilityMap(crops),
+      };
     },
 
     async climateSummary(slug) {

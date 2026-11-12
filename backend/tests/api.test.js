@@ -47,6 +47,22 @@ describe('data routes without a database', () => {
   });
 });
 
+describe('GET /api/crops/compatibility', () => {
+  const app = appWith();
+  it('returns the pairwise compatible crops and the rotation size limit', async () => {
+    const res = await request(app).get('/api/crops/compatibility');
+    expect(res.status).toBe(200);
+    expect(res.body.maxCrops).toBe(3);
+    expect(res.body.compatible.aman).toContain('boro');
+    expect(res.body.compatible.boro).not.toContain('aus');
+    expect(Object.keys(res.body.compatible)).toHaveLength(CROPS.length);
+  });
+  it('answers 503 without a database', async () => {
+    const res = await request(createApp(loadConfig({}))).get('/api/crops/compatibility');
+    expect(res.status).toBe(503);
+  });
+});
+
 describe('GET /api/health/db and /api/health/data', () => {
   const app = appWith();
   it('reports the database as reachable', async () => {

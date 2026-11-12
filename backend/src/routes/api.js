@@ -82,6 +82,11 @@ export function createApiRouter(service) {
     res.json({ crops: await need().listCrops() });
   });
 
+  // GET /api/crops/compatibility : for every crop, the crops that can share a year with it (used to filter the planner's pickers)
+  router.get('/crops/compatibility', async (req, res) => {
+    res.json(await need().cropCompatibility());
+  });
+
   // POST /api/evaluate
   router.post('/evaluate', async (req, res) => {
     const input = parseEvaluateRequest(req.body);
