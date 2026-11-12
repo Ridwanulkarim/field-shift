@@ -3,6 +3,7 @@ import { CROPS } from '../src/data/reference/crops.js';
 import { cropClimate } from '../src/science/climate.js';
 import {
   checkFeasible,
+  compatibilityMap,
   generateCandidates,
   scoreRotation,
   evaluateRotations,
@@ -303,5 +304,35 @@ describe('ranking stability', () => {
     const changed = scoreRotation(crops('boro', 'aman'), { ...makeCtx(), weightOverrides: { croppingIntensity: 0 } }).score;
     expect(changed).not.toBe(base);
     expect(effectiveWeights(makeCtx()).croppingIntensity).toBeGreaterThan(0);
+  });
+});
+
+describe('compatibilityMap', () => {
+  it('lists, for each crop, only crops that can share a year with it', () => {
+    const map = compatibilityMap(CROPS);
+    expect(map.aman).toContain('boro');
+    expect(map.aman).toContain('mustard');
+    expect(map.aman).not.toContain('aman');
+    expect(map.boro).not.toContain('aus'); // Apr-May overlap
+    expect(map.boro).not.toContain('mustard');
+  });
+  it('is symmetric and agrees with checkFeasible for every pair', () => {
+    const map = compatibilityMap(CROPS);
+    for (const a of CROPS) {
+      for (const b of CROPS) {
+        if (a.slug === b.slug) continue;
+        expect(map[a.slug].includes(b.slug)).toBe(checkFeasible([a, b]).ok);
+        expect(map[a.slug].includes(b.slug)).toBe(map[b.slug].includes(a.slug));
+      }
+    }
+  });
+  it('picking from the intersection always gives a feasible set of three', () => {
+    const map = compatibilityMap(CROPS);
+    const [first] = ['aman'];
+    for (const second of map[first]) {
+      for (const third of map[first].filter((s) => map[second].includes(s))) {
+        expect(checkFeasible(crops(first, second, third)).ok).toBe(true);
+      }
+    }
   });
 });

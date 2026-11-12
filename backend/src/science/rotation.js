@@ -88,6 +88,18 @@ export function generateCandidates(crops, { minCrops = MIN_CROPS_ALTERNATIVE, ma
   return out;
 }
 
+// Which crops can share a year with which. checkFeasible only looks at PAIRS of crops, so a set is feasible exactly when
+// every pair in it is feasible; one pairwise map is therefore enough for a picker to offer only eligible crops
+// (the intersection of the chosen crops' lists). Returns { slug: [slugs that can be grown with it] }, sorted by slug.
+export function compatibilityMap(crops) {
+  const sorted = [...crops].sort((a, b) => a.slug.localeCompare(b.slug));
+  const map = {};
+  for (const a of sorted) {
+    map[a.slug] = sorted.filter((b) => b.slug !== a.slug && checkFeasible([a, b]).ok).map((b) => b.slug);
+  }
+  return map;
+}
+
 export function rotationKey(crops) {
   return crops.map((c) => c.slug).sort().join('+');
 }

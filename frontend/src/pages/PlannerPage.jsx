@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { ArrowRight, RotateCcw, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import useAxios from "../hooks/useAxios";
 import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
@@ -11,11 +11,15 @@ const translations = {
     title: "Crop rotation planner",
     description:
       "Build a seasonal crop sequence and tune the factors that matter to your field.",
-    sequenceTitle: "Rotation sequence",
+    sequenceTitle: "Rotation crops",
     sequenceDescription:
-      "Choose a crop for each season in your proposed sequence.",
-    season: "SEASON",
-    addSeason: "Add season",
+      "Choose one, two or three crops. After you pick a crop, the other lists only show crops that can share the same year with it.",
+    season: "CROP",
+    addSeason: "Add crop",
+    removeCrop: "Remove",
+    noMoreCompatible: "No other crop fits in the same year as your selection.",
+    maxCropsReached: "A rotation can hold at most three crops.",
+    droppedNotice: "Removed because it cannot share a year with your new choice:",
     reset: "Reset",
     prioritiesTitle: "Planning priorities",
     prioritiesDescription:
@@ -45,11 +49,15 @@ const translations = {
     title: "শস্য পর্যায় পরিকল্পনাকারী",
     description:
       "মৌসুমভিত্তিক ফসলের পর্যায় তৈরি করুন এবং আপনার জমির জন্য গুরুত্বপূর্ণ বিষয়গুলোর অগ্রাধিকার নির্ধারণ করুন।",
-    sequenceTitle: "শস্য পর্যায়ের তালিকা",
+    sequenceTitle: "পর্যায়ের ফসল",
     sequenceDescription:
-      "প্রস্তাবিত পর্যায়ের প্রতিটি মৌসুমের জন্য একটি ফসল নির্বাচন করুন।",
-    season: "মৌসুম",
-    addSeason: "মৌসুম যোগ করুন",
+      "এক, দুই বা তিনটি ফসল নির্বাচন করুন। একটি ফসল বাছাই করলে বাকি তালিকায় কেবল সেই ফসলের সাথে একই বছরে চাষযোগ্য ফসল দেখাবে।",
+    season: "ফসল",
+    addSeason: "ফসল যোগ করুন",
+    removeCrop: "সরান",
+    noMoreCompatible: "আপনার নির্বাচনের সাথে একই বছরে চাষ করা যায় এমন আর কোনো ফসল নেই।",
+    maxCropsReached: "একটি পর্যায়ে সর্বোচ্চ তিনটি ফসল থাকতে পারে।",
+    droppedNotice: "নতুন নির্বাচনের সাথে একই বছরে চাষ করা যায় না, তাই সরানো হয়েছে:",
     reset: "পুনরায় সেট করুন",
     prioritiesTitle: "পরিকল্পনার অগ্রাধিকার",
     prioritiesDescription: "প্রতিটি বিষয়ের আপেক্ষিক গুরুত্ব নির্ধারণ করুন।",
@@ -117,6 +125,10 @@ export default function PlannerPage() {
   const [crops, setCrops] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [meta, setMeta] = useState({});
+  // { cropSlug: [slugs that can share a year with it] }, computed by the backend rotation rules.
+  const [compat, setCompat] = useState({});
+  const [maxCrops, setMaxCrops] = useState(3);
+  const [notice, setNotice] = useState("");
   const [district, setDistrict] = useState("");
   const [seasons, setSeasons] = useState([]);
   const [soil, setSoil] = useState({
@@ -143,12 +155,17 @@ export default function PlannerPage() {
       setError("");
 
       try {
-        const [cropsResponse, districtsResponse, metaResponse] =
-          await Promise.all([
-            axios.get("/crops"),
-            axios.get("/districts"),
-            axios.get("/meta"),
-          ]);
+        const [
+          cropsResponse,
+          districtsResponse,
+          metaResponse,
+          compatResponse,
+        ] = await Promise.all([
+          axios.get("/crops"),
+          axios.get("/districts"),
+          axios.get("/meta"),
+          axios.get("/crops/compatibility"),
+        ]);
 
         if (!active) return;
 
@@ -158,13 +175,15 @@ export default function PlannerPage() {
         setCrops(cropList);
         setDistricts(districtList);
         setMeta(metaResponse.data ?? {});
+        setCompat(compatResponse.data?.compatible ?? {});
+        setMaxCrops(compatResponse.data?.maxCrops ?? 3);
 
         if (districtList.length) {
           setDistrict(getDistrictSlug(districtList[0]));
         }
 
-        // Use actual crop slugs from the API, not hardcoded display names.
-        setSeasons(cropList.slice(0, 3).map((crop) => crop.slug));
+        // Start with one crop; the farmer adds a second or third from the compatible ones.
+        setSeasons(cropList.slice(0, 1).map((crop) => crop.slug));
       } catch (err) {
         if (active) {
           setError(err.response?.data?.error?.message || t.loadError);
@@ -199,14 +218,60 @@ export default function PlannerPage() {
       ? crop.nameBn || crop.nameEn || crop.slug
       : crop.nameEn || crop.slug;
 
-  const changeSeason = (index, value) => {
-    setSeasons((current) =>
-      current.map((crop, i) => (i === index ? value : crop)),
+  // Crops that can share a year with every crop in `others`.
+  const compatibleWith = (others) =>
+    crops.filter(
+      (crop) =>
+        !others.includes(crop.slug) &&
+        others.every((slug) => compat[slug]?.includes(crop.slug)),
+    );
+
+  // Options for one slot: its own crop plus anything compatible with the OTHER selected crops.
+  const optionsFor = (index) => {
+    const others = seasons.filter((_, i) => i !== index);
+    const allowed = new Set(compatibleWith(others).map((crop) => crop.slug));
+    return crops.filter(
+      (crop) => crop.slug === seasons[index] || allowed.has(crop.slug),
     );
   };
 
+  const changeSeason = (index, value) => {
+    // Changing a crop can make another selected crop ineligible; drop those instead of keeping an invalid rotation.
+    const kept = [];
+    const dropped = [];
+    seasons.forEach((slug, i) => {
+      if (i === index) kept.push(value);
+      else if (compat[value]?.includes(slug)) kept.push(slug);
+      else dropped.push(slug);
+    });
+    setSeasons(kept);
+    setNotice(
+      dropped.length
+        ? `${t.droppedNotice} ${dropped
+            .map((slug) => cropLabel(crops.find((c) => c.slug === slug) ?? { slug }))
+            .join(", ")}`
+        : "",
+    );
+  };
+
+  const addCrop = () => {
+    const next = compatibleWith(seasons)[0];
+    if (seasons.length < maxCrops && next) {
+      setSeasons([...seasons, next.slug]);
+      setNotice("");
+    }
+  };
+
+  const removeCrop = (index) => {
+    setSeasons((current) => current.filter((_, i) => i !== index));
+    setNotice("");
+  };
+
+  const canAdd = seasons.length < maxCrops && compatibleWith(seasons).length > 0;
+
   const reset = () => {
-    setSeasons(crops.slice(0, 3).map((crop) => crop.slug));
+    setSeasons(crops.slice(0, 1).map((crop) => crop.slug));
+    setNotice("");
     setPriorities({
       waterSaving: 1,
       heatResilience: 1,
@@ -226,7 +291,12 @@ export default function PlannerPage() {
     event.preventDefault();
     setError("");
 
-    if (!district || seasons.length === 0 || seasons.some((slug) => !slug)) {
+    if (
+      !district ||
+      seasons.length < 1 ||
+      seasons.length > maxCrops ||
+      seasons.some((slug) => !slug)
+    ) {
       setError(t.evaluateError);
       return;
     }
@@ -353,36 +423,40 @@ export default function PlannerPage() {
                           changeSeason(index, event.target.value)
                         }
                       >
-                        {crops.map((crop) => (
+                        {optionsFor(index).map((crop) => (
                           <option key={crop.slug} value={crop.slug}>
                             {cropLabel(crop)}
                           </option>
                         ))}
                       </select>
                     </span>
+                    {seasons.length > 1 && (
+                      <button
+                        type="button"
+                        aria-label={`${t.removeCrop} ${t.season} ${index + 1}`}
+                        title={t.removeCrop}
+                        className="shrink-0 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                        onClick={() => removeCrop(index)}
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
                   </label>
                 ))}
               </div>
+
+              {notice && (
+                <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800" role="status">
+                  {notice}
+                </p>
+              )}
 
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() =>
-                    setSeasons((current) => {
-                      const nextCrop = crops.find(
-                        (crop) => !current.includes(crop.slug),
-                      );
-
-                      return current.length < 3 && nextCrop
-                        ? [...current, nextCrop.slug]
-                        : current;
-                    })
-                  }
-                  disabled={
-                    seasons.length >= 3 ||
-                    !crops.some((crop) => !seasons.includes(crop.slug))
-                  }
+                  onClick={addCrop}
+                  disabled={!canAdd}
                 >
                   {t.addSeason}
                 </Button>
@@ -392,6 +466,14 @@ export default function PlannerPage() {
                   {t.reset}
                 </Button>
               </div>
+
+              {!canAdd && (
+                <p className="mt-2 text-xs text-slate-500">
+                  {seasons.length >= maxCrops
+                    ? t.maxCropsReached
+                    : t.noMoreCompatible}
+                </p>
+              )}
             </Card>
 
             <Card className="p-5">
