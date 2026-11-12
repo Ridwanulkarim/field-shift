@@ -454,14 +454,15 @@ export default function FieldsPage() {
           className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50"
           style={{
             WebkitOverflowScrolling: "touch",
+            height: "100dvh",
           }}
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) resetForm();
           }}
         >
-          <div className="flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6">
+          <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
             <form
-              className="my-2 w-full max-w-2xl rounded-2xl bg-white p-4 shadow-xl sm:my-8 sm:p-6"
+              className="my-auto w-full max-w-2xl rounded-2xl bg-white p-4 shadow-xl sm:p-6"
               onSubmit={saveField}
             >
               <div className="mb-5 flex items-start justify-between">
@@ -483,7 +484,7 @@ export default function FieldsPage() {
                 </button>
               </div>
 
-              <div className="h-64 w-full rounded-lg sm:h-72">
+              <div className="w-full flex flex-col gap-4 rounded-lg mb-5">
                 <label className="block text-sm font-medium text-slate-700">
                   {t.fieldName}
                   <input
@@ -586,7 +587,7 @@ export default function FieldsPage() {
                 </label>
               </div>
 
-              <div className="mt-5">
+              <div className="mt-6">
                 <div className="mb-2 text-sm font-medium text-slate-700">
                   <div className="mb-2 flex items-center justify-between">
                     <p className="text-sm font-medium text-slate-700">
@@ -601,12 +602,9 @@ export default function FieldsPage() {
                 <MapContainer
                   center={[24.0, 90.0]}
                   zoom={7}
-                  className="h-64 w-full rounded-lg sm:h-72"
+                  className="h-56 w-full rounded-lg sm:h-72"
                   scrollWheelZoom={false}
-                  style={{
-                    touchAction: "pan-y",
-                    zIndex: 0,
-                  }}
+                  style={{ zIndex: 0 }}
                 >
                   <TileLayer
                     attribution="&copy; OpenStreetMap contributors"
@@ -640,7 +638,7 @@ export default function FieldsPage() {
                 </p>
               )}
 
-              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 pb-4 sm:flex-row sm:justify-end sm:pb-0">
                 <Button type="button" variant="secondary" onClick={resetForm}>
                   {t.cancel}
                 </Button>
