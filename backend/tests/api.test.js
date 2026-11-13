@@ -48,12 +48,13 @@ describe('data routes without a database', () => {
 });
 
 describe('GET /api/crops/advisory-supported', () => {
-  it('lists only crops with a rain-onset rule and flags the experimental one', async () => {
+  it('lists every planner crop, flags experimental results, and marks rain-independent crops', async () => {
     const res = await request(appWith()).get('/api/crops/advisory-supported');
     expect(res.status).toBe(200);
-    expect(res.body.crops.map((c) => c.slug).sort()).toEqual(['aman', 'aus']);
+    expect(res.body.crops.map((c) => c.slug).sort()).toEqual(CROPS.map((c) => c.slug).sort());
     expect(res.body.crops.find((c) => c.slug === 'aus').experimental).toBe(true);
     expect(res.body.crops.find((c) => c.slug === 'aman').experimental).toBe(false);
+    expect(res.body.crops.find((c) => c.slug === 'boro').advisoryAvailable).toBe(false);
   });
 });
 

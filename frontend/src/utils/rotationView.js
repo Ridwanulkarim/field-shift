@@ -20,9 +20,10 @@ export const strategyLabel = (strategy, language) =>
 export const findStrategy = (result, id) =>
   (result?.strategies ?? []).find((s) => s.id === id) ?? null;
 
-// The first crop of a rotation that the planting advisory has a rule for (Aman or Aus), or null.
+// The first crop of a rotation. The advisory handles every planner crop; irrigated crops such
+// as Boro return a clear "not applicable" decision rather than disappearing from the workflow.
 export const advisoryCropOf = (strategy) =>
-  (strategy?.crops ?? []).map((c) => c.slug).find((slug) => slug === "aman" || slug === "aus") ?? null;
+  (strategy?.crops ?? []).map((c) => c.slug).find(Boolean) ?? null;
 
 export const readSavedEvaluation = () => {
   try {

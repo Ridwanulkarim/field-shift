@@ -197,16 +197,14 @@ export default function RecommendationPage() {
             </p>
           </Card>
 
-          {lang === "bn" && <p className="mt-3 text-xs text-slate-500">{t.englishOnly}</p>}
-
           <div className="mt-5 grid gap-5 lg:grid-cols-2">
             <Card className="p-5">
               <SectionHeading title={t.whyTitle} />
-              <List items={why.slice(0, 6)} empty={t.nothingToWatch} />
+              <List items={(lang === "bn" ? (selected.benefitsBn ?? why) : why).slice(0, 6)} empty={t.nothingToWatch} />
             </Card>
             <Card className="p-5">
               <SectionHeading title={t.watchTitle} />
-              <List items={watch} empty={t.nothingToWatch} />
+              <List items={lang === "bn" ? (selected.risksBn ?? watch) : watch} empty={t.nothingToWatch} />
             </Card>
           </div>
 
@@ -262,7 +260,9 @@ export default function RecommendationPage() {
                   <h3 className="text-sm font-semibold text-slate-800">{t.soilBasis}</h3>
                   <p className="mt-1 text-sm text-slate-700">{soilComplete ? t.soilEntered : t.soilPartial}</p>
                 </div>
-                {selected.informationGaps?.length > 0 && <List items={selected.informationGaps} empty="" />}
+                {(lang === "bn" ? selected.informationGapsBn : selected.informationGaps)?.length > 0 && (
+                  <List items={lang === "bn" ? selected.informationGapsBn : selected.informationGaps} empty="" />
+                )}
                 {result.notModeled?.length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-800">{t.notModeled}</h3>

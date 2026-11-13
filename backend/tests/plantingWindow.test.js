@@ -76,11 +76,12 @@ describe('yearlyGdd', () => {
 });
 
 describe('onsetApplies', () => {
-  it('is true for rain-fed Aus and Aman and false for irrigated Boro and for crops without a definition', () => {
+  it('is true for rain-fed crops, false for irrigated Boro, and false for unknown crops', () => {
     expect(onsetApplies(AMAN)).toBe(true);
     expect(onsetApplies(AUS)).toBe(true);
     expect(onsetApplies(BORO)).toBe(false);
-    expect(onsetApplies({ slug: 'wheat', startMonth: 11, endMonth: 3 })).toBe(false);
+    expect(onsetApplies({ slug: 'wheat', startMonth: 11, endMonth: 3 })).toBe(true);
+    expect(onsetApplies({ slug: 'unknown-crop', startMonth: 11, endMonth: 3 })).toBe(false);
   });
   it('uses a May start for Aus and a June start for Aman', () => {
     expect(onsetDefinitionFor(AUS).startMonth).toBe(5);

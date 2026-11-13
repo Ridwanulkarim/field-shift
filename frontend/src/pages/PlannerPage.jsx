@@ -438,9 +438,10 @@ export default function PlannerPage() {
                       <select
                         className="w-full rounded-md border border-slate-300 px-2 py-2"
                         value={cropSlug}
-                        onChange={(event) =>
-                          changeSeason(index, event.target.value)
-                        }
+                        onChange={(event) => {
+                          changeSeason(index, event.target.value);
+                          if (index === 0) selection.update({ crop: event.target.value });
+                        }}
                       >
                         {optionsFor(index).map((crop) => (
                           <option key={crop.slug} value={crop.slug}>

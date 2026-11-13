@@ -1,9 +1,8 @@
 import axios from "axios";
 
-// Set VITE_API_URL (for example in frontend/.env.local) to use a local backend; otherwise the deployed API is used.
+// Use the Vite proxy locally; deployments can override this with VITE_API_URL.
 const axiosInstance = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL || "https://field-shift-qfv8.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   withCredentials: true,
 });
 

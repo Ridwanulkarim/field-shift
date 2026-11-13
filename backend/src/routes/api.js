@@ -82,7 +82,8 @@ export function createApiRouter(service) {
     res.json({ crops: await need().listCrops() });
   });
 
-  // GET /api/crops/advisory-supported : the crops the planting advisory has a rule for (the advisory page's crop list)
+  // GET /api/crops/advisory-supported : every crop in the planner catalogue, with advisoryAvailable
+  // false for rain-independent crops whose result is explicitly "not applicable".
   router.get('/crops/advisory-supported', async (req, res) => {
     res.json({ crops: await need().listAdvisoryCrops() });
   });

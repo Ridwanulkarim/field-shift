@@ -4,7 +4,7 @@ NASA Space Apps Challenge 2026: **Field Shift: Adapting Farms with NASA Data**.
 
 A decision-support tool for Bangladesh built on NASA data. Two things work on the backend:
 
-- **Planting-window advisory.** For a district and a crop (Aus or Aman), it compares the start of usable rain in 2001 to 2012 with 2013 onwards from NASA POWER, and returns a decision (move planting earlier, later, or no clear change), the evidence behind it, the shifts the data cannot rule out, and a sentence in English and Bangla.
+- **Planting-window advisory.** For a district and every crop in the reference catalogue, it compares the start of usable rain in 2001 to 2012 with 2013 onwards from NASA POWER, and returns a decision (move planting earlier, later, no clear change, or not applicable for rain-independent crops), the evidence behind it, the shifts the data cannot rule out, and a sentence in English and Bangla.
 - **Crop-rotation comparison.** For a district, current crops, soil and priorities it compares rotations with simple documented rules and explains each option.
 
 It supports farmer judgment and does not replace local agricultural expertise. It does not predict yield or profit.

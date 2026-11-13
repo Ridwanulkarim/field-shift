@@ -202,13 +202,18 @@ export function createEvaluationService(repo, { crossCheck = null } = {}) {
       return crops.map(({ id, ...c }) => c);
     },
 
-    // Crops the planting advisory can answer for: exactly those with a rain-onset rule. Driven by ONSET_BY_CROP so the
-    // list cannot drift from the science.
+    // Keep this catalogue aligned with the planner. Crops without a rain-onset rule (currently
+    // irrigated Boro) are still listed so every crop can reach a clear "not applicable" result.
     async listAdvisoryCrops() {
       const crops = await repo.listCrops();
       return crops
-        .filter((c) => ONSET_BY_CROP[c.slug])
-        .map((c) => ({ slug: c.slug, nameEn: c.nameEn, nameBn: c.nameBn, experimental: Boolean(EXPERIMENTAL_CROPS[c.slug]) }));
+        .map((c) => ({
+          slug: c.slug,
+          nameEn: c.nameEn,
+          nameBn: c.nameBn,
+          experimental: Boolean(EXPERIMENTAL_CROPS[c.slug]),
+          advisoryAvailable: Boolean(ONSET_BY_CROP[c.slug]),
+        }));
     },
 
     async cropCompatibility() {

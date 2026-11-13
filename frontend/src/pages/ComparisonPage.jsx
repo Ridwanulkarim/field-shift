@@ -165,11 +165,15 @@ export default function ComparisonPage() {
 
           <Card className="mt-5 p-5">
             <SectionHeading title={t.alternativesTitle} description={t.alternativesDescription} />
-            {lang === "bn" && <p className="mb-3 text-xs text-slate-500">{t.englishOnly}</p>}
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {alternatives.map((strategy) => {
                 const cmp = strategy.comparison;
-                const watch = [...(strategy.risks ?? []), ...(cmp?.tradeOffs ?? [])];
+                const watch = lang === "bn"
+                  ? (strategy.risksBn ?? strategy.risks ?? [])
+                  : [...(strategy.risks ?? []), ...(cmp?.tradeOffs ?? [])];
+                const improvements = lang === "bn"
+                  ? (strategy.benefitsBn ?? strategy.benefits ?? [])
+                  : (cmp?.improvements?.length ? cmp.improvements : strategy.benefits);
                 return (
                   <article className="flex flex-col rounded-xl border border-slate-200 p-5" key={strategy.id}>
                     <div className="flex items-start justify-between gap-3">
@@ -193,7 +197,7 @@ export default function ComparisonPage() {
                     <div className="mt-4">
                       <p className="text-sm font-semibold text-slate-800">{t.why}</p>
                       <ul className="mt-1 space-y-1 text-sm text-slate-600">
-                        {(cmp?.improvements?.length ? cmp.improvements : strategy.benefits).slice(0, 3).map((x, i) => (
+                        {improvements.slice(0, 3).map((x, i) => (
                           <li key={i}>• {x}</li>
                         ))}
                       </ul>

@@ -127,8 +127,10 @@ export const PLANTING_SPLIT_YEAR = 2013;
 export const SHIFT_ROBUST_SHARE = 0.6;
 
 
-// Which "usable rain onset" definition applies to which crop. A crop without an entry has no onset
-// advisory (for example irrigated Boro, which does not wait for the rains).
+// Which "usable rain onset" definition applies to which crop. Boro is irrigated and does not
+// wait for the rains, so it remains explicitly outside this analysis and returns "not applicable".
+// The other crops in the reference catalogue get a season-specific onset window so the advisory
+// can be opened from any crop workflow.
 // Aus is sown in April-May and depends on early rain, so its search starts on 1 May.
 // Aman is transplanted in July-August after the monsoon arrives, so its search starts on 1 June.
 // UNVERIFIED AGRONOMIC ASSUMPTIONS: they must be reviewed against BRRI/DAE guidance. Window length
@@ -136,6 +138,15 @@ export const SHIFT_ROBUST_SHARE = 0.6;
 export const ONSET_BY_CROP = {
   aus: { startMonth: 5, endMonth: 8, windowDays: 7, thresholdMm: 50 },
   aman: { startMonth: 6, endMonth: 8, windowDays: 7, thresholdMm: 50 },
+  wheat: { startMonth: 11, endMonth: 3, windowDays: 7, thresholdMm: 50 },
+  mustard: { startMonth: 11, endMonth: 2, windowDays: 7, thresholdMm: 50 },
+  potato: { startMonth: 11, endMonth: 2, windowDays: 7, thresholdMm: 50 },
+  lentil: { startMonth: 11, endMonth: 3, windowDays: 7, thresholdMm: 50 },
+  maize: { startMonth: 11, endMonth: 4, windowDays: 7, thresholdMm: 50 },
+  mungbean: { startMonth: 3, endMonth: 5, windowDays: 7, thresholdMm: 50 },
+  jute: { startMonth: 4, endMonth: 8, windowDays: 7, thresholdMm: 50 },
+  sesame: { startMonth: 3, endMonth: 6, windowDays: 7, thresholdMm: 50 },
+  groundnut: { startMonth: 10, endMonth: 3, windowDays: 7, thresholdMm: 50 },
 };
 
 // If at least this share of the years in a period have their onset on the very first day the search

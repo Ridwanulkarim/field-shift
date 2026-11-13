@@ -2,6 +2,10 @@
 
 `GET /api/districts/:slug/advisory?crop=aman[&lang=bn][&split=2013][&usualFrom=07-15&usualTo=08-15]`
 
+`crop` accepts every slug returned by `GET /api/crops`. Rain-dependent crops receive a
+season-specific onset analysis. Irrigated Boro is also accepted and returns a clear
+`not_applicable` decision because its planting date does not depend on usable-rain onset.
+
 One call returns the decision, the evidence behind it and a sentence the farmer can act on. It is the planting-window analysis
 (`/planting-window`, unchanged) presented as a decision. Nothing new is decided here.
 
