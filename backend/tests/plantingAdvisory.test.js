@@ -124,3 +124,16 @@ describe('parsePlantingWindowRequest', () => {
     expect(err.details.map((d) => d.field).sort()).toEqual(['crop', 'foo', 'split']);
   });
 });
+import { sourceCaveats, SOURCE_CAVEAT_EN, SOURCE_CAVEAT_BN } from '../src/science/plantingAdvisory.js';
+
+describe('source caveat with a second rainfall source', () => {
+  it('keeps the one-source caveat when nothing was cross-checked', () => {
+    expect(sourceCaveats(null)).toEqual({ en: SOURCE_CAVEAT_EN, bn: SOURCE_CAVEAT_BN });
+    expect(sourceCaveats({})).toEqual({ en: SOURCE_CAVEAT_EN, bn: SOURCE_CAVEAT_BN });
+  });
+  it('says the second source agreed, or disagreed, only when it was actually compared', () => {
+    expect(sourceCaveats({ sameVerdict: true }).en).toMatch(/second rainfall source \(CHIRPS\) gave the same conclusion/);
+    expect(sourceCaveats({ sameVerdict: false }).en).toMatch(/different conclusion/);
+    expect(sourceCaveats({ sameVerdict: true }).bn).toMatch(/CHIRPS/);
+  });
+});

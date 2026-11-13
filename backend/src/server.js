@@ -1,5 +1,6 @@
 import { config } from './config/env.js';
 import { createApp } from './app.js';
+import { createCrossCheckProvider } from './data/chirpsStore.js';
 import { createDataSource } from './data/dataSource.js';
 
 // The prisma modules are imported only when a database is actually used, so OFFLINE=1 never touches them.
@@ -23,7 +24,7 @@ if (config.sessionSecretIsEphemeral) {
   console.warn('NOTE: ANONYMOUS_SESSION_SECRET is not set, so a random secret is used for this run. Browser session cookies stop working when the server restarts. Set it in .env to keep them.');
 }
 
-const app = createApp(config, { repository: source.repository });
+const app = createApp(config, { repository: source.repository, crossCheck: createCrossCheckProvider() });
 
 const server = app.listen(config.port, () => {
   console.log(`Field Shift API listening on http://localhost:${config.port} (data mode: ${source.mode})`);

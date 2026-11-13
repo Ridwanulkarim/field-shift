@@ -15,9 +15,9 @@ import { createRateLimiter } from './utils/rateLimiter.js';
 
 // Builds the Express app WITHOUT starting a server, so tests can call it directly.
 // `repository` is optional: without it the data routes answer 503 instead of pretending.
-export function createApp(config, { repository, fieldService } = {}) {
+export function createApp(config, { repository, fieldService, crossCheck = null } = {}) {
   const app = express();
-  const service = repository ? createEvaluationService(repository) : null;
+  const service = repository ? createEvaluationService(repository, { crossCheck }) : null;
   // Fields need PostGIS: the offline file repository has no field methods, so the field routes answer 503 there.
   const offlineOnly = repository?.mode === 'offline-files';
   const fields = fieldService ?? (repository && !offlineOnly ? createFieldService(repository) : null);

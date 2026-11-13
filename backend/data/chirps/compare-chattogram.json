@@ -1,0 +1,491 @@
+{
+  "district": "chattogram",
+  "comparedRange": {
+    "first": "2001-01-01",
+    "last": "2025-12-31"
+  },
+  "powerRetrievedAt": "2026-11-09T07:15:44.087Z",
+  "powerSeriesSha256": "348a89d1cbe42923e9c36f8dcbe9f4dfdf26c5ed2321cb73210e923b3c751d2b",
+  "chirpsRetrievedAt": "2026-11-13T04:45:16.362Z",
+  "chirpsSha256": "634eae610933789057c07bad7735e49e209cdb4a1eb6388494d8a07f44e76d32",
+  "dailyAlignment": {
+    "correlations": [
+      {
+        "lag": -2,
+        "r": 0.384,
+        "n": 9129
+      },
+      {
+        "lag": -1,
+        "r": 0.528,
+        "n": 9130
+      },
+      {
+        "lag": 0,
+        "r": 0.576,
+        "n": 9131
+      },
+      {
+        "lag": 1,
+        "r": 0.417,
+        "n": 9130
+      },
+      {
+        "lag": 2,
+        "r": 0.301,
+        "n": 9129
+      }
+    ],
+    "bestLag": 0
+  },
+  "crops": {
+    "aus": {
+      "definition": {
+        "startMonth": 5,
+        "endMonth": 8,
+        "windowDays": 7,
+        "thresholdMm": 50
+      },
+      "rows": [
+        {
+          "year": 2001,
+          "a": 121,
+          "b": 121,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2002,
+          "a": 124,
+          "b": 122,
+          "diffDays": -2,
+          "sameStatus": true
+        },
+        {
+          "year": 2003,
+          "a": 153,
+          "b": 121,
+          "diffDays": -32,
+          "sameStatus": true
+        },
+        {
+          "year": 2004,
+          "a": 137,
+          "b": 131,
+          "diffDays": -6,
+          "sameStatus": true
+        },
+        {
+          "year": 2005,
+          "a": 173,
+          "b": 136,
+          "diffDays": -37,
+          "sameStatus": true
+        },
+        {
+          "year": 2006,
+          "a": 125,
+          "b": 125,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2007,
+          "a": 128,
+          "b": 130,
+          "diffDays": 2,
+          "sameStatus": true
+        },
+        {
+          "year": 2008,
+          "a": 122,
+          "b": 131,
+          "diffDays": 9,
+          "sameStatus": true
+        },
+        {
+          "year": 2009,
+          "a": 121,
+          "b": 121,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2010,
+          "a": 135,
+          "b": 135,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2011,
+          "a": 121,
+          "b": 131,
+          "diffDays": 10,
+          "sameStatus": true
+        },
+        {
+          "year": 2012,
+          "a": 121,
+          "b": 121,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2013,
+          "a": 121,
+          "b": 121,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2014,
+          "a": 124,
+          "b": 122,
+          "diffDays": -2,
+          "sameStatus": true
+        },
+        {
+          "year": 2015,
+          "a": 156,
+          "b": 129,
+          "diffDays": -27,
+          "sameStatus": true
+        },
+        {
+          "year": 2016,
+          "a": 128,
+          "b": 131,
+          "diffDays": 3,
+          "sameStatus": true
+        },
+        {
+          "year": 2017,
+          "a": 130,
+          "b": 131,
+          "diffDays": 1,
+          "sameStatus": true
+        },
+        {
+          "year": 2018,
+          "a": 121,
+          "b": 121,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2019,
+          "a": 121,
+          "b": 138,
+          "diffDays": 17,
+          "sameStatus": true
+        },
+        {
+          "year": 2020,
+          "a": 121,
+          "b": 134,
+          "diffDays": 13,
+          "sameStatus": true
+        },
+        {
+          "year": 2021,
+          "a": 127,
+          "b": 137,
+          "diffDays": 10,
+          "sameStatus": true
+        },
+        {
+          "year": 2022,
+          "a": 123,
+          "b": 123,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2023,
+          "a": 131,
+          "b": 129,
+          "diffDays": -2,
+          "sameStatus": true
+        },
+        {
+          "year": 2024,
+          "a": 121,
+          "b": 121,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2025,
+          "a": 132,
+          "b": 130,
+          "diffDays": -2,
+          "sameStatus": true
+        }
+      ],
+      "summary": {
+        "yearsCompared": 25,
+        "yearsBothOnset": 25,
+        "yearsDifferentStatus": 0,
+        "medianDiffDays": 0,
+        "medianAbsDiffDays": 2,
+        "meanAbsDiffDays": 7,
+        "within3DaysShare": 0.64,
+        "within7DaysShare": 0.68,
+        "correlation": 0.29
+      },
+      "verdicts": {
+        "a": {
+          "verdict": "no_distinguishable_shift",
+          "shiftDays": -0.5,
+          "earlyMedian": 124.5,
+          "lateMedian": 124,
+          "earlyYears": 12,
+          "lateYears": 13,
+          "censoredYears": 0,
+          "pValue": 0.676043838266233
+        },
+        "b": {
+          "verdict": "no_distinguishable_shift",
+          "shiftDays": 1.5,
+          "earlyMedian": 127.5,
+          "lateMedian": 129,
+          "earlyYears": 12,
+          "lateYears": 13,
+          "censoredYears": 0,
+          "pValue": 0.7195576093312432
+        },
+        "sameVerdict": true
+      },
+      "firstDayShare": {
+        "power": 0.36,
+        "chirps": 0.28,
+        "firstDayOfYear": 121
+      }
+    },
+    "aman": {
+      "definition": {
+        "startMonth": 6,
+        "endMonth": 8,
+        "windowDays": 7,
+        "thresholdMm": 50
+      },
+      "rows": [
+        {
+          "year": 2001,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2002,
+          "a": 153,
+          "b": 152,
+          "diffDays": -1,
+          "sameStatus": true
+        },
+        {
+          "year": 2003,
+          "a": 153,
+          "b": 152,
+          "diffDays": -1,
+          "sameStatus": true
+        },
+        {
+          "year": 2004,
+          "a": 164,
+          "b": 152,
+          "diffDays": -12,
+          "sameStatus": true
+        },
+        {
+          "year": 2005,
+          "a": 173,
+          "b": 159,
+          "diffDays": -14,
+          "sameStatus": true
+        },
+        {
+          "year": 2006,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2007,
+          "a": 153,
+          "b": 153,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2008,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2009,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2010,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2011,
+          "a": 155,
+          "b": 152,
+          "diffDays": -3,
+          "sameStatus": true
+        },
+        {
+          "year": 2012,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2013,
+          "a": 153,
+          "b": 152,
+          "diffDays": -1,
+          "sameStatus": true
+        },
+        {
+          "year": 2014,
+          "a": 156,
+          "b": 152,
+          "diffDays": -4,
+          "sameStatus": true
+        },
+        {
+          "year": 2015,
+          "a": 156,
+          "b": 155,
+          "diffDays": -1,
+          "sameStatus": true
+        },
+        {
+          "year": 2016,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2017,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2018,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2019,
+          "a": 152,
+          "b": 157,
+          "diffDays": 5,
+          "sameStatus": true
+        },
+        {
+          "year": 2020,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2021,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2022,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2023,
+          "a": 153,
+          "b": 152,
+          "diffDays": -1,
+          "sameStatus": true
+        },
+        {
+          "year": 2024,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        },
+        {
+          "year": 2025,
+          "a": 152,
+          "b": 152,
+          "diffDays": 0,
+          "sameStatus": true
+        }
+      ],
+      "summary": {
+        "yearsCompared": 25,
+        "yearsBothOnset": 25,
+        "yearsDifferentStatus": 0,
+        "medianDiffDays": 0,
+        "medianAbsDiffDays": 0,
+        "meanAbsDiffDays": 1.72,
+        "within3DaysShare": 0.84,
+        "within7DaysShare": 0.92,
+        "correlation": 0.648
+      },
+      "verdicts": {
+        "a": {
+          "verdict": "no_distinguishable_shift",
+          "shiftDays": -0.5,
+          "earlyMedian": 152.5,
+          "lateMedian": 152,
+          "earlyYears": 12,
+          "lateYears": 13,
+          "censoredYears": 0,
+          "pValue": 0.33870079012941257
+        },
+        "b": {
+          "verdict": "no_distinguishable_shift",
+          "shiftDays": 0,
+          "earlyMedian": 152,
+          "lateMedian": 152,
+          "earlyYears": 12,
+          "lateYears": 13,
+          "censoredYears": 0,
+          "pValue": 0.9660252881634865
+        },
+        "sameVerdict": true
+      },
+      "firstDayShare": {
+        "power": 0.6,
+        "chirps": 0.84,
+        "firstDayOfYear": 152
+      }
+    }
+  }
+}

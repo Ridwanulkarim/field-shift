@@ -11,7 +11,7 @@
 
 import { addDays } from './series.js';
 import { round } from './stats.js';
-import { toBnDigits, SOURCE_CAVEAT_EN, SOURCE_CAVEAT_BN, buildAdvisory } from './plantingAdvisory.js';
+import { toBnDigits, sourceCaveats, buildAdvisory } from './plantingAdvisory.js';
 import { ONSET_CENSOR_DAY, GDD, SHIFT_ROBUST_SHARE, BOUNDARY_SATURATED_SHARE, EXPERIMENTAL_CROPS } from './rules.js';
 import { buildSms } from './smsAdvisory.js';
 
@@ -194,7 +194,8 @@ const NOTE_SHORT = {
 
 const rangeText = (p) => `${p.from}–${p.to}`;
 
-function headline({ kind, n, periods, dates, district, crop, window }) {
+function headline({ kind, n, periods, dates, district, crop, window, crossCheck = null }) {
+  const caveat = sourceCaveats(crossCheck);
   const early = rangeText(periods.early);
   const late = rangeText(periods.late);
   const dir = kind === 'delay' ? { en: 'later', bn: 'দেরিতে', verbEn: 'later', verbBn: 'পিছিয়ে' } : { en: 'earlier', bn: 'আগে', verbEn: 'earlier', verbBn: 'এগিয়ে' };
@@ -207,8 +208,8 @@ function headline({ kind, n, periods, dates, district, crop, window }) {
     ? `আপনার চিরাচরিত রোপণের সময় যদি ${formatMonthDay(window.usual.from, 'bn')} থেকে ${formatMonthDay(window.usual.to, 'bn')} হয়, তবে ${formatMonthDay(window.revised.from, 'bn')} থেকে ${formatMonthDay(window.revised.to, 'bn')} করার কথা ভাবুন।`
     : `রোপণের সময় প্রায় ${toBnDigits(n)} দিন ${dir.verbBn} নেওয়ার কথা ভাবুন।`;
   return {
-    en: `${crop.en} in ${district.en}: usable rain now starts about ${n} days ${dir.en} (${evEn}). ${actEn} Please check with your local agricultural extension officer.${SOURCE_CAVEAT_EN}`,
-    bn: `${district.bn} জেলায় ${crop.bn}: কার্যকর বৃষ্টি এখন প্রায় ${toBnDigits(n)} দিন ${dir.bn} শুরু হচ্ছে (${evBn})। ${actBn} স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।${SOURCE_CAVEAT_BN}`,
+    en: `${crop.en} in ${district.en}: usable rain now starts about ${n} days ${dir.en} (${evEn}). ${actEn} Please check with your local agricultural extension officer.${caveat.en}`,
+    bn: `${district.bn} জেলায় ${crop.bn}: কার্যকর বৃষ্টি এখন প্রায় ${toBnDigits(n)} দিন ${dir.bn} শুরু হচ্ছে (${evBn})। ${actBn} স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।${caveat.bn}`,
   };
 }
 
@@ -249,9 +250,9 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
   const district = { en: result.district.nameEn, bn: result.district.nameBn };
   const crop = { en: result.crop.nameEn, bn: result.crop.nameBn };
   const sentence = supported && dates
-    ? headline({ kind: rec.action, n, periods, dates, district, crop, window })
+    ? headline({ kind: rec.action, n, periods, dates, district, crop, window, crossCheck: result.crossCheck ?? null })
     : (() => {
-        const t = buildAdvisory({ districtEn: district.en, districtBn: district.bn, cropEn: crop.en, cropBn: crop.bn, recommendation: rec, periods });
+        const t = buildAdvisory({ districtEn: district.en, districtBn: district.bn, cropEn: crop.en, cropBn: crop.bn, recommendation: rec, periods, crossCheck: result.crossCheck ?? null });
         const extra = estimate && (t.kind === 'no_change' || t.kind === 'weak') ? intervalSentence(estimate) : { en: '', bn: '' };
         return { en: t.en + extra.en, bn: t.bn + extra.bn };
       })();
@@ -296,6 +297,7 @@ export function buildFarmerAdvisory({ result, analysis, lang = 'en', usual = nul
     warnings: experimentalNote ? [{ code: 'EXPERIMENTAL_CROP', message: experimentalNote.en, messageBn: experimentalNote.bn }] : [],
     sentence: { text: (sentence[lang] ?? sentence.en) + (mayNote[lang] ?? '') + (unchangedNote[lang] ?? ''), lang: sentence[lang] ? lang : 'en', en: sentence.en + mayNote.en + unchangedNote.en, bn: sentence.bn + mayNote.bn + unchangedNote.bn, reviewStatus: result.advisory.reviewStatus, sms },
     window,
+    crossCheck: result.crossCheck ?? null,
     windowHint: window ? null : 'Add usualFrom and usualTo (MM-DD) to see your own usual transplanting window moved by this shift.',
     evidence: {
       periods,

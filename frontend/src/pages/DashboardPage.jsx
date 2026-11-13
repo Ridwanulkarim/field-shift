@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Satellite, XCircle } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle2,
+  CloudRain,
+  Database,
+  MapPinned,
+  Satellite,
+  XCircle,
+} from "lucide-react";
 import { PageHeading, StatCard, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
 import useAxios from "../hooks/useAxios"; // Adjust this path if needed

@@ -9,6 +9,20 @@ const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮'
 export const SOURCE_CAVEAT_EN = ' This rests on one modelled rainfall source (NASA POWER) that has not been checked against another dataset.';
 export const SOURCE_CAVEAT_BN = ' এটি একটি মডেলভিত্তিক বৃষ্টির উৎসের (NASA POWER) ওপর নির্ভরশীল, যা অন্য কোনো তথ্যভাণ্ডারের সঙ্গে যাচাই করা হয়নি।';
 
+// Used instead of the caveat above when a second rainfall source (CHIRPS) has actually been compared.
+export const SECOND_SOURCE_SAME_EN = ' This rests on modelled rainfall (NASA POWER); a second rainfall source (CHIRPS) gave the same conclusion.';
+export const SECOND_SOURCE_SAME_BN = ' এটি মডেলভিত্তিক বৃষ্টির তথ্যের (NASA POWER) ওপর নির্ভরশীল; দ্বিতীয় একটি বৃষ্টির উৎস (CHIRPS)-ও একই সিদ্ধান্তে পৌঁছেছে।';
+export const SECOND_SOURCE_DIFFERENT_EN = ' This rests on modelled rainfall (NASA POWER); a second rainfall source (CHIRPS) gave a different conclusion, so treat it with extra caution.';
+export const SECOND_SOURCE_DIFFERENT_BN = ' এটি মডেলভিত্তিক বৃষ্টির তথ্যের (NASA POWER) ওপর নির্ভরশীল; দ্বিতীয় একটি বৃষ্টির উৎস (CHIRPS) ভিন্ন সিদ্ধান্তে পৌঁছেছে, তাই বাড়তি সতর্কতা নিন।';
+
+// The source note for a sentence: the one-source caveat, or what the CHIRPS comparison found.
+export function sourceCaveats(crossCheck) {
+  if (!crossCheck || typeof crossCheck.sameVerdict !== 'boolean') return { en: SOURCE_CAVEAT_EN, bn: SOURCE_CAVEAT_BN };
+  return crossCheck.sameVerdict
+    ? { en: SECOND_SOURCE_SAME_EN, bn: SECOND_SOURCE_SAME_BN }
+    : { en: SECOND_SOURCE_DIFFERENT_EN, bn: SECOND_SOURCE_DIFFERENT_BN };
+}
+
 export function toBnDigits(value) {
   return String(value).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
 }
@@ -27,7 +41,7 @@ export function advisoryKind(recommendation) {
   }
 }
 
-export function buildAdvisory({ districtEn, districtBn, cropEn, cropBn, recommendation, periods }) {
+export function buildAdvisory({ districtEn, districtBn, cropEn, cropBn, recommendation, periods, crossCheck = null }) {
   const kind = advisoryKind(recommendation);
   const n = recommendation.shiftDays;
   const early = periods ? `${periods.early.from}–${periods.early.to}` : '';
@@ -37,8 +51,7 @@ export function buildAdvisory({ districtEn, districtBn, cropEn, cropBn, recommen
   const nBn = toBnDigits(n);
   const headEn = `${cropEn} in ${districtEn}:`;
   const headBn = `${districtBn} জেলায় ${cropBn}:`;
-  const sourceEn = SOURCE_CAVEAT_EN;
-  const sourceBn = SOURCE_CAVEAT_BN;
+  const { en: sourceEn, bn: sourceBn } = sourceCaveats(crossCheck);
 
   const text = {
     delay: {

@@ -35,7 +35,10 @@
     "ingest:nasa:cell:refresh": "node --env-file-if-exists=.env scripts/refresh-nasa-grid-cell.js",
     "export:offline": "node --env-file-if-exists=.env scripts/export-offline.js",
     "check:offline": "node --env-file-if-exists=.env scripts/check-offline.js",
-    "check:rotation": "node --env-file-if-exists=.env scripts/check-rotation-ranking.js"
+    "check:rotation": "node --env-file-if-exists=.env scripts/check-rotation-ranking.js",
+    "fetch:chirps": "node --env-file-if-exists=.env scripts/fetch-chirps-climateserv.js",
+    "compare:chirps": "node --env-file-if-exists=.env scripts/compare-chirps-power.js",
+    "probe:climateserv": "node --env-file-if-exists=.env scripts/probe-climateserv.js"
   },
   "engines": {
     "node": ">=22.18"

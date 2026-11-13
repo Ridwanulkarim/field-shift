@@ -93,7 +93,8 @@ function climateNotice(climate) {
   return null;
 }
 
-export function createEvaluationService(repo) {
+// `crossCheck(districtSlug, cropSlug)` is optional: it returns a summary of a second-source comparison (CHIRPS) or null.
+export function createEvaluationService(repo, { crossCheck = null } = {}) {
   const climateViewCache = new Map();
   const cropClimateCache = new Map();
   const plantingCache = new Map();
@@ -155,6 +156,7 @@ export function createEvaluationService(repo) {
       late: { from: split, to: Math.max(...years), years: analysis.onset.analysis?.lateYears ?? analysis.gdd.analysis.lateYears },
     };
     const publicDistrict = districtPublic(district);
+    const second = crossCheck ? crossCheck(slug, crop.slug) : null;
     const result = {
       district: publicDistrict,
       crop: { slug: crop.slug, nameEn: crop.nameEn, nameBn: crop.nameBn, startMonth: crop.startMonth, endMonth: crop.endMonth, basis: crop.basis, traitSources: crop.traitSources ?? null },
@@ -163,6 +165,7 @@ export function createEvaluationService(repo) {
       status: 'experimental',
       statusNote: 'Experimental: the onset definitions are unverified agronomic assumptions and the result rests on one modelled rainfall source. Growing degree days are computed internally but not reported.',
       recommendation: analysis.recommendation,
+      crossCheck: second,
       advisory: buildAdvisory({
         districtEn: publicDistrict.nameEn,
         districtBn: publicDistrict.nameBn,
@@ -170,6 +173,7 @@ export function createEvaluationService(repo) {
         cropBn: crop.nameBn,
         recommendation: analysis.recommendation,
         periods,
+        crossCheck: second,
       }),
       provenance: {
         runId: climate.provenance.runId,

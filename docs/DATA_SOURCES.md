@@ -110,3 +110,6 @@ NASA GPM IMERG (daily product GPM_3IMERGDF, collection version 07, 0.1 degree, m
 ## Not used
 
 Soil-moisture and vegetation products, satellite vegetation indices (such as NDVI), market prices, pests, diseases, labour, seed supply and flood timing are not modelled.
+
+## CHIRPS via NASA SERVIR ClimateSERV (second-source cross-check shown beside advisories; never changes the decision)
+Daily CHIRPS rainfall (UC Santa Barbara Climate Hazards Center with USGS), accessed through ClimateSERV, averaged over the NASA POWER grid cell used for each district. Stored in `backend/data/chirps/` with provenance and a sha256, and compared with POWER onset dates by `npm run compare:chirps`. The client has been run live for Rajshahi; other districts are pending. When a comparison report exists, the advisory shows it. See [CHIRPS_CROSSCHECK.md](CHIRPS_CROSSCHECK.md).

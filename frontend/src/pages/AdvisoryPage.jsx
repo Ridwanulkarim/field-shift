@@ -10,6 +10,10 @@ import {
 import { PageHeading, Card, SectionHeading } from "../components/UI";
 import OnsetChart from "../components/OnsetChart";
 import { useLanguage } from "../layouts/context/LanguageContext";
+import { signed } from "../utils/rotationView";
+import { useSelection } from "../layouts/context/SelectionContext";
+import { useLocation } from "react-router";
+import { friendlyError } from "../utils/friendlyError";
 import useAxios from "../hooks/useAxios";
 
 const MAX_WINDOW_DAYS = 120; // same limit as the backend (MAX_USUAL_WINDOW_DAYS)
@@ -57,6 +61,10 @@ const translations = {
       none: "No clear change",
       not_applicable: "Not applicable",
     },
+    saturatedTitle: "Why we can't tell here",
+    saturatedText: (early, late, first) =>
+      `In ${early}% of the earlier years and ${late}% of the later years, usable rain had already started by ${first}, the first day this analysis can examine. A shift to an earlier start cannot be measured, so no change is advised. Your usual planting time stays as it is. Another crop or district may give a measurable result.`,
+    saturatedChart: (first) => `Many dots sit on ${first}, the first day examined.`,
     windowTitle: "Your planting window",
     usualLabel: "Your usual",
     suggestedLabel: "Suggested",
@@ -97,6 +105,14 @@ const translations = {
     },
     agreement: (a, b) =>
       `${a} of ${b} alternative definitions of “usable rain” give the same answer.`,
+    crossTitle: "Checked against a second source",
+    crossSame: "A second rainfall source (CHIRPS) reaches the same conclusion.",
+    crossDifferent: "A second rainfall source (CHIRPS) reaches a different conclusion. Treat this advice with extra caution.",
+    crossVerdict: { earlier_onset: "rains start earlier", later_onset: "rains start later", no_distinguishable_shift: "no clear change", insufficient_data: "not enough data" },
+    crossNumbers: (pv, ps, cv, cs) => `NASA POWER: ${pv} (${ps} days). CHIRPS: ${cv} (${cs} days). Minus = earlier, plus = later.`,
+    crossYears: (within, med) => `Year by year the two sources' start dates are within 7 days in ${within}% of years (typical gap ${med} days), so treat any single year's date as approximate. The overall shift is what is compared.`,
+    crossFirstDay: (p, c) => `Share of years starting on the first day examined: ${p}% (POWER), ${c}% (CHIRPS).`,
+    crossNote: "CHIRPS is another satellite-and-station rainfall estimate, not ground truth. Agreement raises confidence; it does not guarantee the result.",
     limitsTitle: "Limits to keep in mind",
     englishOnly: "(shown in English)",
     provenanceTitle: "Where the data comes from",
@@ -152,6 +168,10 @@ const translations = {
       none: "স্পষ্ট পরিবর্তন নেই",
       not_applicable: "প্রযোজ্য নয়",
     },
+    saturatedTitle: "এখানে কেন বলা যাচ্ছে না",
+    saturatedText: (early, late, first) =>
+      `আগের বছরগুলোর ${early}% এবং পরের বছরগুলোর ${late}%-এ ${first}-এর মধ্যেই কার্যকর বৃষ্টি শুরু হয়ে গিয়েছিল, যা এই বিশ্লেষণের প্রথম পরীক্ষিত দিন। তাই আগে শুরুর কোনো পরিবর্তন মাপা যায় না, ফলে কোনো পরিবর্তনের পরামর্শ দেওয়া হচ্ছে না। আপনার চিরাচরিত রোপণের সময়ই থাকুক। অন্য ফসল বা জেলায় মাপার মতো ফল মিলতে পারে।`,
+    saturatedChart: (first) => `অনেক বিন্দু ${first}-এ, যা প্রথম পরীক্ষিত দিন।`,
     windowTitle: "আপনার রোপণের সময়",
     usualLabel: "আপনার চিরাচরিত",
     suggestedLabel: "প্রস্তাবিত",
@@ -191,6 +211,14 @@ const translations = {
     },
     agreement: (a, b) =>
       `“কার্যকর বৃষ্টি”র ${b}টি বিকল্প সংজ্ঞার মধ্যে ${a}টি একই উত্তর দেয়।`,
+    crossTitle: "দ্বিতীয় একটি উৎসের সাথে যাচাই",
+    crossSame: "দ্বিতীয় একটি বৃষ্টির উৎস (CHIRPS)-ও একই সিদ্ধান্তে পৌঁছেছে।",
+    crossDifferent: "দ্বিতীয় একটি বৃষ্টির উৎস (CHIRPS) ভিন্ন সিদ্ধান্তে পৌঁছেছে। এই পরামর্শে বাড়তি সতর্কতা নিন।",
+    crossVerdict: { earlier_onset: "বৃষ্টি আগে শুরু হয়", later_onset: "বৃষ্টি দেরিতে শুরু হয়", no_distinguishable_shift: "স্পষ্ট পরিবর্তন নেই", insufficient_data: "তথ্য অপর্যাপ্ত" },
+    crossNumbers: (pv, ps, cv, cs) => `NASA POWER: ${pv} (${ps} দিন)। CHIRPS: ${cv} (${cs} দিন)। বিয়োগ = আগে, যোগ = পরে।`,
+    crossYears: (within, med) => `বছর ধরে ধরে দুই উৎসের শুরুর তারিখ ${within}% বছরে ৭ দিনের মধ্যে (সাধারণ ব্যবধান ${med} দিন), তাই কোনো একটি বছরের তারিখকে আনুমানিক ধরুন। এখানে মূলত সামগ্রিক পরিবর্তন তুলনা করা হয়েছে।`,
+    crossFirstDay: (p, c) => `পরীক্ষিত প্রথম দিনেই শুরু হওয়া বছরের হার: ${p}% (POWER), ${c}% (CHIRPS)।`,
+    crossNote: "CHIRPS-ও স্যাটেলাইট ও স্টেশন-ভিত্তিক বৃষ্টির অনুমান, প্রকৃত মাপ নয়। মিল থাকলে আস্থা বাড়ে; ফলাফলের নিশ্চয়তা মেলে না।",
     limitsTitle: "যা মনে রাখতে হবে",
     englishOnly: "(ইংরেজিতে দেখানো হয়েছে)",
     provenanceTitle: "তথ্যের উৎস",
@@ -342,6 +370,8 @@ export default function AdvisoryPage() {
   const t = translations[lang];
   const locale = localeOf(lang);
   const api = useAxios();
+  const selection = useSelection();
+  const { state: navState } = useLocation();
   const months = useMemo(() => monthNames(locale), [locale]);
   const nf = (n) => Number(n).toLocaleString(locale);
 
@@ -372,18 +402,19 @@ export default function AdvisoryPage() {
       setDistricts(districtItems);
       setCrops(cropItems);
       // Default to the project's demo case when it is available.
+      const pick = (items, wanted, demo) =>
+        items.find((x) => x.slug === wanted)?.slug ??
+        items.find((x) => x.slug === demo)?.slug ??
+        items[0]?.slug ??
+        "";
       setDistrict((cur) =>
-        districtItems.some((x) => x.slug === cur)
-          ? cur
-          : (districtItems.find((x) => x.slug === "rajshahi") ?? districtItems[0])?.slug ?? "",
+        districtItems.some((x) => x.slug === cur) ? cur : pick(districtItems, navState?.district ?? selection.district, "rajshahi"),
       );
       setCrop((cur) =>
-        cropItems.some((x) => x.slug === cur)
-          ? cur
-          : (cropItems.find((x) => x.slug === "aman") ?? cropItems[0])?.slug ?? "",
+        cropItems.some((x) => x.slug === cur) ? cur : pick(cropItems, navState?.crop ?? selection.crop, "aman"),
       );
     } catch (error) {
-      setOptionsError(getErrorMessage(error, t.optionsError));
+      setOptionsError(friendlyError(error, lang, t.optionsError));
     } finally {
       setOptionsLoading(false);
     }
@@ -427,7 +458,7 @@ export default function AdvisoryPage() {
       .catch((error) => {
         if (controller.signal.aborted || error?.code === "ERR_CANCELED") return;
         setAdvisory(null);
-        setAdvisoryError(getErrorMessage(error, t.advisoryError));
+        setAdvisoryError(friendlyError(error, lang, t.advisoryError));
         setAdvisoryLoading(false);
       });
     return () => controller.abort();
@@ -460,8 +491,16 @@ export default function AdvisoryPage() {
   const dist = advisory?.evidence?.distributions;
   const periods = advisory?.evidence?.periods;
   const strength = advisory?.evidence?.strength;
-  const est = strength?.shiftEstimate;
+  // A saturated result has no measurable shift, so showing "0 days, from 0 to 0" would mislead.
+  const est = kind === "saturated" ? null : strength?.shiftEstimate;
   const prov = advisory?.provenance;
+  // The first day the analysis can examine = the earliest onset in either period (only meaningful for a saturated result).
+  const firstDay = dist
+    ? Math.min(...["early", "late"].flatMap((k) => dist[k]?.valuesDayOfYear ?? []))
+    : null;
+  const firstDayText = Number.isFinite(firstDay)
+    ? new Date(Date.UTC(2001, 0, firstDay)).toLocaleDateString(locale, { day: "numeric", month: "long", timeZone: "UTC" })
+    : "";
   const noUsualHint = advisory && !advisory.window;
 
   const th = "px-2 py-2 text-left text-xs font-semibold text-gray-600";
@@ -498,7 +537,10 @@ export default function AdvisoryPage() {
                   <select
                     className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
                     value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
+                    onChange={(e) => {
+                      setDistrict(e.target.value);
+                      selection.update({ district: e.target.value });
+                    }}
                   >
                     {districts.map((item) => (
                       <option key={item.slug} value={item.slug}>
@@ -513,7 +555,10 @@ export default function AdvisoryPage() {
                   <select
                     className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600/20"
                     value={crop}
-                    onChange={(e) => setCrop(e.target.value)}
+                    onChange={(e) => {
+                      setCrop(e.target.value);
+                      selection.update({ crop: e.target.value });
+                    }}
                   >
                     {crops.map((item) => (
                       <option key={item.slug} value={item.slug}>
@@ -628,6 +673,19 @@ export default function AdvisoryPage() {
                 {smsMeta && <p className="mt-2 text-xs text-gray-600">{t.smsInfo(nf(smsMeta.length), nf(smsMeta.segments))}</p>}
               </div>
 
+              {kind === "saturated" && strength?.startBoundary && (
+                <section className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <h3 className="font-semibold text-gray-900">{t.saturatedTitle}</h3>
+                  <p className="mt-1 text-sm leading-6 text-gray-700">
+                    {t.saturatedText(
+                      nf(Math.round(strength.startBoundary.earlyShareAtFirstDay * 100)),
+                      nf(Math.round(strength.startBoundary.lateShareAtFirstDay * 100)),
+                      firstDayText,
+                    )}
+                  </p>
+                </section>
+              )}
+
               {/* 2. The farmer's window */}
               <section>
                 <h3 className="mb-2 font-semibold text-gray-900">{t.windowTitle}</h3>
@@ -650,6 +708,7 @@ export default function AdvisoryPage() {
                       chartTitle: t.chartTitle,
                     }}
                   />
+                  {kind === "saturated" && firstDayText && <p className="mt-2 text-xs text-gray-600">{t.saturatedChart(firstDayText)}</p>}
                   {(() => {
                     const n = (dist.early.censoredYears ?? 0) + (dist.late.censoredYears ?? 0);
                     return n > 0 ? <p className="mt-2 text-xs text-gray-600">{t.censoredNote(nf(n))}</p> : null;
@@ -710,6 +769,33 @@ export default function AdvisoryPage() {
                     {strength?.definitionsUsable != null && <li>{t.agreement(nf(strength.definitionsAgreeing), nf(strength.definitionsUsable))}</li>}
                     {t.meaning[decision.confidence] && <li>{t.meaning[decision.confidence]}</li>}
                   </ul>
+                </section>
+              )}
+
+              {/* 4b. A second rainfall source, only when it was actually compared */}
+              {advisory.crossCheck && (
+                <section className="border-t border-gray-200 pt-4" aria-labelledby="cross-title">
+                  <h3 id="cross-title" className="font-semibold text-gray-900">{t.crossTitle}</h3>
+                  <p className={`mt-2 rounded-lg p-3 text-sm font-medium ${advisory.crossCheck.sameVerdict ? "bg-green-50 text-green-900" : "bg-amber-50 text-amber-900"}`}>
+                    {advisory.crossCheck.sameVerdict ? t.crossSame : t.crossDifferent}
+                  </p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-gray-700">
+                    <li>
+                      {t.crossNumbers(
+                        t.crossVerdict[advisory.crossCheck.powerVerdict] ?? advisory.crossCheck.powerVerdict,
+                        signed(advisory.crossCheck.powerShiftDays ?? 0, locale),
+                        t.crossVerdict[advisory.crossCheck.chirpsVerdict] ?? advisory.crossCheck.chirpsVerdict,
+                        signed(advisory.crossCheck.chirpsShiftDays ?? 0, locale),
+                      )}
+                    </li>
+                    {advisory.crossCheck.within7DaysShare != null && (
+                      <li>{t.crossYears(nf(Math.round(advisory.crossCheck.within7DaysShare * 100)), nf(advisory.crossCheck.medianAbsDiffDays))}</li>
+                    )}
+                    {advisory.crossCheck.firstDayShare?.power != null && advisory.crossCheck.firstDayShare?.chirps != null && (
+                      <li>{t.crossFirstDay(nf(Math.round(advisory.crossCheck.firstDayShare.power * 100)), nf(Math.round(advisory.crossCheck.firstDayShare.chirps * 100)))}</li>
+                    )}
+                  </ul>
+                  <p className="mt-2 text-xs text-gray-600">{t.crossNote}</p>
                 </section>
               )}
 

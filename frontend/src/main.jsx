@@ -4,13 +4,16 @@ import { RouterProvider } from "react-router/dom";
 import "./styles.css";
 import { router } from "./routes/Router";
 import { LanguageProvider } from "./layouts/context/LanguageContext";
+import { SelectionProvider } from "./layouts/context/SelectionContext";
 import "leaflet/dist/leaflet.css";
 
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <LanguageProvider>
-      <RouterProvider router={router} />
+      <SelectionProvider>
+        <RouterProvider router={router} />
+      </SelectionProvider>
     </LanguageProvider>
   </StrictMode>,
 );

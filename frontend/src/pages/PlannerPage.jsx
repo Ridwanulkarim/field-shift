@@ -4,6 +4,8 @@ import { useNavigate } from "react-router";
 import useAxios from "../hooks/useAxios";
 import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
+import { useSelection } from "../layouts/context/SelectionContext";
+import { friendlyError } from "../utils/friendlyError";
 
 const translations = {
   en: {
@@ -43,6 +45,14 @@ const translations = {
     evaluateError:
       "Could not evaluate this rotation. Check your selections and try again.",
     noCrops: "No crops were returned by the API.",
+    fineTune: "Fine-tune (optional)",
+    fineTuneHelp: "Soil, irrigation and what matters most to you. The defaults work for a first look.",
+    priorityWords: ["Ignore", "Normal", "Important", "Very important"],
+    options: {
+      salinity: { none: "None or very low", slight: "Slight", moderate: "Moderate", high: "High" },
+      drainage: { good: "Drains well", moderate: "Drains moderately", poor: "Water stays after rain" },
+      irrigation: { none: "None (rain only)", limited: "Some (pump or canal, not always)", reliable: "Reliable" },
+    },
   },
   bn: {
     eyebrow: "পরিকল্পনা কর্মক্ষেত্র",
@@ -80,6 +90,14 @@ const translations = {
     evaluateError:
       "শস্য পর্যায় মূল্যায়ন করা যায়নি। তথ্য যাচাই করে আবার চেষ্টা করুন।",
     noCrops: "API থেকে কোনো ফসল পাওয়া যায়নি।",
+    fineTune: "সূক্ষ্ম সমন্বয় (ঐচ্ছিক)",
+    fineTuneHelp: "মাটি, সেচ এবং আপনার কাছে কোনটি বেশি গুরুত্বপূর্ণ। প্রথম দেখার জন্য ডিফল্টই যথেষ্ট।",
+    priorityWords: ["গুরুত্ব নেই", "সাধারণ", "গুরুত্বপূর্ণ", "অত্যন্ত গুরুত্বপূর্ণ"],
+    options: {
+      salinity: { none: "নেই বা খুব কম", slight: "সামান্য", moderate: "মাঝারি", high: "বেশি" },
+      drainage: { good: "পানি ভালো নামে", moderate: "মোটামুটি নামে", poor: "বৃষ্টির পর পানি জমে থাকে" },
+      irrigation: { none: "নেই (শুধু বৃষ্টি)", limited: "কিছু (পাম্প বা খাল, সবসময় নয়)", reliable: "নির্ভরযোগ্য" },
+    },
   },
 };
 
@@ -87,17 +105,6 @@ const fallbackMeta = {
   salinity: ["none", "slight", "moderate", "high"],
   drainage: ["good", "moderate", "poor"],
   irrigation: ["none", "limited", "reliable"],
-};
-
-const optionLabelsBn = {
-  none: "নেই",
-  slight: "সামান্য",
-  moderate: "মাঝারি",
-  high: "বেশি",
-  good: "ভালো",
-  poor: "খারাপ",
-  limited: "সীমিত",
-  reliable: "নির্ভরযোগ্য",
 };
 
 function getDistrictSlug(district) {
@@ -132,6 +139,7 @@ export default function PlannerPage() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = translations[language] || translations.en;
+  const selection = useSelection();
 
   const [crops, setCrops] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -189,15 +197,17 @@ export default function PlannerPage() {
         setCompat(compatResponse.data?.compatible ?? {});
         setMaxCrops(compatResponse.data?.maxCrops ?? 3);
 
-        if (districtList.length) {
-          setDistrict(getDistrictSlug(districtList[0]));
-        }
+        // Remembered choice first, then Rajshahi (the demo district), then the first in the list.
+        const remembered = districtList.find((d) => getDistrictSlug(d) === selection.district);
+        const fallback = districtList.find((d) => getDistrictSlug(d) === "rajshahi") ?? districtList[0];
+        if (remembered || fallback) setDistrict(getDistrictSlug(remembered ?? fallback));
 
         // Start with one crop; the farmer adds a second or third from the compatible ones.
-        setSeasons(cropList.slice(0, 1).map((crop) => crop.slug));
+        const startCrop = cropList.find((c) => c.slug === selection.crop) ?? cropList[0];
+        setSeasons(startCrop ? [startCrop.slug] : []);
       } catch (err) {
         if (active) {
-          setError(err.response?.data?.error?.message || t.loadError);
+          setError(friendlyError(err, language, t.loadError));
         }
       } finally {
         if (active) setLoading(false);
@@ -223,6 +233,8 @@ export default function PlannerPage() {
     () => getMetaOptions(meta, "irrigation"),
     [meta],
   );
+
+  const optionLabel = (group, option) => t.options?.[group]?.[option] ?? option;
 
   const cropLabel = (crop) =>
     language === "bn"
@@ -328,6 +340,7 @@ export default function PlannerPage() {
 
       const result = response.data?.data ?? response.data;
 
+      selection.update({ district });
       sessionStorage.setItem(
         "rotationEvaluation",
         JSON.stringify({
@@ -343,15 +356,7 @@ export default function PlannerPage() {
         },
       });
     } catch (err) {
-      const details = err.response?.data?.error?.details;
-
-      const detailMessage = Array.isArray(details)
-        ? details.map((item) => `${item.field}: ${item.message}`).join(" | ")
-        : "";
-
-      setError(
-        detailMessage || err.response?.data?.error?.message || t.evaluateError,
-      );
+      setError(friendlyError(err, language, t.evaluateError));
     } finally {
       setSubmitting(false);
     }
@@ -400,7 +405,10 @@ export default function PlannerPage() {
                   required
                   className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
                   value={district}
-                  onChange={(event) => setDistrict(event.target.value)}
+                  onChange={(event) => {
+                    setDistrict(event.target.value);
+                    selection.update({ district: event.target.value });
+                  }}
                 >
                   <option value="">{t.selectDistrict}</option>
                   {districts.map((item) => {
@@ -488,12 +496,13 @@ export default function PlannerPage() {
             </Card>
 
             <Card className="p-5">
-              <SectionHeading
-                title={t.prioritiesTitle}
-                description={t.prioritiesDescription}
-              />
+              <details>
+              <summary className="cursor-pointer">
+                <span className="text-lg font-semibold text-slate-900">{t.fineTune}</span>
+                <span className="mt-1 block text-sm text-slate-600">{t.fineTuneHelp}</span>
+              </summary>
 
-              <div className="mb-5 grid gap-4 sm:grid-cols-2">
+              <div className="mt-5 mb-5 grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium text-slate-700">
                   {t.salinity}
                   <select
@@ -505,7 +514,7 @@ export default function PlannerPage() {
                   >
                     {salinityOptions.map((option) => (
                       <option key={option} value={option}>
-                        {language === "bn" ? optionLabelsBn[option] ?? option : option}
+                        {optionLabel("salinity", option)}
                       </option>
                     ))}
                   </select>
@@ -522,7 +531,7 @@ export default function PlannerPage() {
                   >
                     {drainageOptions.map((option) => (
                       <option key={option} value={option}>
-                        {language === "bn" ? optionLabelsBn[option] ?? option : option}
+                        {optionLabel("drainage", option)}
                       </option>
                     ))}
                   </select>
@@ -537,7 +546,7 @@ export default function PlannerPage() {
                   >
                     {irrigationOptions.map((option) => (
                       <option key={option} value={option}>
-                        {language === "bn" ? optionLabelsBn[option] ?? option : option}
+                        {optionLabel("irrigation", option)}
                       </option>
                     ))}
                   </select>
@@ -551,7 +560,7 @@ export default function PlannerPage() {
                       <span className="font-medium text-slate-800">
                         {priorityLabels[key]}
                       </span>
-                      <span className="text-slate-600">{value}</span>
+                      <span className="text-slate-600">{t.priorityWords[value] ?? value}</span>
                     </span>
                     <input
                       type="range"
@@ -573,6 +582,7 @@ export default function PlannerPage() {
                   </label>
                 ))}
               </div>
+              </details>
 
               <Button
                 type="submit"

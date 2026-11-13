@@ -279,3 +279,32 @@ describe('May rainfall source check (Aus)', () => {
     expect(JSON.stringify(res.body)).not.toMatch(/corroborated/);
   });
 });
+
+describe('second rainfall source (CHIRPS) on the advisory', () => {
+  // FIXTURE summary, not a real CHIRPS comparison.
+  const summary = (sameVerdict) => ({ source: 'CHIRPS via NASA SERVIR ClimateSERV', sameVerdict, powerVerdict: 'later_onset', powerShiftDays: 17, chirpsVerdict: sameVerdict ? 'later_onset' : 'no_distinguishable_shift', chirpsShiftDays: sameVerdict ? 16 : 2, yearsCompared: 25, medianAbsDiffDays: 4, within7DaysShare: 0.7, correlation: 0.5, firstDayShare: { power: 0.1, chirps: 0.1 }, comparedRange: { first: '2001-01-01', last: '2025-12-31' }, chirpsRetrievedAt: 't', chirpsSha256: 'x' });
+  const withCheck = (fn) => createApp(loadConfig({}), { repository: repo(), crossCheck: fn });
+
+  it('has no cross-check and keeps the one-source caveat when none is available', async () => {
+    const res = await request(app()).get(URL());
+    expect(res.body.crossCheck).toBeNull();
+    expect(res.body.sentence.en).toMatch(/has not been checked against another dataset/);
+  });
+  it('attaches the cross-check and says the second source agreed', async () => {
+    const res = await request(withCheck((slug, crop) => (slug === 'rajshahi' && crop === 'aman' ? summary(true) : null))).get(URL());
+    expect(res.body.crossCheck).toMatchObject({ sameVerdict: true, chirpsShiftDays: 16 });
+    expect(res.body.sentence.en).toMatch(/second rainfall source \(CHIRPS\) gave the same conclusion/);
+    expect(res.body.sentence.en).not.toMatch(/has not been checked/);
+    expect(res.body.sentence.bn).toMatch(/CHIRPS/);
+  });
+  it('says so, with extra caution, when the second source disagreed', async () => {
+    const res = await request(withCheck(() => summary(false))).get(URL());
+    expect(res.body.crossCheck.sameVerdict).toBe(false);
+    expect(res.body.sentence.en).toMatch(/different conclusion/);
+  });
+  it('does not change the decision itself', async () => {
+    const plain = await request(app()).get(URL());
+    const checked = await request(withCheck(() => summary(false))).get(URL());
+    expect(checked.body.decision).toEqual(plain.body.decision);
+  });
+});
