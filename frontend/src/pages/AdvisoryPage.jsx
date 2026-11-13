@@ -14,6 +14,8 @@ import { signed } from "../utils/rotationView";
 import { useSelection } from "../layouts/context/SelectionContext";
 import { useLocation } from "react-router";
 import { friendlyError } from "../utils/friendlyError";
+import { tr, trList } from "../utils/bnText";
+import { digits, fmtDate } from "../utils/i18n";
 import useAxios from "../hooks/useAxios";
 
 const MAX_WINDOW_DAYS = 120; // same limit as the backend (MAX_USUAL_WINDOW_DAYS)
@@ -114,7 +116,6 @@ const translations = {
     crossFirstDay: (p, c) => `Share of years starting on the first day examined: ${p}% (POWER), ${c}% (CHIRPS).`,
     crossNote: "CHIRPS is another satellite-and-station rainfall estimate, not ground truth. Agreement raises confidence; it does not guarantee the result.",
     limitsTitle: "Limits to keep in mind",
-    englishOnly: "(shown in English)",
     provenanceTitle: "Where the data comes from",
     source: "Source",
     retrieved: "Retrieved",
@@ -220,7 +221,6 @@ const translations = {
     crossFirstDay: (p, c) => `পরীক্ষিত প্রথম দিনেই শুরু হওয়া বছরের হার: ${p}% (POWER), ${c}% (CHIRPS)।`,
     crossNote: "CHIRPS-ও স্যাটেলাইট ও স্টেশন-ভিত্তিক বৃষ্টির অনুমান, প্রকৃত মাপ নয়। মিল থাকলে আস্থা বাড়ে; ফলাফলের নিশ্চয়তা মেলে না।",
     limitsTitle: "যা মনে রাখতে হবে",
-    englishOnly: "(ইংরেজিতে দেখানো হয়েছে)",
     provenanceTitle: "তথ্যের উৎস",
     source: "উৎস",
     retrieved: "সংগ্রহের তারিখ",
@@ -234,9 +234,6 @@ const translations = {
     info: "এটি সিদ্ধান্ত-সহায়তা, পূর্বাভাস নয়। আগের ও পরের বছরগুলোতে কার্যকর বৃষ্টি কবে শুরু হয়েছে তা তুলনা করা হয়েছে; আবহাওয়া বা ফলনের নিশ্চয়তা নয়। স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।",
   },
 };
-
-const getErrorMessage = (error, fallback) =>
-  error?.response?.data?.error?.message ?? error?.message ?? fallback;
 
 const localeOf = (language) => (language === "bn" ? "bn-BD" : "en-GB");
 
@@ -383,15 +380,18 @@ export default function AdvisoryPage() {
   const [to, setTo] = useState({ m: "", d: "" });
   const [advisory, setAdvisory] = useState(null);
   const [optionsLoading, setOptionsLoading] = useState(true);
-  const [optionsError, setOptionsError] = useState("");
+  // Errors are kept as data and turned into text at render time, so they follow the language switch.
+  const [optionsErr, setOptionsErr] = useState(null);
   const [advisoryLoading, setAdvisoryLoading] = useState(false);
-  const [advisoryError, setAdvisoryError] = useState("");
+  const [advisoryErr, setAdvisoryErr] = useState(null);
   const [reloadTick, setReloadTick] = useState(0);
   const [copied, setCopied] = useState("");
+  const optionsError = optionsErr ? friendlyError(optionsErr, lang, t.optionsError) : "";
+  const advisoryError = advisoryErr ? friendlyError(advisoryErr, lang, t.advisoryError) : "";
 
   const loadOptions = async () => {
     setOptionsLoading(true);
-    setOptionsError("");
+    setOptionsErr(null);
     try {
       const [d, c] = await Promise.all([
         api.get("/districts"),
@@ -414,7 +414,7 @@ export default function AdvisoryPage() {
         cropItems.some((x) => x.slug === cur) ? cur : pick(cropItems, navState?.crop ?? selection.crop, "aman"),
       );
     } catch (error) {
-      setOptionsError(friendlyError(error, lang, t.optionsError));
+      setOptionsErr(error);
     } finally {
       setOptionsLoading(false);
     }
@@ -443,7 +443,7 @@ export default function AdvisoryPage() {
     if (!district || !crop) return undefined;
     const controller = new AbortController();
     setAdvisoryLoading(true);
-    setAdvisoryError("");
+    setAdvisoryErr(null);
     const params = new URLSearchParams({ crop });
     if (usual.value) {
       params.set("usualFrom", usual.value.from);
@@ -458,7 +458,7 @@ export default function AdvisoryPage() {
       .catch((error) => {
         if (controller.signal.aborted || error?.code === "ERR_CANCELED") return;
         setAdvisory(null);
-        setAdvisoryError(friendlyError(error, lang, t.advisoryError));
+        setAdvisoryErr(error);
         setAdvisoryLoading(false);
       });
     return () => controller.abort();
@@ -650,7 +650,7 @@ export default function AdvisoryPage() {
                 {advisory.warnings?.map((w) => (
                   <p key={w.code} className="mt-3 flex items-start gap-2 rounded-lg bg-amber-100 p-3 text-sm text-amber-950">
                     <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-                    <span>{lang === "bn" ? (w.messageBn ?? w.message) : w.message}</span>
+                    <span>{lang === "bn" ? (w.messageBn ?? tr(w.message, "bn")) : w.message}</span>
                   </p>
                 ))}
 
@@ -702,8 +702,8 @@ export default function AdvisoryPage() {
                     locale={locale}
                     numberLocale={locale}
                     labels={{
-                      early: t.early({ from: periods.early.from, to: periods.early.to, years: nf(dist.early.years) }),
-                      late: t.late({ from: periods.late.from, to: periods.late.to, years: nf(dist.late.years) }),
+                      early: t.early({ from: digits(periods.early.from, lang), to: digits(periods.early.to, lang), years: nf(dist.early.years) }),
+                      late: t.late({ from: digits(periods.late.from, lang), to: digits(periods.late.to, lang), years: nf(dist.late.years) }),
                       median: t.median,
                       chartTitle: t.chartTitle,
                     }}
@@ -735,7 +735,7 @@ export default function AdvisoryPage() {
                             const s = d.summary ?? {};
                             return (
                               <tr key={k} className="border-b border-gray-100">
-                                <td className={td}>{`${periods[k].from}–${periods[k].to}`}</td>
+                                <td className={td}>{`${digits(periods[k].from, lang)}–${digits(periods[k].to, lang)}`}</td>
                                 <td className={td}>{nf(d.years)}</td>
                                 <td className={td}>{nf(d.confirmedYears)}</td>
                                 <td className={td}>{nf(d.censoredYears)}</td>
@@ -804,10 +804,9 @@ export default function AdvisoryPage() {
                 <details className="border-t border-gray-200 pt-4">
                   <summary className="cursor-pointer font-semibold text-gray-900">
                     {t.limitsTitle}
-                    {lang === "bn" ? ` ${t.englishOnly}` : ""}
                   </summary>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-gray-700">
-                    {advisory.limitations.map((l, i) => (
+                    {trList(advisory.limitations, lang).map((l, i) => (
                       <li key={i}>{l}</li>
                     ))}
                   </ul>
@@ -825,18 +824,18 @@ export default function AdvisoryPage() {
                     </div>
                     <div className="flex flex-wrap gap-x-2">
                       <dt className="font-medium">{t.retrieved}:</dt>
-                      <dd>{prov.retrievedAt?.slice(0, 10)}</dd>
+                      <dd>{fmtDate(prov.retrievedAt, lang)}</dd>
                     </div>
                     <div className="flex flex-wrap gap-x-2">
                       <dt className="font-medium">{t.dataThrough}:</dt>
-                      <dd>{prov.endDate}</dd>
+                      <dd>{fmtDate(prov.endDate, lang)}</dd>
                     </div>
                   </dl>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
                     <li>{prov.isSynthetic ? t.syntheticNote : t.storedNote}</li>
                     {prov.servedFrom === "offline-file" && <li>{t.offlineNote}</li>}
                     <li>{t.gridNote}</li>
-                    {advisory.latestObservationDate && <li>{t.latestObs(advisory.latestObservationDate, advisory.daysSinceLatest)}</li>}
+                    {advisory.latestObservationDate && <li>{t.latestObs(fmtDate(advisory.latestObservationDate, lang), advisory.daysSinceLatest != null ? nf(advisory.daysSinceLatest) : null)}</li>}
                   </ul>
                 </details>
               )}

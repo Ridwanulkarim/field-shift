@@ -1,5 +1,11 @@
-// Turns an axios error into a sentence a farmer can act on. The raw server message is kept only for validation
-// problems (422), where it names the field the person can fix. Everything else is mapped to plain language.
+// Turns an axios error into a sentence a farmer can act on, in the language they have chosen. Call it while rendering
+// (not when the error happens) so the message changes together with the language switch.
+//
+// The raw server message is shown only for validation problems (422), where it names the field the person can fix, and
+// in Bangla it is translated first. A server sentence with no Bangla is replaced by the Bangla fallback, so Bangla mode
+// never shows English.
+
+import { ERROR_CODES_BN, FIELD_LABELS_BN, trOrNull } from "./bnText";
 
 const TEXT = {
   en: {
@@ -21,22 +27,34 @@ const TEXT = {
 };
 
 export function friendlyError(error, language = "en", fallback) {
-  const t = TEXT[language] ?? TEXT.en;
+  const bn = language === "bn";
+  const t = bn ? TEXT.bn : TEXT.en;
   if (error?.code === "ERR_CANCELED") return "";
   if (!error?.response) return t.network;
 
   const { status, data } = error.response;
   const code = data?.error?.code;
+  const message = data?.error?.message;
+  // English: the server's sentence. Bangla: its translation, else the error-code sentence, else the fallback.
+  const serverText = () =>
+    bn ? (trOrNull(message, "bn") ?? ERROR_CODES_BN[code] ?? fallback ?? t.generic) : message;
 
   if (status === 422 || code === "VALIDATION_ERROR") {
     const details = data?.error?.details;
     if (Array.isArray(details) && details.length) {
-      return details.map((d) => `${d.field}: ${d.message}`).join(" | ");
+      return details
+        .map((d) => {
+          if (!bn) return `${d.field}: ${d.message}`;
+          const label = FIELD_LABELS_BN[d.field] ?? FIELD_LABELS_BN[String(d.field).split(".")[0]] ?? "";
+          const text = trOrNull(d.message, "bn") ?? ERROR_CODES_BN.VALIDATION_ERROR;
+          return label ? `${label}: ${text}` : text;
+        })
+        .join(" | ");
     }
-    return data?.error?.message || fallback || t.generic;
+    return message ? serverText() : (fallback ?? t.generic);
   }
   if (status === 404 && code === "NOT_FOUND") return t.notFound;
-  if (status === 404 && data?.error?.message) return data.error.message; // e.g. "No real NASA POWER data for this district"
+  if (status === 404 && message) return serverText(); // e.g. "No real NASA POWER data for this district"
   if (status === 429) return t.rateLimited;
   if (status === 503) return t.unavailable;
   if (status >= 500) return t.server;

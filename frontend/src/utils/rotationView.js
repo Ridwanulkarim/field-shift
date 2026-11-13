@@ -1,6 +1,8 @@
 // Small helpers shared by the planner results pages. They only pick and format fields the evaluation API already
 // returns (POST /api/evaluate); no scoring or science happens here.
 
+import { trList } from "./bnText";
+
 export const existingOf = (result) =>
   (result?.strategies ?? []).find((s) => s.kind === "existing") ?? null;
 
@@ -38,3 +40,21 @@ export const signed = (n, locale) => {
   const text = Math.abs(v).toLocaleString(locale, { maximumFractionDigits: 1 });
   return `${v > 0 ? "+" : v < 0 ? "−" : ""}${text}`;
 };
+
+// Lists of reasons for the result pages. In Bangla every sentence is the Bangla twin the API sends, or a translation of
+// the English sentence (trade-offs and improvements have no twin), so nothing is silently dropped or left in English.
+export const watchItems = (strategy, language) =>
+  language === "bn"
+    ? [
+        ...(strategy?.risksBn ?? trList(strategy?.risks ?? [], "bn")),
+        ...trList(strategy?.comparison?.tradeOffs ?? [], "bn"),
+      ]
+    : [...(strategy?.risks ?? []), ...(strategy?.comparison?.tradeOffs ?? [])];
+
+export const whyItems = (strategy, language) =>
+  language === "bn"
+    ? [
+        ...trList(strategy?.comparison?.improvements ?? [], "bn"),
+        ...(strategy?.benefitsBn ?? trList(strategy?.benefits ?? [], "bn")),
+      ]
+    : [...(strategy?.comparison?.improvements ?? []), ...(strategy?.benefits ?? [])];

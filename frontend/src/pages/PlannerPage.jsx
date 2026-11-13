@@ -6,6 +6,7 @@ import { PageHeading, Card, SectionHeading, Button } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
 import { useSelection } from "../layouts/context/SelectionContext";
 import { friendlyError } from "../utils/friendlyError";
+import { digits, fmtNum } from "../utils/i18n";
 
 const translations = {
   en: {
@@ -138,7 +139,8 @@ export default function PlannerPage() {
   const axios = useAxios();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const t = translations[language] || translations.en;
+  const lang = language === "bn" ? "bn" : "en";
+  const t = translations[lang];
   const selection = useSelection();
 
   const [crops, setCrops] = useState([]);
@@ -147,7 +149,9 @@ export default function PlannerPage() {
   // { cropSlug: [slugs that can share a year with it] }, computed by the backend rotation rules.
   const [compat, setCompat] = useState({});
   const [maxCrops, setMaxCrops] = useState(3);
-  const [notice, setNotice] = useState("");
+  // The "removed because it cannot share a year" notice is kept as the dropped crop slugs and written at render time,
+  // so it changes language with the page.
+  const [droppedSlugs, setDroppedSlugs] = useState([]);
   const [district, setDistrict] = useState("");
   const [seasons, setSeasons] = useState([]);
   const [soil, setSoil] = useState({
@@ -164,14 +168,21 @@ export default function PlannerPage() {
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  // Kept as data ({ err, fallback } or { key }) and turned into text at render, so it follows the language switch.
+  const [errorState, setErrorState] = useState(null);
+  const setError = (value) => setErrorState(value || null);
+  const error = !errorState
+    ? ""
+    : errorState.key
+      ? t[errorState.key]
+      : friendlyError(errorState.err, lang, t[errorState.fallback]);
 
   useEffect(() => {
     let active = true;
 
     async function loadOptions() {
       setLoading(true);
-      setError("");
+      setError(null);
 
       try {
         const [
@@ -207,7 +218,7 @@ export default function PlannerPage() {
         setSeasons(startCrop ? [startCrop.slug] : []);
       } catch (err) {
         if (active) {
-          setError(friendlyError(err, language, t.loadError));
+          setError({ err, fallback: "loadError" });
         }
       } finally {
         if (active) setLoading(false);
@@ -219,7 +230,7 @@ export default function PlannerPage() {
     return () => {
       active = false;
     };
-  }, [axios, t.loadError]);
+  }, [axios]);
 
   const salinityOptions = useMemo(
     () => getMetaOptions(meta, "salinity"),
@@ -268,33 +279,27 @@ export default function PlannerPage() {
       else dropped.push(slug);
     });
     setSeasons(kept);
-    setNotice(
-      dropped.length
-        ? `${t.droppedNotice} ${dropped
-            .map((slug) => cropLabel(crops.find((c) => c.slug === slug) ?? { slug }))
-            .join(", ")}`
-        : "",
-    );
+    setDroppedSlugs(dropped);
   };
 
   const addCrop = () => {
     const next = compatibleWith(seasons)[0];
     if (seasons.length < maxCrops && next) {
       setSeasons([...seasons, next.slug]);
-      setNotice("");
+      setDroppedSlugs([]);
     }
   };
 
   const removeCrop = (index) => {
     setSeasons((current) => current.filter((_, i) => i !== index));
-    setNotice("");
+    setDroppedSlugs([]);
   };
 
   const canAdd = seasons.length < maxCrops && compatibleWith(seasons).length > 0;
 
   const reset = () => {
     setSeasons(crops.slice(0, 1).map((crop) => crop.slug));
-    setNotice("");
+    setDroppedSlugs([]);
     setPriorities({
       waterSaving: 1,
       heatResilience: 1,
@@ -307,12 +312,12 @@ export default function PlannerPage() {
       drainage: "moderate",
     });
     setIrrigation("limited");
-    setError("");
+    setError(null);
   };
 
   const evaluate = async (event) => {
     event.preventDefault();
-    setError("");
+    setError(null);
 
     if (
       !district ||
@@ -320,7 +325,7 @@ export default function PlannerPage() {
       seasons.length > maxCrops ||
       seasons.some((slug) => !slug)
     ) {
-      setError(t.evaluateError);
+      setError({ key: "evaluateError" });
       return;
     }
 
@@ -356,11 +361,17 @@ export default function PlannerPage() {
         },
       });
     } catch (err) {
-      setError(friendlyError(err, language, t.evaluateError));
+      setError({ err, fallback: "evaluateError" });
     } finally {
       setSubmitting(false);
     }
   };
+
+  const notice = droppedSlugs.length
+    ? `${t.droppedNotice} ${droppedSlugs
+        .map((slug) => cropLabel(crops.find((c) => c.slug === slug) ?? { slug }))
+        .join(lang === "bn" ? "، " : ", ")}`
+    : "";
 
   const priorityLabels = {
     waterSaving: t.water,
@@ -429,11 +440,11 @@ export default function PlannerPage() {
                     key={index}
                   >
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-50 text-sm font-semibold text-green-800">
-                      {String(index + 1).padStart(2, "0")}
+                      {digits(String(index + 1).padStart(2, "0"), lang)}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="mb-1 block text-xs uppercase tracking-wide text-slate-500">
-                        {t.season} {index + 1}
+                        {t.season} {fmtNum(index + 1, lang)}
                       </span>
                       <select
                         className="w-full rounded-md border border-slate-300 px-2 py-2"
@@ -453,7 +464,7 @@ export default function PlannerPage() {
                     {seasons.length > 1 && (
                       <button
                         type="button"
-                        aria-label={`${t.removeCrop} ${t.season} ${index + 1}`}
+                        aria-label={`${t.removeCrop} ${t.season} ${fmtNum(index + 1, lang)}`}
                         title={t.removeCrop}
                         className="shrink-0 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                         onClick={() => removeCrop(index)}

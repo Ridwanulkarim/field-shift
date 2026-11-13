@@ -12,6 +12,7 @@ import {
 import { PageHeading, StatCard, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
 import useAxios from "../hooks/useAxios"; // Adjust this path if needed
+import { apiTextOr, fmtDate, fmtNum, statusWord } from "../utils/i18n";
 
 const translations = {
   en: {
@@ -64,6 +65,10 @@ const translations = {
     statusUnavailable: "Unavailable",
     statusFailed: "Failed",
     failedRun: "Failed ingestion run",
+    backendStatus: "Backend status",
+    districtCoverage: "District data coverage",
+    degraded: "Degraded / fallback",
+    districtFallback: "District",
   },
   bn: {
     eyebrow: "সারসংক্ষেপ",
@@ -115,25 +120,16 @@ const translations = {
     statusUnavailable: "উপলভ্য নয়",
     statusFailed: "ব্যর্থ",
     failedRun: "ডেটা সংগ্রহের রান ব্যর্থ হয়েছে",
+    backendStatus: "ব্যাকএন্ডের অবস্থা",
+    districtCoverage: "জেলার ডেটা কভারেজ",
+    degraded: "সীমিত / বিকল্প মোড",
+    districtFallback: "জেলা",
   },
 };
 
-const formatDate = (value, language) => {
-  if (!value) return "—";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat(language === "bn" ? "bn-BD" : "en-GB", {
-    dateStyle: "medium",
-    timeZone: "UTC",
-  }).format(date);
-};
-
+const formatDate = (value, language) => fmtDate(value, language);
 const formatNumber = (value, language) =>
-  typeof value === "number"
-    ? value.toLocaleString(language === "bn" ? "bn-BD" : "en-GB")
-    : "—";
+  typeof value === "number" ? fmtNum(value, language) : "—";
 
 const Detail = ({ label, value }) => (
   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -145,7 +141,8 @@ const Detail = ({ label, value }) => (
 const DashboardPage = () => {
   const { language } = useLanguage();
 
-  const t = translations[language] ?? translations.en;
+  const lang = language === "bn" ? "bn" : "en";
+  const t = translations[lang];
   const api = useAxios();
 
   const [dashboard, setDashboard] = useState({
@@ -240,20 +237,7 @@ const DashboardPage = () => {
 
   const { health, dataHealth, meta } = dashboard;
 
-  const localizedValue = (value) => ({
-    database: "ডেটাবেস",
-    "offline-files": "অফলাইন ফাইল",
-    "database-with-offline-fallback": "ডেটাবেস ও অফলাইন বিকল্প",
-    nasa: "NASA",
-    synthetic: "সিন্থেটিক",
-    none: "কোনোটিই নয়",
-    cached: "ক্যাশ করা",
-    demo: "ডেমো",
-    unavailable: "উপলভ্য নয়",
-    not_checked: "পরীক্ষা করা হয়নি",
-    ok: "ঠিক আছে",
-    "field-shift-backend": "ফিল্ড শিফট ব্যাকএন্ড",
-  }[value] ?? value);
+  const localizedValue = (value) => statusWord(value, lang);
 
   // These records contain latestObservationDate, missingCount, rowCount, etc.
   const healthDistricts = Array.isArray(dataHealth?.districts)
@@ -269,29 +253,29 @@ const DashboardPage = () => {
   const stats = [
     {
       label: t.backendStatus,
-      value: health?.status ?? (loading ? t.loading : t.unavailable),
-      detail: health?.service ?? t.healthEndpoint,
+      value: health?.status ? localizedValue(health.status) : loading ? t.loading : t.unavailable,
+      detail: health?.service ? localizedValue(health.service) : t.healthEndpoint,
       icon: Activity,
       tone: health?.status === "ok" ? "blue" : "amber",
     },
     {
       label: t.dataMode,
-      value: dataHealth?.dataMode ?? health?.dataMode ?? "—",
-      detail: degraded ? "Degraded / fallback" : t.operatingMode,
+      value: localizedValue(dataHealth?.dataMode ?? health?.dataMode ?? "—"),
+      detail: degraded ? t.degraded : t.operatingMode,
       icon: Database,
       tone: degraded ? "amber" : undefined,
     },
     {
       label: t.districtCoverage,
       value: healthDistricts.length
-        ? `${availableCount} / ${healthDistricts.length}`
+        ? `${fmtNum(availableCount, lang)} / ${fmtNum(healthDistricts.length, lang)}`
         : "—",
       detail: t.availableDistricts,
       icon: MapPinned,
     },
     {
       label: t.failedRuns,
-      value: formatNumber(failedRuns.length),
+      value: formatNumber(failedRuns.length, lang),
       detail: t.reportedByEndpoint,
       icon: CloudRain,
       tone: failedRuns.length ? "amber" : undefined,
@@ -341,29 +325,16 @@ const DashboardPage = () => {
               label={t.upstreamService}
               value={localizedValue(dataHealth?.upstream?.service ?? "—")}
             />
-            <Detail
-              label={t.upstreamStatus}
-              value={
-                localizedValue(
-                  dataHealth?.upstream?.status ??
-                    (dataHealth?.upstream?.checked === false ? "not_checked" : "—"),
-                )
-              }
-            />
-            <Detail label={t.nasaDistricts} value={formatNumber(tally.nasa, language)} />
+            <Detail label={t.nasaDistricts} value={formatNumber(tally.nasa, lang)} />
             <Detail
               label={t.syntheticDistricts}
-              value={formatNumber(tally.synthetic, language)}
+              value={formatNumber(tally.synthetic, lang)}
             />
             <Detail
               label={t.noDataDistricts}
-              value={formatNumber(tally.none, language)}
+              value={formatNumber(tally.none, lang)}
             />
           </div>
-
-          {dataHealth?.upstream?.checked === false && (
-            <p className="mt-4 text-sm text-gray-500">{t.notChecked}</p>
-          )}
         </Card>
 
         <Card>
@@ -379,7 +350,7 @@ const DashboardPage = () => {
             />
             <Detail
               label={t.lastHealthCheck}
-              value={formatDate(health?.timestamp, language)}
+              value={formatDate(health?.timestamp, lang)}
             />
             <Detail
               label={t.operatingMode}
@@ -409,10 +380,11 @@ const DashboardPage = () => {
               const status = district.dataStatus;
               const isAvailable = status === "nasa" || status === "synthetic";
               const districtName =
-                district.nameBn ??
-                district.name ??
+                (lang === "bn"
+                  ? (district.nameBn ?? district.nameEn ?? district.name)
+                  : (district.nameEn ?? district.name)) ??
                 district.slug ??
-                `${t.districtTitle} ${index + 1}`;
+                `${t.districtFallback} ${fmtNum(index + 1, lang)}`;
 
               return (
                 <article
@@ -451,19 +423,19 @@ const DashboardPage = () => {
                   <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                     <Detail
                       label={t.observation}
-                      value={formatDate(district.latestObservationDate, language)}
+                      value={formatDate(district.latestObservationDate, lang)}
                     />
                     <Detail
                       label={t.missingRecords}
-                      value={formatNumber(district.missingCount, language)}
+                      value={formatNumber(district.missingCount, lang)}
                     />
                     <Detail
                       label={t.rows}
-                      value={formatNumber(district.rowCount, language)}
+                      value={formatNumber(district.rowCount, lang)}
                     />
                     <Detail
                       label={t.daysSince}
-                      value={formatNumber(district.daysSinceLatest, language)}
+                      value={formatNumber(district.daysSinceLatest, lang)}
                     />
                     <Detail
                       label={t.dataSource}
@@ -501,8 +473,12 @@ const DashboardPage = () => {
                   size={17}
                 />
                 <span>
-                  {run.message ?? run.error ?? run.status ?? t.failedRun}
-                  {run.timestamp && ` — ${formatDate(run.timestamp, language)}`}
+                  {apiTextOr(
+                    run.message ?? run.error ?? run.status ?? t.failedRun,
+                    lang,
+                    t.failedRun,
+                  )}
+                  {run.timestamp && ` — ${formatDate(run.timestamp, lang)}`}
                 </span>
               </li>
             ))}

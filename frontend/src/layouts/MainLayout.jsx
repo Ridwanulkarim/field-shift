@@ -11,12 +11,22 @@ const translations = {
     prototype: "Prototype interface",
     dataAvailable: "Data context available",
     fieldShift: "Aboho",
+    logoAlt: "Aboho logo",
+    closeNav: "Close navigation",
+    closeSidebar: "Close sidebar",
+    openNav: "Open navigation",
+    switchLang: "Language",
   },
   bn: {
     decisionWorkspace: "সিদ্ধান্ত সহায়তা কর্মক্ষেত্র",
     prototype: "প্রোটোটাইপ ইন্টারফেস",
     dataAvailable: "ডেটা প্রসঙ্গ উপলব্ধ",
     fieldShift: "আবহ",
+    logoAlt: "আবহ লোগো",
+    closeNav: "নেভিগেশন বন্ধ করুন",
+    closeSidebar: "সাইডবার বন্ধ করুন",
+    openNav: "নেভিগেশন খুলুন",
+    switchLang: "ভাষা",
   },
 };
 
@@ -24,7 +34,7 @@ const MainLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const { language, setLanguage } = useLanguage();
-  const t = translations[language] || translations.en;
+  const t = translations[language === "bn" ? "bn" : "en"];
   const location = useLocation();
 
   const current =
@@ -37,7 +47,7 @@ const MainLayout = () => {
       {mobileOpen && (
         <button
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
-          aria-label="Close navigation"
+          aria-label={t.closeNav}
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -56,7 +66,7 @@ const MainLayout = () => {
           >
             <img
               src={logo}
-              alt="Aboho logo"
+              alt={t.logoAlt}
               className="h-10 w-10 rounded-xl bg-white"
             />
 
@@ -72,7 +82,7 @@ const MainLayout = () => {
           <button
             onClick={() => setMobileOpen(false)}
             className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
-            aria-label="Close sidebar"
+            aria-label={t.closeSidebar}
           >
             <X size={20} />
           </button>
@@ -132,7 +142,7 @@ const MainLayout = () => {
           <div className="flex min-w-0 items-center gap-3">
             <button
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-emerald-50 hover:text-[#26734a]"
-              aria-label="Open navigation"
+              aria-label={t.openNav}
               onClick={() => setMobileOpen(true)}
             >
               <Menu size={21} />
@@ -141,7 +151,7 @@ const MainLayout = () => {
             <NavLink to="/" className="flex shrink-0 items-center gap-2">
               <img
                 src={logo}
-                alt="Aboho logo"
+                alt={t.logoAlt}
                 className="h-9 w-9 rounded-lg bg-white object-contain"
               />
 
@@ -163,9 +173,15 @@ const MainLayout = () => {
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-            <div className="inline-flex rounded-xl border border-emerald-500/35 bg-white p-0.5 text-xs shadow-inner">
+            <div
+              role="group"
+              aria-label={t.switchLang}
+              className="inline-flex rounded-xl border border-emerald-500/35 bg-white p-0.5 text-xs shadow-inner"
+            >
               <button
                 onClick={() => setLanguage("en")}
+                aria-pressed={language === "en"}
+                lang="en"
                 className={`rounded-lg px-2 py-1 font-bold transition ${
                   language === "en"
                     ? "bg-[#26734a] text-white shadow-sm"
@@ -177,6 +193,8 @@ const MainLayout = () => {
 
               <button
                 onClick={() => setLanguage("bn")}
+                aria-pressed={language === "bn"}
+                lang="bn"
                 className={`rounded-lg px-2 py-1 font-bold transition ${
                   language === "bn"
                     ? "bg-[#26734a] text-white shadow-sm"

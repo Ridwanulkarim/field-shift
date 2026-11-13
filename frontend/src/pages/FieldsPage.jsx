@@ -3,6 +3,8 @@ import { MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import useAxios from "../hooks/useAxios";
 import { PageHeading, Card, Button, EmptyState } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
+import { friendlyError } from "../utils/friendlyError";
+import { digits, fmtNum, irrigationLabel, soilLabel } from "../utils/i18n";
 import {
   MapContainer,
   Polygon,
@@ -11,6 +13,7 @@ import {
   useMapEvents,
   CircleMarker,
   Tooltip,
+  ZoomControl,
 } from "react-leaflet";
 
 const blank = {
@@ -60,6 +63,13 @@ const copy = {
     drawPolygon: "Add at least three boundary points on the map.",
     requestError:
       "Could not save the field. Please check your entries and try again.",
+    point: "Point",
+    clearBoundary: "Clear boundary",
+    hectare: "ha",
+    close: "Close",
+    mapAttribution: "© OpenStreetMap contributors",
+    zoomIn: "Zoom in",
+    zoomOut: "Zoom out",
   },
   bn: {
     eyebrow: "আপনার খামার",
@@ -95,18 +105,19 @@ const copy = {
     confirmDelete: "আপনি কি নিশ্চিত যে এই জমিটি মুছে ফেলতে চান?",
     drawPolygon: "মানচিত্রে অন্তত তিনটি সীমানার পয়েন্ট যোগ করুন।",
     requestError: "জমিটি সংরক্ষণ করা যায়নি। তথ্য যাচাই করে আবার চেষ্টা করুন।",
+    point: "পয়েন্ট",
+    clearBoundary: "সীমানা মুছুন",
+    hectare: "হেক্টর",
+    close: "বন্ধ করুন",
+    mapAttribution: "© ওপেনস্ট্রিটম্যাপ অবদানকারীগণ",
+    zoomIn: "বড় করুন",
+    zoomOut: "ছোট করুন",
   },
 };
 
 const soilOptions = ["Loamy", "Silty loam", "Clay", "Sandy"];
-const soilLabelsBn = {
-  Loamy: "দোআঁশ",
-  "Silty loam": "পলিমাটি দোআঁশ",
-  Clay: "এঁটেল",
-  Sandy: "বেলে",
-};
 
-function BoundaryClickHandler({ positions, onChange, language }) {
+function BoundaryClickHandler({ positions, onChange, language, pointLabel }) {
   useMapEvents({
     click(event) {
       onChange([...positions, [event.latlng.lat, event.latlng.lng]]);
@@ -140,7 +151,7 @@ function BoundaryClickHandler({ positions, onChange, language }) {
           }}
         >
           <Tooltip permanent direction="top" offset={[0, -8]}>
-            {language === "bn" ? "পয়েন্ট" : "Point"} {index + 1}
+            {pointLabel} {fmtNum(index + 1, language)}
           </Tooltip>
         </CircleMarker>
       ))}
@@ -205,7 +216,8 @@ function toGeoJsonPolygon(positions) {
 export default function FieldsPage() {
   const axios = useAxios();
   const { language } = useLanguage();
-  const t = copy[language] || copy.en;
+  const lang = language === "bn" ? "bn" : "en";
+  const t = copy[lang];
 
   const [fields, setFields] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -215,8 +227,16 @@ export default function FieldsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [formError, setFormError] = useState("");
+  // Errors are kept as data ({ err } from the server, or { key } for a fixed message) and turned into text while
+  // rendering, so they change language together with the page.
+  const [errorState, setErrorState] = useState(null);
+  const [formErrorState, setFormErrorState] = useState(null);
+  const setError = (value) => setErrorState(value ? value : null);
+  const setFormError = (value) => setFormErrorState(value ? value : null);
+  const messageOf = (state) =>
+    !state ? "" : state.key ? t[state.key] : friendlyError(state.err, lang, t[state.fallback]);
+  const error = messageOf(errorState);
+  const formError = messageOf(formErrorState);
 
   const selectedDistrict = districts.find(
     (district) => Number(district.id) === Number(form.districtId),
@@ -224,7 +244,7 @@ export default function FieldsPage() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
       const [fieldsResponse, districtsResponse] = await Promise.all([
@@ -238,11 +258,11 @@ export default function FieldsPage() {
       setDistricts(districtsResponse.data.districts ?? []);
     } catch (err) {
       console.error("LOAD FIELDS ERROR:", err.response?.data);
-      setError(err.response?.data?.error?.message || t.loadError);
+      setError({ err, fallback: "loadError" });
     } finally {
       setLoading(false);
     }
-  }, [axios, t.loadError]);
+  }, [axios]);
 
   useEffect(() => {
     loadData();
@@ -252,12 +272,12 @@ export default function FieldsPage() {
     setForm(blank);
     setBoundaryPoints([]);
     setEditingId(null);
-    setFormError("");
+    setFormError(null);
     setIsOpen(false);
   };
 
   const startEdit = async (field) => {
-    setFormError("");
+    setFormError(null);
 
     try {
       // Fetch the field detail because the list response may not include its boundary.
@@ -278,16 +298,16 @@ export default function FieldsPage() {
       setBoundaryPoints(toMapPositions(fullField.boundary));
       setIsOpen(true);
     } catch (err) {
-      setFormError(err.response?.data?.error?.message || t.requestError);
+      setFormError({ err, fallback: "requestError" });
     }
   };
 
   const saveField = async (event) => {
     event.preventDefault();
-    setFormError("");
+    setFormError(null);
 
     if (boundaryPoints.length < 3) {
-      setFormError(t.drawPolygon);
+      setFormError({ key: "drawPolygon" });
       return;
     }
 
@@ -318,17 +338,7 @@ export default function FieldsPage() {
       resetForm();
       await loadData();
     } catch (err) {
-      const details = err.response?.data?.error?.details;
-      const detailMessage = Array.isArray(details)
-        ? details
-            .map((item) => item.message)
-            .filter(Boolean)
-            .join(" ")
-        : "";
-
-      setFormError(
-        detailMessage || err.response?.data?.error?.message || t.requestError,
-      );
+      setFormError({ err, fallback: "requestError" });
     } finally {
       setSaving(false);
     }
@@ -337,13 +347,13 @@ export default function FieldsPage() {
   const removeField = async (id) => {
     if (!window.confirm(t.confirmDelete)) return;
 
-    setError("");
+    setError(null);
 
     try {
       await axios.delete(`/fields/${id}`);
       setFields((current) => current.filter((field) => field.id !== id));
     } catch (err) {
-      setError(err.response?.data?.error?.message || t.requestError);
+      setError({ err, fallback: "requestError" });
     }
   };
 
@@ -363,7 +373,7 @@ export default function FieldsPage() {
     setForm(blank);
     setBoundaryPoints([]);
     setEditingId(null);
-    setFormError("");
+    setFormError(null);
     setIsOpen(true);
   };
 
@@ -417,19 +427,19 @@ export default function FieldsPage() {
               <p className="mt-1 text-sm text-slate-600">
                 {getDistrictName(field)}
                 {field.areaHa != null && (
-                  <> · {Number(field.areaHa).toFixed(2)} ha</>
+                  <> · {fmtNum(field.areaHa, lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {t.hectare}</>
                 )}
               </p>
 
               <div className="mt-4 space-y-2 text-sm">
                 <p className="flex justify-between gap-3">
                   <span className="text-slate-500">{t.soil}</span>
-                  <span className="font-medium">{field.soilType || "—"}</span>
+                  <span className="font-medium">{soilLabel(field.soilType, lang)}</span>
                 </p>
                 <p className="flex justify-between gap-3">
                   <span className="text-slate-500">{t.irrigation}</span>
                   <span className="font-medium">
-                    {field.irrigationSource || "—"}
+                    {irrigationLabel(field.irrigationSource, lang)}
                   </span>
                 </p>
               </div>
@@ -484,7 +494,7 @@ export default function FieldsPage() {
                   type="button"
                   className="rounded p-1 text-2xl leading-none text-slate-500 hover:bg-slate-100"
                   onClick={resetForm}
-                  aria-label={t.cancel}
+                  aria-label={t.close}
                 >
                   ×
                 </button>
@@ -536,7 +546,7 @@ export default function FieldsPage() {
                   >
                     {soilOptions.map((soil) => (
                       <option key={soil} value={soil}>
-                        {language === "bn" ? soilLabelsBn[soil] : soil}
+                        {soilLabel(soil, lang)}
                       </option>
                     ))}
                   </select>
@@ -601,7 +611,7 @@ export default function FieldsPage() {
                     </p>
 
                     <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                      {boundaryPoints.length} / 3+
+                      {fmtNum(boundaryPoints.length, lang)} / {digits("3", lang)}+
                     </span>
                   </div>
                 </div>
@@ -610,12 +620,15 @@ export default function FieldsPage() {
                   zoom={7}
                   className="h-56 w-full rounded-lg sm:h-72"
                   scrollWheelZoom={false}
+                  zoomControl={false}
                   style={{ zIndex: 0 }}
                 >
                   <TileLayer
-                    attribution="&copy; OpenStreetMap contributors"
+                    attribution={t.mapAttribution}
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
+
+                  <ZoomControl zoomInTitle={t.zoomIn} zoomOutTitle={t.zoomOut} />
 
                   {/* Focus on selected district */}
                   <DistrictMapFocus district={selectedDistrict} />
@@ -625,6 +638,7 @@ export default function FieldsPage() {
                     positions={boundaryPoints}
                     onChange={setBoundaryPoints}
                     language={language}
+                    pointLabel={t.point}
                   />
                 </MapContainer>
 
@@ -634,7 +648,7 @@ export default function FieldsPage() {
                     className="mt-2 text-sm text-red-600 underline"
                     onClick={() => setBoundaryPoints([])}
                   >
-                    {language === "bn" ? "সীমানা মুছুন" : "Clear boundary"}
+                    {t.clearBoundary}
                   </button>
                 )}
               </div>

@@ -11,7 +11,11 @@ import {
   findStrategy,
   readSavedEvaluation,
   signed,
+  watchItems,
+  whyItems,
 } from "../utils/rotationView";
+import { tr, trList } from "../utils/bnText";
+import { digits } from "../utils/i18n";
 
 const translations = {
   en: {
@@ -48,7 +52,6 @@ const translations = {
     soilEntered: "You entered both soil values.",
     soilPartial: "Part of the soil information was not entered, so that match was left out of the score.",
     climateNote: (source, end) => `Climate data: ${source}, through ${end}.`,
-    englishOnly: "Explanations are shown in English.",
     advisoryText: "Check when to plant: see whether the start of usable rain has moved.",
     advisoryButton: "Open planting advisory",
     caveat: "This score compares options under simple rules. It is not a guarantee of success or a validated yield or profit prediction. Please check with your local agricultural extension officer.",
@@ -90,7 +93,6 @@ const translations = {
     soilEntered: "আপনি মাটির দুটি তথ্যই দিয়েছেন।",
     soilPartial: "মাটির কিছু তথ্য দেওয়া হয়নি, তাই সেই মিল স্কোর থেকে বাদ দেওয়া হয়েছে।",
     climateNote: (source, end) => `জলবায়ু তথ্য: ${source}, ${end} পর্যন্ত।`,
-    englishOnly: "ব্যাখ্যাগুলো ইংরেজিতে দেখানো হয়েছে।",
     advisoryText: "কখন রোপণ করবেন দেখুন: কার্যকর বৃষ্টি শুরুর সময় সরেছে কি না।",
     advisoryButton: "রোপণ পরামর্শ দেখুন",
     caveat: "এই স্কোর সহজ নিয়মে বিকল্প তুলনা করে। এটি সাফল্যের নিশ্চয়তা বা যাচাইকৃত ফলন বা লাভের পূর্বাভাস নয়। স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শ নিন।",
@@ -136,8 +138,8 @@ export default function RecommendationPage() {
   const districtName = result?.district ? (lang === "bn" ? result.district.nameBn : result.district.nameEn) : "";
   const isCurrent = selected?.kind === "existing";
   const cmp = selected?.comparison;
-  const watch = selected ? [...(selected.risks ?? []), ...(cmp?.tradeOffs ?? [])] : [];
-  const why = selected ? [...(cmp?.improvements ?? []), ...(selected.benefits ?? [])] : [];
+  const watch = selected ? watchItems(selected, lang) : [];
+  const why = selected ? whyItems(selected, lang) : [];
   const adviceCrop = advisoryCropOf(selected) ?? advisoryCropOf(current);
   const prov = result?.climate?.provenance;
   const soilBasis = result?.soilBasis;
@@ -185,7 +187,7 @@ export default function RecommendationPage() {
                 </span>
               )}
               {!isCurrent && result.stability?.applicable && (
-                <span className={result.stability.verdict === "stable" ? "text-green-800" : "text-amber-800"} title={result.stability.explanation}>
+                <span className={result.stability.verdict === "stable" ? "text-green-800" : "text-amber-800"} title={tr(result.stability.explanation, lang)}>
                   {result.stability.verdict === "stable" ? t.stable : t.unstable}
                 </span>
               )}
@@ -200,11 +202,11 @@ export default function RecommendationPage() {
           <div className="mt-5 grid gap-5 lg:grid-cols-2">
             <Card className="p-5">
               <SectionHeading title={t.whyTitle} />
-              <List items={(lang === "bn" ? (selected.benefitsBn ?? why) : why).slice(0, 6)} empty={t.nothingToWatch} />
+              <List items={why.slice(0, 6)} empty={t.nothingToWatch} />
             </Card>
             <Card className="p-5">
               <SectionHeading title={t.watchTitle} />
-              <List items={lang === "bn" ? (selected.risksBn ?? watch) : watch} empty={t.nothingToWatch} />
+              <List items={watch} empty={t.nothingToWatch} />
             </Card>
           </div>
 
@@ -239,7 +241,7 @@ export default function RecommendationPage() {
                 <tbody>
                   {selected.evidence.map((e) => (
                     <tr className="border-b border-slate-100 text-sm tabular-nums text-slate-800" key={e.crop}>
-                      <td className="px-2 py-2">{lang === "bn" ? e.cropBn : e.crop}</td>
+                      <td className="px-2 py-2">{lang === "bn" ? (e.cropBn ?? e.crop) : e.crop}</td>
                       <td className="px-2 py-2">{e.months.length ? `${monthName(e.months[0])} – ${monthName(e.months[e.months.length - 1])}` : "—"}</td>
                       <td className="px-2 py-2">{`${nf(e.assumedWaterNeedMm[0], 0)}–${nf(e.assumedWaterNeedMm[1], 0)}`}</td>
                       <td className="px-2 py-2">{e.meanRainDuringCropMm != null ? nf(e.meanRainDuringCropMm, 0) : "—"}</td>
@@ -249,7 +251,7 @@ export default function RecommendationPage() {
                 </tbody>
               </table>
             </div>
-            {prov && <p className="mt-3 text-xs text-slate-600">{t.climateNote(prov.source, prov.endDate)}</p>}
+            {prov && <p className="mt-3 text-xs text-slate-600">{t.climateNote(prov.source, digits(prov.endDate, lang))}</p>}
           </Card>
 
           <Card className="mt-5 p-5">
@@ -260,8 +262,8 @@ export default function RecommendationPage() {
                   <h3 className="text-sm font-semibold text-slate-800">{t.soilBasis}</h3>
                   <p className="mt-1 text-sm text-slate-700">{soilComplete ? t.soilEntered : t.soilPartial}</p>
                 </div>
-                {(lang === "bn" ? selected.informationGapsBn : selected.informationGaps)?.length > 0 && (
-                  <List items={lang === "bn" ? selected.informationGapsBn : selected.informationGaps} empty="" />
+                {(lang === "bn" ? (selected.informationGapsBn ?? trList(selected.informationGaps ?? [], "bn")) : selected.informationGaps)?.length > 0 && (
+                  <List items={lang === "bn" ? (selected.informationGapsBn ?? trList(selected.informationGaps ?? [], "bn")) : selected.informationGaps} empty="" />
                 )}
                 {result.notModeled?.length > 0 && (
                   <div>
@@ -272,13 +274,13 @@ export default function RecommendationPage() {
                 {result.limitations?.length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-800">{t.limitations}</h3>
-                    <List items={result.limitations} empty="" />
+                    <List items={trList(result.limitations, lang)} empty="" />
                   </div>
                 )}
                 {result.disclaimer && (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-800">{t.disclaimer}</h3>
-                    <p className="mt-1 text-sm text-slate-700">{result.disclaimer}</p>
+                    <p className="mt-1 text-sm text-slate-700">{tr(result.disclaimer, lang)}</p>
                   </div>
                 )}
               </div>

@@ -10,7 +10,9 @@ import {
   readSavedEvaluation,
   signed,
   strategyLabel,
+  watchItems,
 } from "../utils/rotationView";
+import { tr, trList } from "../utils/bnText";
 
 const translations = {
   en: {
@@ -38,7 +40,6 @@ const translations = {
       `Highest-scoring option for ${name}: ${label} (score ${score}, ${delta} points compared with your current rotation, ${current}).`,
     verdictNone: (name, current, score) =>
       `For ${name}, none of the alternatives scores higher than your current rotation (${current}, score ${score}).`,
-    englishOnly: "Explanations are shown in English.",
     limitations: "Limits to keep in mind",
     disclaimer: "Scores compare options under simple rules. They are not validated yield or profit predictions.",
   },
@@ -67,15 +68,14 @@ const translations = {
       `${name} জেলায় সর্বোচ্চ স্কোরের বিকল্প: ${label} (স্কোর ${score}, আপনার বর্তমান পর্যায় ${current}-এর তুলনায় ${delta} পয়েন্ট)।`,
     verdictNone: (name, current, score) =>
       `${name} জেলায় কোনো বিকল্পের স্কোরই আপনার বর্তমান পর্যায়ের (${current}, স্কোর ${score}) চেয়ে বেশি নয়।`,
-    englishOnly: "ব্যাখ্যাগুলো ইংরেজিতে দেখানো হয়েছে।",
     limitations: "যা মনে রাখতে হবে",
     disclaimer: "স্কোর সহজ নিয়মে বিকল্প তুলনা করে। এগুলো যাচাইকৃত ফলন বা লাভের পূর্বাভাস নয়।",
   },
 };
 
-function ScoreBar({ score, label }) {
+function ScoreBar({ score, label, shown }) {
   return (
-    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100" role="img" aria-label={`${label}: ${score}`}>
+    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100" role="img" aria-label={`${label}: ${shown ?? score}`}>
       <div className="h-full rounded-full bg-green-600" style={{ width: `${Math.max(0, Math.min(100, Number(score)))}%` }} />
     </div>
   );
@@ -152,14 +152,14 @@ export default function ComparisonPage() {
                   </span>
                 )}
               </div>
-              {current.score != null && <ScoreBar score={current.score} label={t.score} />}
+              {current.score != null && <ScoreBar score={current.score} label={t.score} shown={nf(current.score)} />}
               <p className="mt-3 text-sm text-slate-600">{t.monthsInField(current.monthsInField)}</p>
               {current.pattern?.documented && (
                 <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-green-800" title={t.documentedHelp}>
                   <BadgeCheck size={16} /> {t.documented}
                 </p>
               )}
-              {current.summary && lang === "en" && <p className="mt-3 text-sm leading-6 text-slate-600">{current.summary}</p>}
+              {current.summary && <p className="mt-3 text-sm leading-6 text-slate-600">{tr(current.summary, lang)}</p>}
             </div>
           </Card>
 
@@ -168,12 +168,10 @@ export default function ComparisonPage() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {alternatives.map((strategy) => {
                 const cmp = strategy.comparison;
-                const watch = lang === "bn"
-                  ? (strategy.risksBn ?? strategy.risks ?? [])
-                  : [...(strategy.risks ?? []), ...(cmp?.tradeOffs ?? [])];
+                const watch = watchItems(strategy, lang);
                 const improvements = lang === "bn"
-                  ? (strategy.benefitsBn ?? strategy.benefits ?? [])
-                  : (cmp?.improvements?.length ? cmp.improvements : strategy.benefits);
+                  ? (cmp?.improvements?.length ? trList(cmp.improvements, "bn") : (strategy.benefitsBn ?? trList(strategy.benefits ?? [], "bn")))
+                  : (cmp?.improvements?.length ? cmp.improvements : strategy.benefits ?? []);
                 return (
                   <article className="flex flex-col rounded-xl border border-slate-200 p-5" key={strategy.id}>
                     <div className="flex items-start justify-between gap-3">
@@ -186,7 +184,7 @@ export default function ComparisonPage() {
                     </div>
 
                     <h3 className="mt-3 text-lg font-semibold leading-snug text-slate-900">{cropNames(strategy, lang).join(" → ")}</h3>
-                    <ScoreBar score={strategy.score} label={t.score} />
+                    <ScoreBar score={strategy.score} label={t.score} shown={nf(strategy.score)} />
                     {cmp?.scoreDifference != null && <p className="mt-2 text-sm font-medium text-green-800">{t.versus(signed(cmp.scoreDifference, locale))}</p>}
                     {strategy.pattern?.documented && (
                       <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-green-800" title={t.documentedHelp}>
@@ -232,7 +230,7 @@ export default function ComparisonPage() {
                 {t.limitations}
               </summary>
               <ul className="mt-2 list-disc space-y-1 pl-6">
-                {result.limitations.map((l, i) => (
+                {trList(result.limitations, lang).map((l, i) => (
                   <li key={i}>{l}</li>
                 ))}
               </ul>

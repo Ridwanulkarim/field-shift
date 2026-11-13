@@ -1,11 +1,65 @@
+import { useLanguage } from "../layouts/context/LanguageContext";
+import { digits, fmtNum, localeOf } from "../utils/i18n";
+
+const TEXT = {
+  en: {
+    none: "No additional details were returned.",
+    unit: "Measurement unit",
+    unitDay: "Day of year (1 January = Day 1)",
+    unspecified: "Not specified",
+    early: "Early years",
+    late: "Late years",
+    totalYears: "Total years",
+    confirmed: "Confirmed",
+    censored: "Censored",
+    unknown: "Unknown",
+    summary: "Statistical summary",
+    n: "Sample size",
+    min: "Minimum",
+    q1: "Q1",
+    median: "Median",
+    q3: "Q3",
+    max: "Maximum",
+    dates: "Date equivalents",
+    q1Date: "Q1 date",
+    medianDate: "Median date",
+    q3Date: "Q3 date",
+    observed: "Observed values",
+  },
+  bn: {
+    none: "অতিরিক্ত কোনো তথ্য পাওয়া যায়নি।",
+    unit: "পরিমাপের একক",
+    unitDay: "বছরের দিন (১ জানুয়ারি = ১ম দিন)",
+    unspecified: "উল্লেখ নেই",
+    early: "আগের বছরগুলো",
+    late: "পরের বছরগুলো",
+    totalYears: "মোট বছর",
+    confirmed: "নিশ্চিত",
+    censored: "সীমিত (মৌসুম শেষ পর্যন্ত বৃষ্টি হয়নি)",
+    unknown: "অজানা",
+    summary: "পরিসংখ্যানগত সারসংক্ষেপ",
+    n: "নমুনার সংখ্যা",
+    min: "সর্বনিম্ন",
+    q1: "প্রথম চতুর্থাংশ",
+    median: "মধ্যমান",
+    q3: "তৃতীয় চতুর্থাংশ",
+    max: "সর্বোচ্চ",
+    dates: "তারিখের সমতুল্য",
+    q1Date: "প্রথম চতুর্থাংশের তারিখ",
+    medianDate: "মধ্যমানের তারিখ",
+    q3Date: "তৃতীয় চতুর্থাংশের তারিখ",
+    observed: "পর্যবেক্ষিত মান",
+  },
+};
 
 const EvidenceDistribution = ({ evidence }) => {
+  const { language } = useLanguage();
+  const lang = language === "bn" ? "bn" : "en";
+  const t = TEXT[lang];
+  const num = (v) => (v == null ? "—" : fmtNum(v, lang));
+
   if (!evidence?.distributions) {
-    return (
-      <p className="text-sm text-gray-500">
-        No additional details were returned.
-      </p>
-    );
+    return <p className="text-sm text-gray-500">{t.none}</p>;
   }
 
   const distributions = evidence.distributions;
@@ -14,7 +68,7 @@ const EvidenceDistribution = ({ evidence }) => {
     if (day == null) return "—";
 
     const date = new Date(Date.UTC(2025, 0, Number(day)));
-    return date.toLocaleDateString("en-GB", {
+    return date.toLocaleDateString(localeOf(lang), {
       day: "2-digit",
       month: "short",
       timeZone: "UTC",
@@ -22,29 +76,29 @@ const EvidenceDistribution = ({ evidence }) => {
   };
 
   const groups = [
-    { key: "early", label: "Early years", color: "green" },
-    { key: "late", label: "Late years", color: "blue" },
+    { key: "early", label: t.early, color: "green" },
+    { key: "late", label: t.late, color: "blue" },
   ];
 
   const stats = [
-    ["n", "Sample size"],
-    ["min", "Minimum"],
-    ["q1", "Q1"],
-    ["median", "Median"],
-    ["q3", "Q3"],
-    ["max", "Maximum"],
+    ["n", t.n],
+    ["min", t.min],
+    ["q1", t.q1],
+    ["median", t.median],
+    ["q3", t.q3],
+    ["max", t.max],
   ];
 
   return (
     <div className="min-w-0 space-y-5">
       <div className="rounded-lg bg-gray-50 p-3">
         <p className="text-xs font-medium text-gray-500">
-          Measurement unit
+          {t.unit}
         </p>
         <p className="mt-1 text-sm font-medium text-gray-800">
           {evidence.unit === "day of a 365-day year (1 January = 1)"
-            ? "Day of year (1 January = Day 1)"
-            : evidence.unit || "Not specified"}
+            ? t.unitDay
+            : evidence.unit || t.unspecified}
         </p>
       </div>
 
@@ -67,23 +121,23 @@ const EvidenceDistribution = ({ evidence }) => {
                   {label}
                 </p>
                 <p className="mt-1 text-3xl font-bold text-gray-900">
-                  {item.years ?? 0}
+                  {num(item.years ?? 0)}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Total years
+                  {t.totalYears}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 p-4">
                 {[
-                  ["Confirmed", item.confirmedYears],
-                  ["Censored", item.censoredYears],
-                  ["Unknown", item.unknownYears],
+                  [t.confirmed, item.confirmedYears],
+                  [t.censored, item.censoredYears],
+                  [t.unknown, item.unknownYears],
                 ].map(([name, value]) => (
                   <div key={name} className="min-w-0">
                     <p className="text-xs text-gray-500">{name}</p>
                     <p className="text-lg font-semibold text-gray-800">
-                      {value ?? "—"}
+                      {num(value)}
                     </p>
                   </div>
                 ))}
@@ -91,7 +145,7 @@ const EvidenceDistribution = ({ evidence }) => {
 
               <div className="border-t border-gray-200 p-4">
                 <h4 className="mb-3 text-sm font-semibold text-gray-800">
-                  Statistical summary
+                  {t.summary}
                 </h4>
 
                 <div className="space-y-2">
@@ -104,7 +158,7 @@ const EvidenceDistribution = ({ evidence }) => {
                         {labelName}
                       </span>
                       <span className="font-semibold text-gray-800 tabular-nums">
-                        {summary[keyName] ?? "—"}
+                        {num(summary[keyName])}
                       </span>
                     </div>
                   ))}
@@ -112,12 +166,12 @@ const EvidenceDistribution = ({ evidence }) => {
 
                 <div className="mt-4 rounded-lg bg-gray-50 p-3">
                   <p className="text-xs font-semibold text-gray-600">
-                    Date equivalents
+                    {t.dates}
                   </p>
                   {[
-                    ["Q1 date", summary.q1Date],
-                    ["Median date", summary.medianDate],
-                    ["Q3 date", summary.q3Date],
+                    [t.q1Date, summary.q1Date],
+                    [t.medianDate, summary.medianDate],
+                    [t.q3Date, summary.q3Date],
                   ].map(([name, value]) => (
                     <div
                       key={name}
@@ -125,7 +179,7 @@ const EvidenceDistribution = ({ evidence }) => {
                     >
                       <span className="text-gray-500">{name}</span>
                       <span className="font-medium text-gray-800">
-                        {value || "—"}
+                        {value ? digits(value, lang) : "—"}
                       </span>
                     </div>
                   ))}
@@ -135,7 +189,7 @@ const EvidenceDistribution = ({ evidence }) => {
               {Array.isArray(item.valuesDayOfYear) && (
                 <div className="border-t border-gray-200 p-4">
                   <h4 className="text-sm font-semibold text-gray-800">
-                    Observed values
+                    {t.observed}
                   </h4>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {item.valuesDayOfYear.map((value, index) => (
@@ -143,7 +197,7 @@ const EvidenceDistribution = ({ evidence }) => {
                         key={`${value}-${index}`}
                         className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
                       >
-                        {value}
+                        {num(value)}
                       </span>
                     ))}
                   </div>
