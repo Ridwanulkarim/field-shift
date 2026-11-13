@@ -6,7 +6,9 @@ import axios from "axios";
 //    Same-origin calls mean the session cookie is first-party (Safari/Chrome block third-party cookies).
 //  - Override:   set VITE_API_URL (e.g. https://field-shift-qfv8.onrender.com/api) to call the API directly.
 //    That needs the site's origin in the backend's CORS_ORIGIN, and cross-site cookies may be blocked.
-const baseURL = (import.meta.env.VITE_API_URL || "/api").replace(/\/+$/, "");
+const baseURL = (
+  import.meta.env.VITE_API_URL || "/api"
+).replace(/\/+$/, "");
 
 const axiosInstance = axios.create({
   baseURL,
@@ -21,7 +23,11 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 axiosInstance.interceptors.response.use(undefined, async (error) => {
   const config = error.config;
-  if (!config || (config.method ?? "get").toLowerCase() !== "get" || error.code === "ERR_CANCELED") {
+  if (
+    !config ||
+    (config.method ?? "get").toLowerCase() !== "get" ||
+    error.code === "ERR_CANCELED"
+  ) {
     return Promise.reject(error);
   }
   const status = error.response?.status;

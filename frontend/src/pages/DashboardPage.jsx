@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { PageHeading, StatCard, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
-import useAxios from "../hooks/useAxios"; // Adjust this path if needed
+import useAxios from "../hooks/useAxios";
 
 const translations = {
   en: {
@@ -28,8 +28,7 @@ const translations = {
     nasaTitle: "NASA data availability",
     nasaDescription:
       "Ingestion status and observation coverage reported by the backend.",
-    upstreamService: "Upstream service",
-    upstreamStatus: "Upstream status",
+
     nasaDistricts: "NASA data districts",
     syntheticDistricts: "Synthetic data districts",
     noDataDistricts: "No data districts",
@@ -79,8 +78,7 @@ const translations = {
     reportedByEndpoint: "ডেটা হেলথ এন্ডপয়েন্টের তথ্য",
     nasaTitle: "NASA ডেটার উপলভ্যতা",
     nasaDescription: "ব্যাকএন্ডে জানানো ডেটা সংগ্রহ ও পর্যবেক্ষণের অবস্থা।",
-    upstreamService: "আপস্ট্রিম সার্ভিস",
-    upstreamStatus: "আপস্ট্রিমের অবস্থা",
+
     nasaDistricts: "NASA ডেটাযুক্ত জেলা",
     syntheticDistricts: "সিন্থেটিক ডেটাযুক্ত জেলা",
     noDataDistricts: "ডেটাবিহীন জেলা",
@@ -153,6 +151,7 @@ const DashboardPage = () => {
     dataHealth: null,
     meta: null,
   });
+
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -240,20 +239,21 @@ const DashboardPage = () => {
 
   const { health, dataHealth, meta } = dashboard;
 
-  const localizedValue = (value) => ({
-    database: "ডেটাবেস",
-    "offline-files": "অফলাইন ফাইল",
-    "database-with-offline-fallback": "ডেটাবেস ও অফলাইন বিকল্প",
-    nasa: "NASA",
-    synthetic: "সিন্থেটিক",
-    none: "কোনোটিই নয়",
-    cached: "ক্যাশ করা",
-    demo: "ডেমো",
-    unavailable: "উপলভ্য নয়",
-    not_checked: "পরীক্ষা করা হয়নি",
-    ok: "ঠিক আছে",
-    "field-shift-backend": "ফিল্ড শিফট ব্যাকএন্ড",
-  }[value] ?? value);
+  const localizedValue = (value) =>
+    ({
+      database: "ডেটাবেস",
+      "offline-files": "অফলাইন ফাইল",
+      "database-with-offline-fallback": "ডেটাবেস ও অফলাইন বিকল্প",
+      nasa: "NASA",
+      synthetic: "সিন্থেটিক",
+      none: "কোনোটিই নয়",
+      cached: "ক্যাশ করা",
+      demo: "ডেমো",
+      unavailable: "উপলভ্য নয়",
+      not_checked: "পরীক্ষা করা হয়নি",
+      ok: "ঠিক আছে",
+      "field-shift-backend": "ফিল্ড শিফট ব্যাকএন্ড",
+    })[value] ?? value;
 
   // These records contain latestObservationDate, missingCount, rowCount, etc.
   const healthDistricts = Array.isArray(dataHealth?.districts)
@@ -338,19 +338,9 @@ const DashboardPage = () => {
 
           <div className="mt-4 space-y-3 text-sm">
             <Detail
-              label={t.upstreamService}
-              value={localizedValue(dataHealth?.upstream?.service ?? "—")}
+              label={t.nasaDistricts}
+              value={formatNumber(tally.nasa, language)}
             />
-            <Detail
-              label={t.upstreamStatus}
-              value={
-                localizedValue(
-                  dataHealth?.upstream?.status ??
-                    (dataHealth?.upstream?.checked === false ? "not_checked" : "—"),
-                )
-              }
-            />
-            <Detail label={t.nasaDistricts} value={formatNumber(tally.nasa, language)} />
             <Detail
               label={t.syntheticDistricts}
               value={formatNumber(tally.synthetic, language)}
@@ -383,7 +373,9 @@ const DashboardPage = () => {
             />
             <Detail
               label={t.operatingMode}
-              value={localizedValue(dataHealth?.dataMode ?? health?.dataMode ?? "—")}
+              value={localizedValue(
+                dataHealth?.dataMode ?? health?.dataMode ?? "—",
+              )}
             />
             <Detail
               label={t.configuration}
@@ -425,7 +417,7 @@ const DashboardPage = () => {
                         {districtName}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {                        localizedValue(
+                        {localizedValue(
                           district.dataStatus ??
                             district.climateData ??
                             t.unknown,
@@ -451,7 +443,10 @@ const DashboardPage = () => {
                   <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                     <Detail
                       label={t.observation}
-                      value={formatDate(district.latestObservationDate, language)}
+                      value={formatDate(
+                        district.latestObservationDate,
+                        language,
+                      )}
                     />
                     <Detail
                       label={t.missingRecords}
