@@ -13,7 +13,6 @@ import { PageHeading, StatCard, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
 import useAxios from "../hooks/useAxios"; // Adjust this path if needed
 import { apiTextOr, fmtDate, fmtNum, statusWord } from "../utils/i18n";
-
 const translations = {
   en: {
     eyebrow: "OVERVIEW",
@@ -29,8 +28,7 @@ const translations = {
     nasaTitle: "NASA data availability",
     nasaDescription:
       "Ingestion status and observation coverage reported by the backend.",
-    upstreamService: "Upstream service",
-    upstreamStatus: "Upstream status",
+
     nasaDistricts: "NASA data districts",
     syntheticDistricts: "Synthetic data districts",
     noDataDistricts: "No data districts",
@@ -84,8 +82,7 @@ const translations = {
     reportedByEndpoint: "ডেটা হেলথ এন্ডপয়েন্টের তথ্য",
     nasaTitle: "NASA ডেটার উপলভ্যতা",
     nasaDescription: "ব্যাকএন্ডে জানানো ডেটা সংগ্রহ ও পর্যবেক্ষণের অবস্থা।",
-    upstreamService: "আপস্ট্রিম সার্ভিস",
-    upstreamStatus: "আপস্ট্রিমের অবস্থা",
+
     nasaDistricts: "NASA ডেটাযুক্ত জেলা",
     syntheticDistricts: "সিন্থেটিক ডেটাযুক্ত জেলা",
     noDataDistricts: "ডেটাবিহীন জেলা",
@@ -150,6 +147,7 @@ const DashboardPage = () => {
     dataHealth: null,
     meta: null,
   });
+
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -354,7 +352,9 @@ const DashboardPage = () => {
             />
             <Detail
               label={t.operatingMode}
-              value={localizedValue(dataHealth?.dataMode ?? health?.dataMode ?? "—")}
+              value={localizedValue(
+                dataHealth?.dataMode ?? health?.dataMode ?? "—",
+              )}
             />
             <Detail
               label={t.configuration}
@@ -397,7 +397,7 @@ const DashboardPage = () => {
                         {districtName}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {                        localizedValue(
+                        {localizedValue(
                           district.dataStatus ??
                             district.climateData ??
                             t.unknown,
