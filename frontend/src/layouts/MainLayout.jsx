@@ -111,7 +111,7 @@ const MainLayout = () => {
                         className={({ isActive }) =>
                           `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                             isActive
-                              ? "bg-[#26734a] text-white shadow-sm"
+                              ? "bg-[#26734a] text-white! shadow-sm"
                               : "text-slate-600 hover:bg-emerald-50 hover:text-[#26734a]"
                           }`
                         }

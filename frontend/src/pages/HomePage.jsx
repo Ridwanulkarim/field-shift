@@ -14,7 +14,6 @@ import {
 import { FeatureCard, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
 
-
 const features = [
   {
     icon: LayoutDashboard,
