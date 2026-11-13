@@ -120,7 +120,7 @@ const translations = {
 
     featureEyebrow: "WHAT YOU CAN DO",
     featureTitle: "Tools for better field decisions",
-    featureDescription: "Explore the main features available in Field Shift.",
+    featureDescription: "Explore the main features available in Aboho.",
 
     stepsEyebrow: "HOW IT WORKS",
     stepsTitle: "From field details to a clearer choice",
@@ -131,7 +131,7 @@ const translations = {
 
     disclaimerTitle: "Important to know",
     disclaimer:
-      "Field Shift is a decision-support tool, not a weather forecast or a guarantee of crop performance. Consider its results alongside local knowledge, field conditions and the uncertainty of Earth observation data.",
+      "Aboho is a decision-support tool, not a weather forecast or a guarantee of crop performance. Consider its results alongside local knowledge, field conditions and the uncertainty of Earth observation data.",
 
     ctaTitle: "Ready to explore your field?",
     ctaDescription: "Start with your field overview or create a field profile.",
@@ -156,7 +156,7 @@ const translations = {
 
     featureEyebrow: "আপনি যা করতে পারবেন",
     featureTitle: "উন্নত কৃষি সিদ্ধান্তের জন্য সরঞ্জাম",
-    featureDescription: "ফিল্ড শিফটে উপলব্ধ প্রধান সুবিধাগুলো দেখুন।",
+    featureDescription: "আবহে উপলব্ধ প্রধান সুবিধাগুলো দেখুন।",
 
     stepsEyebrow: "যেভাবে কাজ করে",
     stepsTitle: "জমির তথ্য থেকে সঠিক সিদ্ধান্তের পথে",
@@ -167,7 +167,7 @@ const translations = {
 
     disclaimerTitle: "গুরুত্বপূর্ণ তথ্য",
     disclaimer:
-      "ফিল্ড শিফট একটি সিদ্ধান্ত সহায়ক সরঞ্জাম, এটি আবহাওয়ার পূর্বাভাস বা ফসলের ফলনের নিশ্চয়তা নয়। এর ফলাফল স্থানীয় জ্ঞান, জমির অবস্থা এবং পৃথিবী পর্যবেক্ষণ ডেটার অনিশ্চয়তার সঙ্গে বিবেচনা করুন।",
+      "আবহ একটি সিদ্ধান্ত সহায়ক সরঞ্জাম, এটি আবহাওয়ার পূর্বাভাস বা ফসলের ফলনের নিশ্চয়তা নয়। এর ফলাফল স্থানীয় জ্ঞান, জমির অবস্থা এবং পৃথিবী পর্যবেক্ষণ ডেটার অনিশ্চয়তার সঙ্গে বিবেচনা করুন।",
 
     ctaTitle: "আপনার জমি সম্পর্কে জানতে প্রস্তুত?",
     ctaDescription:

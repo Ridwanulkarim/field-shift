@@ -11,18 +11,23 @@
 // through untranslated.
 
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
-export const bnDigits = (value) => String(value).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
+export const bnDigits = (value) =>
+  String(value).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
 
 const COMPONENTS = {
   "Rainfall covers water need": "বৃষ্টি পানির চাহিদা মেটায়",
   "Low heat-stress exposure": "তাপজনিত চাপ কম",
   "Fits your soil conditions": "আপনার মাটির অবস্থার সঙ্গে মানানসই",
   "Low irrigation requirement": "সেচের প্রয়োজন কম",
-  "Soil-health practices (legume, variety)": "মাটির স্বাস্থ্য-সহায়ক চর্চা (ডালজাতীয় ফসল, বৈচিত্র্য)",
-  "Crop variety (risk spreading proxy)": "ফসলের বৈচিত্র্য (ঝুঁকি ভাগ করার নির্দেশক)",
+  "Soil-health practices (legume, variety)":
+    "মাটির স্বাস্থ্য-সহায়ক চর্চা (ডালজাতীয় ফসল, বৈচিত্র্য)",
+  "Crop variety (risk spreading proxy)":
+    "ফসলের বৈচিত্র্য (ঝুঁকি ভাগ করার নির্দেশক)",
   "Low input intensity": "কম উপকরণ ব্যবহার",
-  "Plot kept in crop (cropping intensity)": "জমিতে ফসল থাকার সময় (চাষের ঘনত্ব)",
-  "Staple cereal for the household (up to two crops)": "পরিবারের প্রধান খাদ্যশস্য (সর্বোচ্চ দুটি ফসল)",
+  "Plot kept in crop (cropping intensity)":
+    "জমিতে ফসল থাকার সময় (চাষের ঘনত্ব)",
+  "Staple cereal for the household (up to two crops)":
+    "পরিবারের প্রধান খাদ্যশস্য (সর্বোচ্চ দুটি ফসল)",
 };
 
 const PRIORITY_LABELS = {
@@ -51,17 +56,19 @@ const EXACT = {
     "অনুপস্থিত দিনকে কখনো শূন্য বৃষ্টি ধরা হয় না। বৃষ্টির হিসাবে পরপর ক্যালেন্ডার দিন ব্যবহার করা হয়; যেসব বছরে পর্যবেক্ষণহীন দিন বেশি, সেগুলো বাদ দেওয়া হয়, এবং বৃষ্টি শুরু ও শুষ্ক সময়ের ক্ষেত্রে কোন বছরগুলো অজানা ছিল তা ফলাফলে জানানো হয়।",
 
   // ---- evaluate: DISCLAIMER
-  "Field Shift is a decision-support tool. It explores options using climate data and simple, documented rules. It does not predict yield or profit and does not replace the judgment of the farmer or advice from local agricultural extension officers.":
-    "ফিল্ড শিফট একটি সিদ্ধান্ত-সহায়ক সরঞ্জাম। এটি জলবায়ু তথ্য ও সহজ, নথিভুক্ত নিয়ম ব্যবহার করে বিকল্প অনুসন্ধান করে। এটি ফলন বা লাভের পূর্বাভাস দেয় না এবং কৃষকের বিচার বা স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শের বিকল্প নয়।",
+  "Aboho is a decision-support tool. It explores options using climate data and simple, documented rules. It does not predict yield or profit and does not replace the judgment of the farmer or advice from local agricultural extension officers.":
+    "আবহ একটি সিদ্ধান্ত-সহায়ক সরঞ্জাম। এটি জলবায়ু তথ্য ও সহজ, নথিভুক্ত নিয়ম ব্যবহার করে বিকল্প অনুসন্ধান করে। এটি ফলন বা লাভের পূর্বাভাস দেয় না এবং কৃষকের বিচার বা স্থানীয় কৃষি সম্প্রসারণ কর্মকর্তার পরামর্শের বিকল্প নয়।",
 
   // ---- evaluate: NOT_MODELED (the API also sends a Bangla twin; listed so tr() works on either)
   "Soil erosion and runoff": "মাটি ক্ষয় ও পানির প্রবাহ",
   "Soil organic matter (only a legume and plant-family variety are used as a rough proxy)":
     "মাটির জৈব পদার্থ (শুধু ডালজাতীয় ফসল ও উদ্ভিদ পরিবারের বৈচিত্র্য মোটামুটি নির্দেশক হিসেবে ধরা হয়েছে)",
-  "Fodder and forage value of crop residues": "গবাদিপশুর খাদ্য ও ফসলের অবশিষ্টাংশের মূল্য",
+  "Fodder and forage value of crop residues":
+    "গবাদিপশুর খাদ্য ও ফসলের অবশিষ্টাংশের মূল্য",
   "Prices, market access and income (cropping intensity is the only land-use proxy)":
     "দাম, বাজারের সুযোগ ও আয় (শুধু জমি ব্যবহারের হার ধরা হয়েছে)",
-  "Pest and disease cycles beyond plant-family variety": "পোকামাকড় ও রোগের চক্র (উদ্ভিদ পরিবারের বৈচিত্র্যের বাইরে)",
+  "Pest and disease cycles beyond plant-family variety":
+    "পোকামাকড় ও রোগের চক্র (উদ্ভিদ পরিবারের বৈচিত্র্যের বাইরে)",
   "Seed supply, labour, and flood timing": "বীজের সরবরাহ, শ্রম ও বন্যার সময়",
 
   // ---- ranking stability
@@ -73,7 +80,8 @@ const EXACT = {
     "কোনো ওজন বদলালে সর্বোচ্চ স্কোরের পর্যায় প্রায়ই বদলে যায়। শীর্ষ বিকল্পগুলোকে প্রায় সমান ধরে ব্যবহারিক বিবেচনায় সিদ্ধান্ত নিন।",
 
   // ---- rotation summaries
-  "The current rotation could not be scored.": "বর্তমান পর্যায়ের স্কোর নির্ণয় করা যায়নি।",
+  "The current rotation could not be scored.":
+    "বর্তমান পর্যায়ের স্কোর নির্ণয় করা যায়নি।",
 
   // ---- planting advisory: PLANTING_LIMITATIONS
   "Onset is a heuristic definition: the first 7-day rainfall total of at least 50 mm on or after the crop's season-start date (1 May for Aus, 1 June for Aman), not an official monsoon index. The start dates are unverified agronomic assumptions.":
@@ -100,44 +108,62 @@ const EXACT = {
     "সেলের জ্যামিতি ধরে নেওয়া POWER গ্রিড (০.৫ × ০.৬২৫ ডিগ্রি) অনুসারে; এটি এখনো সরাসরি সেবার সঙ্গে নিশ্চিত করা হয়নি (npm run check:power-grid)।",
 
   // ---- common errors that carry an English message
-  "Too many requests. Try again shortly.": "অনেক বেশি অনুরোধ হয়েছে। একটু পরে আবার চেষ্টা করুন।",
+  "Too many requests. Try again shortly.":
+    "অনেক বেশি অনুরোধ হয়েছে। একটু পরে আবার চেষ্টা করুন।",
   "The request origin is not allowed.": "এই উৎস থেকে অনুরোধ অনুমোদিত নয়।",
   "The request body is not valid JSON.": "পাঠানো তথ্যের ধরন সঠিক নয়।",
   "The request body is too large.": "পাঠানো তথ্য অনেক বড়।",
-  "Something went wrong on the server.": "সার্ভারে একটি সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করুন।",
+  "Something went wrong on the server.":
+    "সার্ভারে একটি সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করুন।",
   "No database connection is configured.": "ডেটাবেস সংযোগ ঠিক করা নেই।",
   "The database could not be reached.": "ডেটাবেসে যোগাযোগ করা যায়নি।",
-  "The selected field must belong to the selected district.": "নির্বাচিত জমিটি নির্বাচিত জেলার হতে হবে।",
-  "This field has no boundary, so its climate cell cannot be determined.": "এই জমির সীমানা নেই, তাই এর জলবায়ু সেল নির্ধারণ করা যায়নি।",
+  "The selected field must belong to the selected district.":
+    "নির্বাচিত জমিটি নির্বাচিত জেলার হতে হবে।",
+  "This field has no boundary, so its climate cell cannot be determined.":
+    "এই জমির সীমানা নেই, তাই এর জলবায়ু সেল নির্ধারণ করা যায়নি।",
 
   // ---- validation messages
   "Unknown field.": "অজানা ঘর।",
   "Unknown query parameter.": "অজানা প্রশ্ন-প্যারামিটার।",
   "Send a JSON object.": "একটি সঠিক তথ্য-কাঠামো পাঠান।",
-  "Provide at least one field property to update.": "হালনাগাদ করতে অন্তত একটি তথ্য দিন।",
+  "Provide at least one field property to update.":
+    "হালনাগাদ করতে অন্তত একটি তথ্য দিন।",
   "Must be a valid UUID.": "একটি সঠিক শনাক্তকারী কোড হতে হবে।",
   "Must be a valid field UUID.": "জমির একটি সঠিক শনাক্তকারী কোড হতে হবে।",
-  "Must be a [longitude, latitude] coordinate with finite numbers.": "[দ্রাঘিমাংশ, অক্ষাংশ] আকারে সঠিক সংখ্যার স্থানাঙ্ক হতে হবে।",
-  "Longitude must be between -180 and 180 and latitude between -90 and 90.": "দ্রাঘিমাংশ −১৮০ থেকে ১৮০ এবং অক্ষাংশ −৯০ থেকে ৯০-এর মধ্যে হতে হবে।",
-  "Each linear ring must contain at least four positions.": "সীমানার প্রতিটি বদ্ধ রেখায় অন্তত চারটি বিন্দু থাকতে হবে।",
-  "Each linear ring must be closed.": "সীমানার প্রতিটি রেখা বন্ধ (শুরু ও শেষ বিন্দু এক) হতে হবে।",
+  "Must be a [longitude, latitude] coordinate with finite numbers.":
+    "[দ্রাঘিমাংশ, অক্ষাংশ] আকারে সঠিক সংখ্যার স্থানাঙ্ক হতে হবে।",
+  "Longitude must be between -180 and 180 and latitude between -90 and 90.":
+    "দ্রাঘিমাংশ −১৮০ থেকে ১৮০ এবং অক্ষাংশ −৯০ থেকে ৯০-এর মধ্যে হতে হবে।",
+  "Each linear ring must contain at least four positions.":
+    "সীমানার প্রতিটি বদ্ধ রেখায় অন্তত চারটি বিন্দু থাকতে হবে।",
+  "Each linear ring must be closed.":
+    "সীমানার প্রতিটি রেখা বন্ধ (শুরু ও শেষ বিন্দু এক) হতে হবে।",
   "Must contain at least one polygon.": "অন্তত একটি সীমানা-এলাকা থাকতে হবে।",
-  "Must be a GeoJSON Polygon or MultiPolygon.": "সীমানা একটি সঠিক GeoJSON বহুভুজ হতে হবে।",
-  "Area is calculated by the backend and must not be provided.": "আয়তন সিস্টেম নিজেই হিসাব করে; এটি দেওয়ার প্রয়োজন নেই।",
+  "Must be a GeoJSON Polygon or MultiPolygon.":
+    "সীমানা একটি সঠিক GeoJSON বহুভুজ হতে হবে।",
+  "Area is calculated by the backend and must not be provided.":
+    "আয়তন সিস্টেম নিজেই হিসাব করে; এটি দেওয়ার প্রয়োজন নেই।",
   "Required: a positive integer.": "আবশ্যক: একটি ধনাত্মক পূর্ণসংখ্যা।",
   "Must be an object.": "সঠিক কাঠামোতে দিতে হবে।",
-  'Required: a district slug such as "rajshahi".': "আবশ্যক: একটি জেলা নির্বাচন করুন।",
-  "Every crop must be a slug such as \"aman\".": "প্রতিটি ফসল তালিকা থেকে নির্বাচন করতে হবে।",
+  'Required: a district slug such as "rajshahi".':
+    "আবশ্যক: একটি জেলা নির্বাচন করুন।",
+  'Every crop must be a slug such as "aman".':
+    "প্রতিটি ফসল তালিকা থেকে নির্বাচন করতে হবে।",
   "The same crop is listed twice.": "একই ফসল দুইবার দেওয়া হয়েছে।",
   "Unknown priority.": "অজানা অগ্রাধিকার।",
   "Must be true or false.": "হ্যাঁ বা না হতে হবে।",
   'Must be "en" or "bn".': "ভাষা ইংরেজি বা বাংলা হতে হবে।",
   'Must be "true" or "false".': "হ্যাঁ বা না হতে হবে।",
-  "Give both usualFrom and usualTo, or neither.": "শুরু ও শেষ দুটি তারিখই দিন, অথবা কোনোটিই নয়।",
-  "Must not be earlier in the year than usualFrom.": "শেষের তারিখ শুরুর তারিখের আগে হতে পারবে না।",
-  "Must be a real date as MM-DD, for example 07-15 (29 February is not accepted).": "একটি সঠিক তারিখ (মাস-দিন) দিন, যেমন ১৫ জুলাই (২৯ ফেব্রুয়ারি গ্রহণযোগ্য নয়)।",
-  "Must be a real date as MM-DD, for example 08-15 (29 February is not accepted).": "একটি সঠিক তারিখ (মাস-দিন) দিন, যেমন ১৫ আগস্ট (২৯ ফেব্রুয়ারি গ্রহণযোগ্য নয়)।",
-  'Required. A crop slug such as "aman" (lowercase letters and hyphens).': "আবশ্যক: একটি ফসল নির্বাচন করুন।",
+  "Give both usualFrom and usualTo, or neither.":
+    "শুরু ও শেষ দুটি তারিখই দিন, অথবা কোনোটিই নয়।",
+  "Must not be earlier in the year than usualFrom.":
+    "শেষের তারিখ শুরুর তারিখের আগে হতে পারবে না।",
+  "Must be a real date as MM-DD, for example 07-15 (29 February is not accepted).":
+    "একটি সঠিক তারিখ (মাস-দিন) দিন, যেমন ১৫ জুলাই (২৯ ফেব্রুয়ারি গ্রহণযোগ্য নয়)।",
+  "Must be a real date as MM-DD, for example 08-15 (29 February is not accepted).":
+    "একটি সঠিক তারিখ (মাস-দিন) দিন, যেমন ১৫ আগস্ট (২৯ ফেব্রুয়ারি গ্রহণযোগ্য নয়)।",
+  'Required. A crop slug such as "aman" (lowercase letters and hyphens).':
+    "আবশ্যক: একটি ফসল নির্বাচন করুন।",
 };
 
 const num = (s) => bnDigits(s);
@@ -150,12 +176,15 @@ const PATTERNS = [
     /^(.+?): ([+\-−]?\d+) points(?: \(you rated "(.+)" (\d)\/3\))?$/,
     (_, label, n, pr, level) =>
       `${compLabel(label)}: ${num(n.replace("-", "−"))} পয়েন্ট${
-        pr ? ` (আপনি “${PRIORITY_LABELS[pr] ?? pr}”-কে ${num(level)}/${num(3)} দিয়েছেন)` : ""
+        pr
+          ? ` (আপনি “${PRIORITY_LABELS[pr] ?? pr}”-কে ${num(level)}/${num(3)} দিয়েছেন)`
+          : ""
       }`,
   ],
   [
     /^Uses the plot for about (\d+) months a year instead of (\d+) \(lower cropping intensity\)$/,
-    (_, a, b) => `জমি বছরে প্রায় ${num(a)} মাস ব্যবহার হয়, আপনার বর্তমান পর্যায়ে ${num(b)} মাস (চাষের ঘনত্ব কম)`,
+    (_, a, b) =>
+      `জমি বছরে প্রায় ${num(a)} মাস ব্যবহার হয়, আপনার বর্তমান পর্যায়ে ${num(b)} মাস (চাষের ঘনত্ব কম)`,
   ],
   // field-based evaluation: cell limitation
   [
@@ -164,23 +193,61 @@ const PATTERNS = [
       `মানগুলো NASA POWER-এর পুরো গ্রিড সেলের (${num(a)} × ${num(b)} ডিগ্রি, প্রায় ${num(area)} বর্গ কিমি), যে সেলে জমির প্রতিনিধিত্বকারী বিন্দুটি আছে। এগুলো জমিতে মাপা তথ্য নয়, আর জমির সীমানা কোনো বাড়তি স্থানিক তথ্য দেয় না।`,
   ],
   // validation
-  [/^Must be a finite number from (.+) to (.+)\.$/, (_, a, b) => `${num(a)} থেকে ${num(b)}-এর মধ্যে একটি সংখ্যা হতে হবে।`],
-  [/^Must be a whole number from (\d+) to (\d+)\.$/, (_, a, b) => `${num(a)} থেকে ${num(b)}-এর মধ্যে একটি পূর্ণসংখ্যা হতে হবে।`],
-  [/^Required: non-empty text of at most (\d+) characters\.$/, (_, n) => `আবশ্যক: অনধিক ${num(n)} অক্ষরের লেখা, ফাঁকা রাখা যাবে না।`],
-  [/^Must be text of at most (\d+) characters\.$/, (_, n) => `অনধিক ${num(n)} অক্ষরের লেখা হতে হবে।`],
-  [/^Must contain no more than (\d+) coordinate positions\.$/, (_, n) => `সীমানায় সর্বোচ্চ ${num(n)}টি বিন্দু থাকতে পারবে।`],
-  [/^Boundary must lie within Bangladesh\b.*$/, () => "জমির সীমানা অবশ্যই বাংলাদেশের ভেতরে হতে হবে। স্থানাঙ্ক [দ্রাঘিমাংশ, অক্ষাংশ] ক্রমে আছে কি না দেখুন।"],
-  [/^Required: a list of 1 to (\d+) crop slugs\.$/, (_, n) => `আবশ্যক: ১ থেকে ${num(n)}টি ফসলের তালিকা।`],
-  [/^Must be one of: .+\.$/, () => "তালিকার মধ্য থেকে একটি বিকল্প নির্বাচন করতে হবে।"],
+  [
+    /^Must be a finite number from (.+) to (.+)\.$/,
+    (_, a, b) => `${num(a)} থেকে ${num(b)}-এর মধ্যে একটি সংখ্যা হতে হবে।`,
+  ],
+  [
+    /^Must be a whole number from (\d+) to (\d+)\.$/,
+    (_, a, b) => `${num(a)} থেকে ${num(b)}-এর মধ্যে একটি পূর্ণসংখ্যা হতে হবে।`,
+  ],
+  [
+    /^Required: non-empty text of at most (\d+) characters\.$/,
+    (_, n) => `আবশ্যক: অনধিক ${num(n)} অক্ষরের লেখা, ফাঁকা রাখা যাবে না।`,
+  ],
+  [
+    /^Must be text of at most (\d+) characters\.$/,
+    (_, n) => `অনধিক ${num(n)} অক্ষরের লেখা হতে হবে।`,
+  ],
+  [
+    /^Must contain no more than (\d+) coordinate positions\.$/,
+    (_, n) => `সীমানায় সর্বোচ্চ ${num(n)}টি বিন্দু থাকতে পারবে।`,
+  ],
+  [
+    /^Boundary must lie within Bangladesh\b.*$/,
+    () =>
+      "জমির সীমানা অবশ্যই বাংলাদেশের ভেতরে হতে হবে। স্থানাঙ্ক [দ্রাঘিমাংশ, অক্ষাংশ] ক্রমে আছে কি না দেখুন।",
+  ],
+  [
+    /^Required: a list of 1 to (\d+) crop slugs\.$/,
+    (_, n) => `আবশ্যক: ১ থেকে ${num(n)}টি ফসলের তালিকা।`,
+  ],
+  [
+    /^Must be one of: .+\.$/,
+    () => "তালিকার মধ্য থেকে একটি বিকল্প নির্বাচন করতে হবে।",
+  ],
   [/^Unknown constraint\..*$/, () => "অজানা শর্ত।"],
-  [/^The window may be at most (\d+) days long\.$/, (_, n) => `সময়কাল সর্বোচ্চ ${num(n)} দিনের হতে পারবে।`],
-  [/^Must be a four-digit year between (\d+) and (\d+)\.$/, (_, a, b) => `${num(a)} থেকে ${num(b)}-এর মধ্যে একটি চার অঙ্কের সাল হতে হবে।`],
+  [
+    /^The window may be at most (\d+) days long\.$/,
+    (_, n) => `সময়কাল সর্বোচ্চ ${num(n)} দিনের হতে পারবে।`,
+  ],
+  [
+    /^Must be a four-digit year between (\d+) and (\d+)\.$/,
+    (_, a, b) =>
+      `${num(a)} থেকে ${num(b)}-এর মধ্যে একটি চার অঙ্কের সাল হতে হবে।`,
+  ],
   [/^Unknown crop "(.+)"\.$/, () => "ফসলটি চেনা যায়নি।"],
   [/^Unknown crop\(s\): .+\.$/, () => "এক বা একাধিক ফসল চেনা যায়নি।"],
-  [/^These crops cannot share one year on the same plot: .+\.$/, () => "এই ফসলগুলো একই জমিতে একই বছরে চাষ করা যায় না।"],
+  [
+    /^These crops cannot share one year on the same plot: .+\.$/,
+    () => "এই ফসলগুলো একই জমিতে একই বছরে চাষ করা যায় না।",
+  ],
   [/^No district with (?:slug|id) ".+"\.$/, () => "জেলাটি পাওয়া যায়নি।"],
   [/^No field with id ".+"\.$/, () => "জমিটি পাওয়া যায়নি।"],
-  [/^No real NASA POWER data is available for district ".+"\.$/, () => "এই জেলার জন্য NASA POWER-এর প্রকৃত তথ্য এখনো নেই।"],
+  [
+    /^No real NASA POWER data is available for district ".+"\.$/,
+    () => "এই জেলার জন্য NASA POWER-এর প্রকৃত তথ্য এখনো নেই।",
+  ],
   [/^No route for .+$/, () => "এই ঠিকানায় কিছু পাওয়া যায়নি।"],
   // rotation summaries
   [
@@ -196,7 +263,9 @@ const PATTERNS = [
     /^Ranked #(\d+) of (\d+) alternatives that pass the filters, scoring (\S+?)(?: \(([+\-−]?[\d.]+) compared with your current rotation\))?\.$/,
     (_, rank, total, score, d) =>
       `ফিল্টার পার হওয়া ${num(total)}টি বিকল্পের মধ্যে ${num(rank)} নম্বর, স্কোর ${num(score)}${
-        d != null ? ` (বর্তমান পর্যায়ের তুলনায় ${num(d.replace("-", "−"))} পয়েন্ট)` : ""
+        d != null
+          ? ` (বর্তমান পর্যায়ের তুলনায় ${num(d.replace("-", "−"))} পয়েন্ট)`
+          : ""
       }।`,
   ],
 ];
@@ -218,7 +287,8 @@ export function tr(text, language) {
   return trOrNull(text, language) ?? text;
 }
 
-export const trList = (list, language) => (Array.isArray(list) ? list.map((x) => tr(x, language)) : []);
+export const trList = (list, language) =>
+  Array.isArray(list) ? list.map((x) => tr(x, language)) : [];
 
 export const hasBn = (text) => trOrNull(text, "bn") !== null;
 
@@ -251,17 +321,22 @@ export const ERROR_CODES_BN = {
   FIELD_NOT_FOUND: "জমিটি পাওয়া যায়নি।",
   FIELD_ALREADY_EXISTS: "এই নামে একটি জমি আগে থেকেই আছে।",
   NO_REAL_CLIMATE_DATA: "এই জেলার জন্য NASA POWER-এর প্রকৃত তথ্য এখনো নেই।",
-  CLIMATE_CELL_NOT_INGESTED: "এই জমির এলাকার জলবায়ু তথ্য এখনো সংগ্রহ করা হয়নি।",
+  CLIMATE_CELL_NOT_INGESTED:
+    "এই জমির এলাকার জলবায়ু তথ্য এখনো সংগ্রহ করা হয়নি।",
   IMERG_CELL_NOT_INGESTED: "এই জমির এলাকার বৃষ্টির তথ্য এখনো সংগ্রহ করা হয়নি।",
-  IMERG_PIXEL_NOT_INGESTED: "এই জমির এলাকার বৃষ্টির তথ্য এখনো সংগ্রহ করা হয়নি।",
+  IMERG_PIXEL_NOT_INGESTED:
+    "এই জমির এলাকার বৃষ্টির তথ্য এখনো সংগ্রহ করা হয়নি।",
   RATE_LIMITED: "অনেক বেশি অনুরোধ হয়েছে। একটু অপেক্ষা করে আবার চেষ্টা করুন।",
   ORIGIN_NOT_ALLOWED: "এই উৎস থেকে অনুরোধ অনুমোদিত নয়।",
   BAD_JSON: "পাঠানো তথ্যের ধরন সঠিক নয়।",
   PAYLOAD_TOO_LARGE: "পাঠানো তথ্য অনেক বড়।",
   INTERNAL_ERROR: "সার্ভারে একটি সমস্যা হয়েছে। একটু পরে আবার চেষ্টা করুন।",
-  SERVICE_UNAVAILABLE: "সেবাটি এখন পাওয়া যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।",
-  DATABASE_NOT_CONFIGURED: "তথ্যভান্ডার এখন প্রস্তুত নয়। একটু পরে আবার চেষ্টা করুন।",
-  DATABASE_UNREACHABLE: "তথ্যভান্ডারে যোগাযোগ করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
+  SERVICE_UNAVAILABLE:
+    "সেবাটি এখন পাওয়া যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।",
+  DATABASE_NOT_CONFIGURED:
+    "তথ্যভান্ডার এখন প্রস্তুত নয়। একটু পরে আবার চেষ্টা করুন।",
+  DATABASE_UNREACHABLE:
+    "তথ্যভান্ডারে যোগাযোগ করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
   OFFLINE_MODE: "অফলাইন ফাইল থেকে তথ্য দেওয়া হচ্ছে।",
   NOT_FOUND: "এই সেবাটি এখন পাওয়া যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।",
   VALIDATION_ERROR: "দেওয়া তথ্য যাচাই করে আবার চেষ্টা করুন।",
@@ -282,7 +357,7 @@ export const STATUS_WORDS = {
     not_checked: "Not checked",
     ok: "OK",
     degraded: "Degraded / fallback",
-    "field-shift-backend": "Field Shift backend",
+    "field-shift-backend": "Aboho backend",
     "NASA POWER": "NASA POWER",
   },
   bn: {
@@ -298,7 +373,7 @@ export const STATUS_WORDS = {
     not_checked: "পরীক্ষা করা হয়নি",
     ok: "ঠিক আছে",
     degraded: "সীমিত / বিকল্প মোড",
-    "field-shift-backend": "ফিল্ড শিফট ব্যাকএন্ড",
+    "field-shift-backend": "আবহ ব্যাকএন্ড",
     "NASA POWER": "NASA POWER",
   },
 };

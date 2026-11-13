@@ -1,15 +1,20 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-const LanguageContext = createContext({ language: "en", setLanguage: () => {} });
+const LanguageContext = createContext({
+  language: "en",
+  setLanguage: () => {},
+});
 
 const PAGE = {
   en: {
-    title: "Field Shift | Climate-aware crop rotation",
-    description: "Field Shift helps farmers explore climate-aware crop rotation decisions.",
+    title: "Aboho | Climate-aware crop rotation",
+    description:
+      "Aboho helps farmers explore climate-aware crop rotation decisions.",
   },
   bn: {
-    title: "ফিল্ড শিফট | জলবায়ু-সচেতন শস্য পর্যায়",
-    description: "ফিল্ড শিফট কৃষকদের জলবায়ু-সচেতন শস্য পর্যায়ের সিদ্ধান্ত অনুসন্ধানে সহায়তা করে।",
+    title: "আবহ | জলবায়ু-সচেতন শস্য পর্যায়",
+    description:
+      "আবহ কৃষকদের জলবায়ু-সচেতন শস্য পর্যায়ের সিদ্ধান্ত অনুসন্ধানে সহায়তা করে।",
   },
 };
 
@@ -45,7 +50,11 @@ export const LanguageProvider = ({ children }) => {
 
   const value = useMemo(() => ({ language, setLanguage }), [language]);
 
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
 };
 
 export const useLanguage = () => useContext(LanguageContext);
