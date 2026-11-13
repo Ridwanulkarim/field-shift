@@ -249,7 +249,7 @@ describe('alternative filters', () => {
     expect(r.constraints.excluded).toEqual({ noStapleCereal: 0, notDocumented: 0 });
   });
   it('flags an existing rotation that is not a documented pattern instead of hiding it', () => {
-    const r = run({}, ['mustard', 'mungbean']);
+    const r = run({}, ['mustard', 'groundnut']);
     expect(r.strategies[0].pattern.documented).toBe(false);
     expect(r.strategies[0].hasStapleCereal).toBe(false);
     expect(r.strategies[0].risks.join(' ')).toMatch(/No staple cereal/);
@@ -270,7 +270,7 @@ describe('cropping patterns', () => {
   });
   it('a subset of a pattern counts (a season may be left fallow); a combination in no pattern does not', () => {
     expect(patternInfo(['mustard', 'aman']).documented).toBe(true);
-    expect(patternInfo(['potato', 'maize']).documented).toBe(false);
+    expect(patternInfo(['groundnut', 'maize']).documented).toBe(false);
   });
   it('an empty or unknown crop list is never documented by accident', () => {
     expect(patternInfo(['unknown-crop']).documented).toBe(false);

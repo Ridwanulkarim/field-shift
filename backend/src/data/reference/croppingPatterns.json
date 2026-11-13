@@ -1,6 +1,6 @@
 {
   "status": "SECONDARY_READING_NOT_AGRONOMIST_VERIFIED",
-  "statusNote": "Pattern names, regions and area shares were read from the publication pages on 2026-11-08 through an automated page summary, not from the full text. They are real, citable papers, but a person must confirm each row against the original paper (and an agronomist should confirm the crop mapping) before anyone says 'BRRI-documented' in public. 'Documented' here means: reported in a BRRI/BARI field survey or trial. It does not mean recommended for a given farm, and it says nothing about yield or profit.",
+  "statusNote": "Pattern names, regions and area shares were read from the publication pages on 2026-11-08 through an automated page summary, not from the full text. They are real, citable papers, but a person must confirm each row against the original paper (and an agronomist should confirm the crop mapping) before anyone says 'BRRI-documented' in public. 'Documented' here means: reported in a BRRI/BARI field survey or trial. It does not mean recommended for a given farm, and it says nothing about yield or profit. EXTENDED 2026-11-13: further patterns for Rangpur, the coastal south-west, Mymensingh, Cumilla, Kushtia and Sylhet were added from BanglaJOL / ICAR journal abstract pages only (no full text read). Same rule applies: confirm each against the paper before saying 'documented' in public.",
   "mapping": "Each pattern is stored as the set of crops it contains. A rotation is 'documented' if its crops are a subset of one pattern (leaving a season fallow is always possible). Crops in a paper that Field Shift has no crop row for (blackgram, garden pea, B. Aman, Sesbania, felon, vegetables in general) are left out of that pattern's crop set. Field Shift allows at most 3 crops a year, so the 4-crop pattern is used through its 3-crop subsets.",
   "sources": {
     "rashid2017": {
@@ -26,55 +26,542 @@
       "institution": "Bangladesh Agronomy Journal (High Barind Tract, Godagari, Rajshahi)",
       "region": "High Barind Tract, Godagari, Rajshahi (on-farm; Boro-Fallow-T. Aman was the farmers' practice)",
       "url": "https://banglajol.info/index.php/BAJ/article/view/39367"
+    },
+    "saha2019": {
+      "citation": "Saha, R.R., Rahman, M.A., Rahman, M.H., Mainuddin, M., Bell, R.W., Gaydon, D.S. (2019). Cropping System Intensification under Rice Based System for Increasing Crop Productivity in Salt-Affected Coastal Zones of Bangladesh. J. Indian Society of Coastal Agricultural Research 37(2): 72-81.",
+      "institution": "BRRI/CSIRO/ACIAR project collaborators",
+      "region": "Amtali (Barguna) and Dacope (Khulna), coastal saline",
+      "url": "https://epubs.icar.org.in/index.php/JISCAR/article/view/88332"
+    },
+    "khan2017": {
+      "citation": "Khan, M.A.H., Zaman, M.S., Hasan, M.K., Khan, A.S.M.M.R. (2017). Increasing Cropping Intensity and Productivity through Boro-T.Aus-T.Aman-Mustard Cropping Pattern in Bangladesh. SAARC Journal of Agriculture 15(2): 103-112. DOI 10.3329/sja.v15i2.35150",
+      "institution": "BARI On-Farm Research Division",
+      "region": "Trishal, Mymensingh (AEZ 9)",
+      "url": "https://banglajol.info/index.php/SJA/article/view/35150/23717"
+    },
+    "sultana2020": {
+      "citation": "Sultana, J., Ahmed, M.B., Ali, M.Y. (2020). Adoption of Climate Resilient Cropping Patterns in Southern Coastal Region of Bangladesh: Farmers' Perception. SAARC Journal of Agriculture 18(2): 207-217. DOI 10.3329/sja.v18i2.51120",
+      "institution": "Khulna University",
+      "region": "Batiaghata, Khulna (coastal)",
+      "url": "https://banglajol.info/index.php/SJA/article/view/51120/37108"
+    },
+    "sarker2019": {
+      "citation": "Sarker, K.K., Kamar, S.S.A., Hossain, A., Mainuddin, M., Bell, R.W., Barrett-Lennard, E.G., Gaydon, D.S., Glover, M., Saha, R.R., Ali, M.A., Khan, M.S.I., Maniruzzaman, M. (2019). Cropping System-Based Irrigation for Improving Crop and Water Productivity in the Coastal Zone of Bangladesh. J. Indian Society of Coastal Agricultural Research 37(2): 82-97.",
+      "institution": "BRRI/BARI/CSIRO/ACIAR project collaborators",
+      "region": "Amtali, Barguna (coastal saline)",
+      "url": "https://epubs.icar.org.in/index.php/JISCAR/article/view/90041"
+    },
+    "khan2022tangail": {
+      "citation": "Khan, M.A.H., Naher, Q., Hossain, M.A., Rahman, M.M., Tasmima, T. (2022). Increasing Cropping Intensity, Productivity and Diversity of Crops through Rice Based Cropping Pattern in Tangail. Bangladesh Journal of Agricultural Research 47(4): 463-472.",
+      "institution": "BARI",
+      "region": "Delduar, Tangail (AEZ 9)",
+      "url": "https://www.banglajol.info/index.php/BJAR/article/view/91447/58776"
+    },
+    "monim2023": {
+      "citation": "Monim, M.A., Ahammad, K.U. (2023). Increasing oilseed productivity through inclusion of mustard in T. Aman-fallow-boro rice cropping pattern in Jashore. Bangladesh Journal of Agricultural Research 48(1): 125-136.",
+      "institution": "BARI Oilseed Research Centre / Agronomy Division, Jashore",
+      "region": "Monirampur, Jashore",
+      "url": "https://www.banglajol.info/index.php/BJAR/article/view/91535"
+    },
+    "rahman2019": {
+      "citation": "Rahman, M.S., Islam, M.T. (2019). Development of Alternate Cropping Pattern Mustard-Boro-T.Aman against Fallow-Boro-T.Aman in Kushtia Region. Bangladesh Journal of Agricultural Research 44(1): 69-78.",
+      "institution": "BARI",
+      "region": "Kushtia (AEZ 11)",
+      "url": "https://banglajol.info/index.php/BJAR/article/view/40905/30774"
+    },
+    "khan2020": {
+      "citation": "Khan, M.A.H., Sultana, N., Akter, N., Akhter, S., Khan, M.A.I. (2020). Development of Potato-Boro-T. Aman Rice Cropping Pattern against Fallow-Boro-T. Aman Rice Cropping Pattern at Mymensingh. Bangladesh Journal of Agricultural Research 45(3): 279-292.",
+      "institution": "BARI On-Farm Research Division",
+      "region": "Trishal, Mymensingh (AEZ 9)",
+      "url": "https://banglajol.info/index.php/BJAR/article/view/62948/42904"
+    },
+    "islam2017": {
+      "citation": "Islam, M.S., Yesmin, Z., Badshah, M.A., Ali, M.A. (2017). Feasibility of Introducing Rice Based Four Crops Pattern in Rangpur Region of Bangladesh. The Agriculturists 15(1): 116-126.",
+      "institution": "BRRI Rangpur (station trial)",
+      "region": "Rangpur",
+      "url": "https://banglajol.info/index.php/AGRIC/article/view/33435"
+    },
+    "nazrul2019": {
+      "citation": "Nazrul, M.I. (2019). On-Farm Evaluation of Improved Pattern Through Inclusion of Mustard in Fallow Period Preceding T. Aus-T. Aman Rice Cropping in Sylhet Region. Bangladesh Agronomy Journal 22(2): 1-10. DOI 10.3329/baj.v22i2.47616",
+      "institution": "BARI",
+      "region": "Sylhet (AEZ 20)",
+      "url": "https://banglajol.info/index.php/BAJ/article/view/47616"
+    },
+    "uddin2026": {
+      "citation": "Uddin, M.J. (2026). Improvement of cropping pattern by incorporating sesame in the fallow land before mustard - B. Aman Rice in Cumilla District. Bangladesh Journal of Agricultural Research 51(1): 473-487. DOI 10.3329/bjar.v51i1.92528",
+      "institution": "BARI On-Farm Research Division, Cumilla",
+      "region": "Titas, Cumilla (AEZ 19)",
+      "url": "https://banglajol.info/index.php/BJAR/article/view/92528"
+    },
+    "rahman2020": {
+      "citation": "Rahman, M.S., Islam, M.T., Ali, M.S. (2020). Feasibility of Introducing Four Crops Based Cropping Patterns in Kushtia Area of Bangladesh. The Agriculturists 18(1): 94-102. DOI 10.3329/agric.v18i1.49462",
+      "institution": "BARI",
+      "region": "Kushtia (AEZ 11/12)",
+      "url": "https://banglajol.info/index.php/AGRIC/article/view/49462/36132"
+    },
+    "hossain2022": {
+      "citation": "Hossain, M.S., Saha, K.C., Islam, M.M., Akter, S., Islam, M.T. (2022). Enhancement of Crop Productivity of Mustard-Mungbean-T. Aman Cropping Pattern through New Varieties and Nutrient Management. Bangladesh Journal of Agricultural Research 47(4): 383-399.",
+      "institution": "BARI",
+      "region": "Madaripur (Kalkini, Sadar)",
+      "url": "https://www.banglajol.info/index.php/BJAR/article/view/91413/58771"
     }
   },
   "patterns": [
-    { "id": "boro-fallow-aman", "label": "Boro - Fallow - T. Aman", "crops": ["boro", "aman"],
+    {
+      "id": "boro-fallow-aman",
+      "label": "Boro - Fallow - T. Aman",
+      "crops": [
+        "boro",
+        "aman"
+      ],
       "sources": [
-        { "id": "rashid2017", "note": "most dominant pattern in the Rajshahi region (about 22.8% of net cropped area)" },
-        { "id": "hossain2018", "note": "farmers' practice in the High Barind Tract" },
-        { "id": "khan2022", "note": "used as the check treatment" },
-        { "id": "kabir2012", "note": "compared at farm level" }
-      ] },
-    { "id": "mustard-boro-aman", "label": "Mustard - Boro - T. Aman", "crops": ["mustard", "boro", "aman"],
+        {
+          "id": "rashid2017",
+          "note": "most dominant pattern in the Rajshahi region (about 22.8% of net cropped area)"
+        },
+        {
+          "id": "hossain2018",
+          "note": "farmers' practice in the High Barind Tract"
+        },
+        {
+          "id": "khan2022",
+          "note": "used as the check treatment"
+        },
+        {
+          "id": "kabir2012",
+          "note": "compared at farm level"
+        },
+        {
+          "id": "islam2017",
+          "note": "Rangpur: FP: T.Aman(BR11)-Boro(BRRI dhan28)-Fallow; Boro 5.42 t/ha; T.Aman 4.36 and 5.92 t/ha in two years. Baseline comparison only. Read: abstract page via WebFetch (summarised abstract and some table values); not full text."
+        },
+        {
+          "id": "khan2022tangail",
+          "note": "Delduar, Tangail: REY 26.42 t/ha, SYI 95.74%, second to Potato-Boro-Aman (31.77 t/ha) among 8 patterns; check Fallow-Boro-Aman 11.37 t/ha. Abstract page. Same paper as Khan 2022 already in table, but this pattern is new."
+        }
+      ]
+    },
+    {
+      "id": "mustard-boro-aman",
+      "label": "Mustard - Boro - T. Aman",
+      "crops": [
+        "mustard",
+        "boro",
+        "aman"
+      ],
       "sources": [
-        { "id": "rashid2017", "note": "about 3.7% of net cropped area in the Rajshahi region" },
-        { "id": "khan2022", "note": "profitable and viable pattern in the Tangail trial" }
-      ] },
-    { "id": "mustard-boro-fallow", "label": "Mustard - Boro - Fallow", "crops": ["mustard", "boro"],
-      "sources": [{ "id": "rashid2017", "note": "about 1.9% of net cropped area in the Rajshahi region" }] },
-    { "id": "wheat-fallow-aman", "label": "Wheat - Fallow - T. Aman", "crops": ["wheat", "aman"],
-      "sources": [{ "id": "rashid2017", "note": "about 4.3% of net cropped area in the Rajshahi region" }] },
-    { "id": "wheat-aus-aman", "label": "Wheat - Aus - T. Aman", "crops": ["wheat", "aus", "aman"],
+        {
+          "id": "rashid2017",
+          "note": "about 3.7% of net cropped area in the Rajshahi region"
+        },
+        {
+          "id": "khan2022",
+          "note": "profitable and viable pattern in the Tangail trial"
+        },
+        {
+          "id": "monim2023",
+          "note": "Monirampur, Jashore: T.Aman-Mustard-Boro vs T.Aman-Fallow-Boro, 2021-23: REY 20.22 t/ha, LUI 92.88%, gross return Tk 711,010/ha (68.24% above control), gross margin Tk 483,610/ha, MBCR 2.13. Abstract page."
+        },
+        {
+          "id": "rahman2019",
+          "note": "Kushtia (Sadar, Bheramara, Gangni): vs Fallow-Boro-Aman, 2013-16: REY 13.98 vs 10.47 t/ha/yr; LUE 76.44% vs 57.53%; gross margin Tk 99,513 vs 75,340/ha; MBCR 1.75. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "mustard-boro-fallow",
+      "label": "Mustard - Boro - Fallow",
+      "crops": [
+        "mustard",
+        "boro"
+      ],
       "sources": [
-        { "id": "rashid2017", "note": "about 2.3% of net cropped area in the Rajshahi region" },
-        { "id": "kabir2012", "note": "highest gross return and gross margin among the patterns compared in Barisal" }
-      ] },
-    { "id": "potato-boro-aman", "label": "Potato - Boro - T. Aman", "crops": ["potato", "boro", "aman"],
+        {
+          "id": "rashid2017",
+          "note": "about 1.9% of net cropped area in the Rajshahi region"
+        }
+      ]
+    },
+    {
+      "id": "wheat-fallow-aman",
+      "label": "Wheat - Fallow - T. Aman",
+      "crops": [
+        "wheat",
+        "aman"
+      ],
       "sources": [
-        { "id": "rashid2017", "note": "about 2.3% of net cropped area; the largest vegetable/spice pattern in the Rajshahi region" },
-        { "id": "khan2022", "note": "profitable and viable pattern in the Tangail trial" }
-      ] },
-    { "id": "wheat-mungbean-aman", "label": "Wheat - Mungbean - T. Aman", "crops": ["wheat", "mungbean", "aman"],
-      "sources": [{ "id": "rashid2017", "note": "about 1.8% of net cropped area in the Rajshahi region" }] },
-    { "id": "wheat-jute-aman", "label": "Wheat - Jute - T. Aman", "crops": ["wheat", "jute", "aman"],
+        {
+          "id": "rashid2017",
+          "note": "about 4.3% of net cropped area in the Rajshahi region"
+        }
+      ]
+    },
+    {
+      "id": "wheat-aus-aman",
+      "label": "Wheat - Aus - T. Aman",
+      "crops": [
+        "wheat",
+        "aus",
+        "aman"
+      ],
       "sources": [
-        { "id": "rashid2017", "note": "about 1.5% of net cropped area in the Rajshahi region" },
-        { "id": "khan2022", "note": "tested in the Tangail trial" }
-      ] },
-    { "id": "lentil-jute-aman", "label": "Lentil - Jute - T. Aman", "crops": ["lentil", "jute", "aman"],
-      "sources": [{ "id": "khan2022", "note": "tested in the Tangail trial" }] },
-    { "id": "wheat-sesame-aman", "label": "Wheat - Sesame - T. Aman", "crops": ["wheat", "sesame", "aman"],
-      "sources": [{ "id": "khan2022", "note": "tested in the Tangail trial" }] },
-    { "id": "mustard-aus-aman", "label": "Mustard - T. Aus - T. Aman", "crops": ["mustard", "aus", "aman"],
-      "sources": [{ "id": "khan2022", "note": "tested in the Tangail trial" }] },
-    { "id": "boro-aus-aman", "label": "Boro - Aus - T. Aman", "crops": ["boro", "aus", "aman"],
-      "sources": [{ "id": "rashid2017", "note": "about 3.7% of net cropped area in the Rajshahi region" }] },
-    { "id": "mustard-boro-aus", "label": "Mustard - Boro - Aus", "crops": ["mustard", "boro", "aus"],
-      "sources": [{ "id": "rashid2017", "note": "about 1.5% of net cropped area in the Rajshahi region" }] },
-    { "id": "mungbean-aus-aman", "label": "Mungbean - Aus - T. Aman", "crops": ["mungbean", "aus", "aman"],
-      "sources": [{ "id": "kabir2012", "note": "suggested as an alternative for sustaining soil health and productivity in Barisal" }] },
-    { "id": "lentil-mungbean-aus-aman", "label": "Lentil - Mungbean - T. Aus - T. Aman (4 crops)", "crops": ["lentil", "mungbean", "aus", "aman"],
-      "sources": [{ "id": "hossain2018", "note": "improved pattern tested against Boro-Fallow-T. Aman in the High Barind Tract (Godagari, Rajshahi)" }] }
+        {
+          "id": "rashid2017",
+          "note": "about 2.3% of net cropped area in the Rajshahi region"
+        },
+        {
+          "id": "kabir2012",
+          "note": "highest gross return and gross margin among the patterns compared in Barisal"
+        }
+      ]
+    },
+    {
+      "id": "potato-boro-aman",
+      "label": "Potato - Boro - T. Aman",
+      "crops": [
+        "potato",
+        "boro",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "rashid2017",
+          "note": "about 2.3% of net cropped area; the largest vegetable/spice pattern in the Rajshahi region"
+        },
+        {
+          "id": "khan2022",
+          "note": "profitable and viable pattern in the Tangail trial"
+        },
+        {
+          "id": "khan2020",
+          "note": "Trishal, Mymensingh: vs Fallow-Boro-Aman, 2017-19: REY 30.53 vs 11.82 t/ha/yr; potato 28.68 t/ha; gross margin Tk 235,329 vs 69,854/ha; MBCR 2.45; land occupied 269 vs 213 days. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "wheat-mungbean-aman",
+      "label": "Wheat - Mungbean - T. Aman",
+      "crops": [
+        "wheat",
+        "mungbean",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "rashid2017",
+          "note": "about 1.8% of net cropped area in the Rajshahi region"
+        },
+        {
+          "id": "sarker2019",
+          "note": "Amtali, Barguna: CP4: marginal BCR only 0.83, i.e. not profitable in the saline coastal trial. Useful negative evidence. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "wheat-jute-aman",
+      "label": "Wheat - Jute - T. Aman",
+      "crops": [
+        "wheat",
+        "jute",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "rashid2017",
+          "note": "about 1.5% of net cropped area in the Rajshahi region"
+        },
+        {
+          "id": "khan2022",
+          "note": "tested in the Tangail trial"
+        }
+      ]
+    },
+    {
+      "id": "lentil-jute-aman",
+      "label": "Lentil - Jute - T. Aman",
+      "crops": [
+        "lentil",
+        "jute",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "khan2022",
+          "note": "tested in the Tangail trial"
+        }
+      ]
+    },
+    {
+      "id": "wheat-sesame-aman",
+      "label": "Wheat - Sesame - T. Aman",
+      "crops": [
+        "wheat",
+        "sesame",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "khan2022",
+          "note": "tested in the Tangail trial"
+        }
+      ]
+    },
+    {
+      "id": "mustard-aus-aman",
+      "label": "Mustard - T. Aus - T. Aman",
+      "crops": [
+        "mustard",
+        "aus",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "khan2022",
+          "note": "tested in the Tangail trial"
+        },
+        {
+          "id": "sarker2019",
+          "note": "Amtali, Barguna: CP1 in 2016-18 farmers' field trials; marginal BCR 1.28 vs 1.50 for fallow-fallow-aman control. Sunflower variant best (BCR 1.60). Salinity in 0-60 cm rose ~4 dS/m (Nov) to ~9 dS/m (Mar). Abstract only."
+        },
+        {
+          "id": "nazrul2019",
+          "note": "Sylhet (AEZ 20): vs Fallow-Aus-Aman, 2016-19: aus +6.88%, aman +22.84%; REY 9.44 t/ha; gross margin Tk 112,425/ha; BCR 2.13; ~24% extra cost. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "boro-aus-aman",
+      "label": "Boro - Aus - T. Aman",
+      "crops": [
+        "boro",
+        "aus",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "rashid2017",
+          "note": "about 3.7% of net cropped area in the Rajshahi region"
+        }
+      ]
+    },
+    {
+      "id": "mustard-boro-aus",
+      "label": "Mustard - Boro - Aus",
+      "crops": [
+        "mustard",
+        "boro",
+        "aus"
+      ],
+      "sources": [
+        {
+          "id": "rashid2017",
+          "note": "about 1.5% of net cropped area in the Rajshahi region"
+        }
+      ]
+    },
+    {
+      "id": "mungbean-aus-aman",
+      "label": "Mungbean - Aus - T. Aman",
+      "crops": [
+        "mungbean",
+        "aus",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "kabir2012",
+          "note": "suggested as an alternative for sustaining soil health and productivity in Barisal"
+        },
+        {
+          "id": "saha2019",
+          "note": "Amtali, Barguna: CP3 and CP4 at Amtali, 2016-18; REY not seen individually. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "lentil-mungbean-aus-aman",
+      "label": "Lentil - Mungbean - T. Aus - T. Aman (4 crops)",
+      "crops": [
+        "lentil",
+        "mungbean",
+        "aus",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "hossain2018",
+          "note": "improved pattern tested against Boro-Fallow-T. Aman in the High Barind Tract (Godagari, Rajshahi)"
+        },
+        {
+          "id": "rahman2020",
+          "note": "Kushtia: ACP2, best of three: 356 days, REY 16.06 t/ha/yr (+56%), LUE 97.53%, gross margin Tk 127,834/ha, MBCR 1.47. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "aman-potato-mungbean-aus",
+      "label": "Aman-Potato-Mungbean-Aus",
+      "crops": [
+        "aman",
+        "potato",
+        "mungbean",
+        "aus"
+      ],
+      "sources": [
+        {
+          "id": "islam2017",
+          "note": "Rangpur: CP1 T.Aman(BRRI dhan62)-Potato(Cardinal)-Mungbean(BARI Mung-6)-T.Aus(BRRI dhan48), BRRI Rangpur 2014-16. REY 30.05 and 35.95 t/ha/yr (yr1, yr2); net return Tk 242,560 and 216,960/ha; judged most suitable and profitable for medium-high land. Potato 24.66 t/ha, mungbean 0.83 t/ha (2014-15). Read: abstract page via WebFetch (summarised abstract and some table values); not full text."
+        },
+        {
+          "id": "saha2019",
+          "note": "Rangpur: Same sequence at Amtali, Barguna (coastal saline): highest REY 20.18 t/ha, ~360% above farmers' T.aman-fallow-fallow; needs low-salinity surface-water irrigation. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "aman-mustard-mungbean-aus",
+      "label": "Aman-Mustard-Mungbean-Aus",
+      "crops": [
+        "aman",
+        "mustard",
+        "mungbean",
+        "aus"
+      ],
+      "sources": [
+        {
+          "id": "islam2017",
+          "note": "Rangpur; Amtali (Barguna): CP2 T.Aman-Mustard(BARI Sorisha-14)-Mungbean-T.Aus, Rangpur. Mustard 1.16 t/ha, mungbean 0.98 t/ha, aus 4.5 t/ha (2014-15); REY not given for CP2 in what I read. Read: abstract page via WebFetch (summarised abstract and some table values); not full text."
+        },
+        {
+          "id": "saha2019",
+          "note": "Rangpur; Amtali (Barguna): Amtali treatment CP2 (T.aman-Mustard-Mungbean-T.aus) 2016-18 coastal saline trial; per-treatment REY not seen. Abstract only."
+        },
+        {
+          "id": "rahman2020",
+          "note": "Kushtia: ACP1, 2015-17: 340 days, REY 14.85 vs 10.30 t/ha/yr for existing Lentil-Sesame-Aman; LUE 93.15%; gross margin Tk 109,393 vs 94,929/ha; MBCR 1.21. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "aman-potato-maize",
+      "label": "Aman-Potato-Maize",
+      "crops": [
+        "aman",
+        "potato",
+        "maize"
+      ],
+      "sources": [
+        {
+          "id": "islam2017",
+          "note": "Rangpur: Farmers' improved practice FIP: T.Aman(BR11)-Potato(Cardinal)-Maize(NK40). Potato 24.17 t/ha, maize 8.38 t/ha, REY 23.92 and 29.82 t/ha/yr, net return Tk 158,380 and 124,620/ha (lower than the 4-crop potato pattern). Read: abstract page via WebFetch (summarised abstract and some table values); not full text."
+        }
+      ]
+    },
+    {
+      "id": "maize-aus-aman",
+      "label": "Maize-Aus-Aman (coastal saline)",
+      "crops": [
+        "maize",
+        "aus",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "sarker2019",
+          "note": "Amtali, Barguna: CP3 maize-T.aus-T.aman, marginal BCR 1.46; better than single-crop aman in saline soil per authors. Abstract only."
+        }
+      ]
+    },
+    {
+      "id": "sesame-fallow-aman-khulna",
+      "label": "Sesame-Fallow-Aman",
+      "crops": [
+        "sesame",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "sultana2020",
+          "note": "Batiaghata, Khulna: Reported by 28.75% of 80 surveyed farmers as a current climate-resilient pattern (DAE Khulna classification). Survey of perceptions, no yields. Also lists Boro-Fallow-Aman (35.25%), Boro-Gher(vegetables)-Fallow (40%)."
+        }
+      ]
+    },
+    {
+      "id": "boro-aus-aman-mustard",
+      "label": "Boro-Aus-Aman-Mustard",
+      "crops": [
+        "boro",
+        "aus",
+        "aman",
+        "mustard"
+      ],
+      "sources": [
+        {
+          "id": "khan2017",
+          "note": "Trishal, Mymensingh: Four crops vs farmers' Boro-Fallow-Aman-Fallow, 2015-17. REY 20.63 vs 10.72 t/ha/yr; gross margin Tk 170,162 vs 82,117/ha; MBCR 2.23; LUI 90.66% vs 58.45%. Nutrient balance N -223, P +23, K -128, S -15 kg/ha. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "mustard-mungbean-aman",
+      "label": "Mustard-Mungbean-Aman",
+      "crops": [
+        "mustard",
+        "mungbean",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "hossain2022",
+          "note": "Madaripur: 2019-21; best combo BARI Sarisha-14 + BARI Mung-6 + BRRI dhan71 with soil-test fertilizer + 5 t/ha cowdung: REY 16.12 t/ha/yr, gross margin Tk 250,259/ha, MBCR 2.83 vs farmers' practice REY 12.32. Madaripur baseline cropping intensity 201%. Abstract page; source has internal table/text mismatches."
+        }
+      ]
+    },
+    {
+      "id": "mustard-sesame-aman",
+      "label": "Mustard-Sesame-Aman (B. Aman)",
+      "crops": [
+        "mustard",
+        "sesame",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "uddin2026",
+          "note": "Titas, Cumilla: Mustard(BARI Sarisha-18)-Sesame(BARI Til-4)-B.Aman(BRRI dhan91) vs Mustard-Fallow-B.Aman, 2022-24, RCBD 5 reps: REY 15.32 t/ha (~151% above existing), gross margin Tk 209,860/ha, MBCR 4.39. Abstract page; note B. Aman (broadcast) not T. Aman."
+        }
+      ]
+    },
+    {
+      "id": "wheat-mungbean-aus-aman",
+      "label": "Wheat-Mungbean-Aus-Aman",
+      "crops": [
+        "wheat",
+        "mungbean",
+        "aus",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "rahman2020",
+          "note": "Kushtia: ACP3: 352 days, REY 14.92 t/ha/yr, production efficiency 40.43 kg/ha/day (highest of three), gross margin Tk 110,601/ha, MBCR 1.24. Abstract page."
+        }
+      ]
+    },
+    {
+      "id": "lentil-sesame-aman",
+      "label": "Lentil-Sesame-Aman",
+      "crops": [
+        "lentil",
+        "sesame",
+        "aman"
+      ],
+      "sources": [
+        {
+          "id": "rahman2020",
+          "note": "Kushtia: Farmers' existing pattern (ECP): 293 days, REY 10.30 t/ha/yr, LUE 80.28%, gross margin Tk 94,929/ha. Baseline. Abstract page."
+        }
+      ]
+    }
   ]
 }

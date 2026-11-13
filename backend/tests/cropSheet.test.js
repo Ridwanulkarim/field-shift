@@ -103,12 +103,12 @@ describe('validateCropSheet', () => {
 });
 
 describe('the real template', () => {
-  it('matches the code: 22 crops x 9 traits, all unverified, no errors, no approvals', () => {
+  it('matches the code: 12 crops x 9 traits, all unverified, no errors, no approvals', () => {
     const text = readFileSync(join(import.meta.dirname, '../../docs/templates/crop-traits-sourcing.csv'), 'utf8');
     const r = validateCropSheet(text, { crops: CROPS });
     expect(r.errors).toEqual([]);
-    expect(r.summary.rows).toBe(198);
-    expect(r.summary.byStatus.unverified).toBe(198);
+    expect(r.summary.rows).toBe(108);
+    expect(r.summary.byStatus.unverified).toBe(108);
     expect(r.approved).toHaveLength(0);
     expect(r.warnings).toEqual([]);
   });

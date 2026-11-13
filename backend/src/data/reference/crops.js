@@ -1,5 +1,9 @@
 // Crop trait table used by the rotation engine.
 //
+// SHOWCASE LIST (2026-11-13): trimmed from 22 to the 12 crops that appear in the documented BRRI/BARI rotation patterns
+// (croppingPatterns.json) or are staples, so every alternative the app ranks is something the sources actually discuss.
+// Removed: onion, garlic, chili, tomato, eggplant, okra, bottle gourd, pumpkin, chickpea, sweet potato (no pattern evidence).
+//
 // IMPORTANT, READ BEFORE TRUSTING ANY NUMBER HERE
 // These values are rough, general-knowledge agronomic descriptions typed in by the
 // developer (an AI assistant) to make the engine runnable. They are NOT taken from a
@@ -86,54 +90,6 @@ const BASE_CROPS = [
     notes: 'Fibre crop grown pre-monsoon to early monsoon.',
   },
   {
-    slug: 'onion', nameEn: 'Onion', nameBn: 'পেঁয়াজ', family: 'Amaryllidaceae', isLegume: false,
-    startMonth: 11, endMonth: 3, waterNeedMmMin: 350, waterNeedMmMax: 550,
-    heatThresholdC: 30, heatSensitivity: 4, salinityTolerance: 2, waterloggingTolerance: 1, inputIntensity: 3,
-    notes: 'Cool-season bulb crop; dry weather near maturity helps bulb curing.',
-  },
-  {
-    slug: 'garlic', nameEn: 'Garlic', nameBn: 'রসুন', family: 'Amaryllidaceae', isLegume: false,
-    startMonth: 11, endMonth: 3, waterNeedMmMin: 300, waterNeedMmMax: 500,
-    heatThresholdC: 30, heatSensitivity: 4, salinityTolerance: 2, waterloggingTolerance: 1, inputIntensity: 3,
-    notes: 'Cool-season bulb crop with low tolerance for standing water.',
-  },
-  {
-    slug: 'chili', nameEn: 'Chili', nameBn: 'মরিচ', family: 'Solanaceae', isLegume: false,
-    startMonth: 10, endMonth: 4, waterNeedMmMin: 450, waterNeedMmMax: 700,
-    heatThresholdC: 35, heatSensitivity: 3, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 4,
-    notes: 'Common dry-season spice crop; field timing varies by variety and region.',
-  },
-  {
-    slug: 'tomato', nameEn: 'Tomato', nameBn: 'টমেটো', family: 'Solanaceae', isLegume: false,
-    startMonth: 11, endMonth: 3, waterNeedMmMin: 400, waterNeedMmMax: 600,
-    heatThresholdC: 32, heatSensitivity: 4, salinityTolerance: 2, waterloggingTolerance: 1, inputIntensity: 4,
-    notes: 'Mostly cool-season vegetable; fruit set is vulnerable to late heat.',
-  },
-  {
-    slug: 'eggplant', nameEn: 'Eggplant', nameBn: 'বেগুন', family: 'Solanaceae', isLegume: false,
-    startMonth: 9, endMonth: 4, waterNeedMmMin: 500, waterNeedMmMax: 800,
-    heatThresholdC: 35, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 4,
-    notes: 'Warm-season vegetable grown in multiple seasons with suitable varieties.',
-  },
-  {
-    slug: 'okra', nameEn: 'Okra', nameBn: 'ঢেঁড়স', family: 'Malvaceae', isLegume: false,
-    startMonth: 3, endMonth: 10, waterNeedMmMin: 450, waterNeedMmMax: 700,
-    heatThresholdC: 36, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 3,
-    notes: 'Warm-season vegetable; can be grown in summer and during the rainy season on raised land.',
-  },
-  {
-    slug: 'bottle-gourd', nameEn: 'Bottle gourd', nameBn: 'লাউ', family: 'Cucurbitaceae', isLegume: false,
-    startMonth: 3, endMonth: 11, waterNeedMmMin: 500, waterNeedMmMax: 800,
-    heatThresholdC: 36, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 3,
-    notes: 'Vining vegetable cultivated across much of the year when moisture and support are available.',
-  },
-  {
-    slug: 'pumpkin', nameEn: 'Pumpkin', nameBn: 'মিষ্টি কুমড়া', family: 'Cucurbitaceae', isLegume: false,
-    startMonth: 10, endMonth: 5, waterNeedMmMin: 400, waterNeedMmMax: 700,
-    heatThresholdC: 36, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 2,
-    notes: 'Cucurbit grown in rabi and pre-monsoon periods; fruit can be stored after harvest.',
-  },
-  {
     slug: 'sesame', nameEn: 'Sesame', nameBn: 'তিল', family: 'Pedaliaceae', isLegume: false,
     startMonth: 3, endMonth: 6, waterNeedMmMin: 300, waterNeedMmMax: 500,
     heatThresholdC: 36, heatSensitivity: 2, salinityTolerance: 3, waterloggingTolerance: 1, inputIntensity: 1,
@@ -144,18 +100,6 @@ const BASE_CROPS = [
     startMonth: 10, endMonth: 3, waterNeedMmMin: 400, waterNeedMmMax: 600,
     heatThresholdC: 35, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 1, inputIntensity: 2,
     notes: 'Legume oilseed grown mainly in well-drained rabi soils.',
-  },
-  {
-    slug: 'chickpea', nameEn: 'Chickpea', nameBn: 'ছোলা', family: 'Fabaceae', isLegume: true,
-    startMonth: 11, endMonth: 3, waterNeedMmMin: 250, waterNeedMmMax: 400,
-    heatThresholdC: 32, heatSensitivity: 3, salinityTolerance: 2, waterloggingTolerance: 1, inputIntensity: 1,
-    notes: 'Cool-season pulse with low irrigation need; requires well-drained soil.',
-  },
-  {
-    slug: 'sweet-potato', nameEn: 'Sweet potato', nameBn: 'মিষ্টি আলু', family: 'Convolvulaceae', isLegume: false,
-    startMonth: 9, endMonth: 3, waterNeedMmMin: 400, waterNeedMmMax: 700,
-    heatThresholdC: 35, heatSensitivity: 2, salinityTolerance: 2, waterloggingTolerance: 2, inputIntensity: 2,
-    notes: 'Tuber crop commonly grown after the monsoon and into the cooler dry season.',
   },
 ];
 

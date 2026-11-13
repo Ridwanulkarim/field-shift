@@ -54,7 +54,7 @@ describe('buildOverlay', () => {
 
 describe('the shipped crop table', () => {
   it('keeps the original values and labels while no value has been verified', () => {
-    expect(CROPS).toHaveLength(22);
+    expect(CROPS).toHaveLength(12);
     for (const c of CROPS) {
       expect(c.basis).toBe(UNVERIFIED);
       const b = BASE_CROPS.find((x) => x.slug === c.slug);
