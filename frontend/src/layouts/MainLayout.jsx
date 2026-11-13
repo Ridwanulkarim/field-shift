@@ -74,7 +74,7 @@ const MainLayout = () => {
               {language === "en" ? (
                 <span className="font-montserrat text-2xl">Aboho</span>
               ) : (
-                <span className="font-kalpurush text-3xl">আবহ</span>
+                <span className="font-noto text-3xl">আবহ</span>
               )}
             </h1>
           </NavLink>
@@ -159,7 +159,7 @@ const MainLayout = () => {
                 {language === "en" ? (
                   <span className="font-montserrat text-xl">Aboho</span>
                 ) : (
-                  <span className="font-kalpurush text-2xl">আবহ</span>
+                  <span className="font-noto text-2xl">আবহ</span>
                 )}
               </span>
             </NavLink>
