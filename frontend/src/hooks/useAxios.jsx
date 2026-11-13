@@ -7,7 +7,7 @@ import axios from "axios";
 //  - Override:   set VITE_API_URL (e.g. https://field-shift-qfv8.onrender.com/api) to call the API directly.
 //    That needs the site's origin in the backend's CORS_ORIGIN, and cross-site cookies may be blocked.
 const baseURL = (
-  import.meta.env.VITE_API_URL || "/api"
+  import.meta.env.VITE_API_URL || "https://field-shift-qfv8.onrender.com/api"
 ).replace(/\/+$/, "");
 
 const axiosInstance = axios.create({

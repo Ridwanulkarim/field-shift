@@ -113,7 +113,7 @@ const translations = {
     heroTitle: "Make more informed decisions for",
     heroHighlight: "every field.",
     heroDescription:
-      "Field Shift brings field information and NASA Earth observation data together to help farmers explore crop-rotation options, understand climate context and review planting windows.",
+      "Aboho brings field information and NASA Earth observation data together to help farmers explore crop-rotation options, understand climate context and review planting windows.",
     dashboard: "Open my dashboard",
     planner: "Explore rotation planner",
     evidence: "Evidence-led insights",
@@ -149,7 +149,7 @@ const translations = {
     heroTitle: "প্রতিটি জমির জন্য আরও তথ্যভিত্তিক",
     heroHighlight: "সিদ্ধান্ত নিন।",
     heroDescription:
-      "ফিল্ড শিফট জমির তথ্য এবং NASA-এর পৃথিবী পর্যবেক্ষণ ডেটা একত্রিত করে কৃষকদের শস্য পর্যায়ের বিকল্প অনুসন্ধান, জলবায়ু পরিস্থিতি বোঝা এবং রোপণের উপযুক্ত সময় পর্যালোচনায় সহায়তা করে।",
+      "আবহ জমির তথ্য এবং NASA-এর পৃথিবী পর্যবেক্ষণ ডেটা একত্রিত করে কৃষকদের শস্য পর্যায়ের বিকল্প অনুসন্ধান, জলবায়ু পরিস্থিতি বোঝা এবং রোপণের উপযুক্ত সময় পর্যালোচনায় সহায়তা করে।",
     dashboard: "ড্যাশবোর্ড দেখুন",
     planner: "শস্য পর্যায় পরিকল্পনা দেখুন",
     evidence: "প্রমাণভিত্তিক তথ্য",
