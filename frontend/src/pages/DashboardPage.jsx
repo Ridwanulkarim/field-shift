@@ -1,14 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  CloudRain,
-  Database,
-  MapPinned,
-  Satellite,
-  XCircle,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle2, Satellite, XCircle } from "lucide-react";
 import { PageHeading, StatCard, Card, SectionHeading } from "../components/UI";
 import { useLanguage } from "../layouts/context/LanguageContext";
 import useAxios from "../hooks/useAxios"; // Adjust this path if needed
@@ -19,9 +10,7 @@ const translations = {
     title: "Field dashboard",
     description:
       "Backend health, district coverage, and environmental data status.",
-    backendStatus: "Backend status",
     dataMode: "Data mode",
-    districtCoverage: "District coverage",
     failedRuns: "Recent failed runs",
     healthEndpoint: "Health endpoint",
     operatingMode: "Operating mode",
@@ -71,9 +60,9 @@ const translations = {
     eyebrow: "সারসংক্ষেপ",
     title: "কৃষি জমির ড্যাশবোর্ড",
     description: "ব্যাকএন্ডের অবস্থা, জেলার ডেটা এবং পরিবেশগত তথ্যের অবস্থা।",
-    backendStatus: "ব্যাকএন্ডের অবস্থা",
+
     dataMode: "ডেটা মোড",
-    districtCoverage: "জেলার ডেটা কভারেজ",
+
     failedRuns: "সাম্প্রতিক ব্যর্থ রান",
     healthEndpoint: "হেলথ এন্ডপয়েন্ট",
     operatingMode: "চালু মোড",
@@ -153,7 +142,6 @@ const DashboardPage = () => {
   const [dashboard, setDashboard] = useState({
     health: null,
     dataHealth: null,
-    districts: [],
     meta: null,
   });
   const [loading, setLoading] = useState(true);
@@ -272,29 +260,29 @@ const DashboardPage = () => {
   const stats = [
     {
       label: t.backendStatus,
-      value: localizedValue(health?.status ?? (loading ? t.loading : t.unavailable)),
-      detail: localizedValue(health?.service ?? t.healthEndpoint),
+      value: health?.status ?? (loading ? t.loading : t.unavailable),
+      detail: health?.service ?? t.healthEndpoint,
       icon: Activity,
       tone: health?.status === "ok" ? "blue" : "amber",
     },
     {
       label: t.dataMode,
-      value: localizedValue(dataHealth?.dataMode ?? health?.dataMode ?? "—"),
-      detail: degraded ? "সীমিত / বিকল্প মোড" : t.operatingMode,
+      value: dataHealth?.dataMode ?? health?.dataMode ?? "—",
+      detail: degraded ? "Degraded / fallback" : t.operatingMode,
       icon: Database,
       tone: degraded ? "amber" : undefined,
     },
     {
       label: t.districtCoverage,
       value: healthDistricts.length
-        ? `${formatNumber(availableCount, language)} / ${formatNumber(healthDistricts.length, language)}`
+        ? `${availableCount} / ${healthDistricts.length}`
         : "—",
       detail: t.availableDistricts,
       icon: MapPinned,
     },
     {
       label: t.failedRuns,
-      value: formatNumber(failedRuns.length, language),
+      value: formatNumber(failedRuns.length),
       detail: t.reportedByEndpoint,
       icon: CloudRain,
       tone: failedRuns.length ? "amber" : undefined,
@@ -334,12 +322,6 @@ const DashboardPage = () => {
           <span>{t.degradedWarning}</span>
         </div>
       )}
-
-      <div className="stats-grid">
-        {stats.map(({ icon: Icon, ...stat }) => (
-          <StatCard key={stat.label} {...stat} icon={Icon} />
-        ))}
-      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
