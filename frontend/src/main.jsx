@@ -6,6 +6,9 @@ import { router } from "./routes/Router";
 import { LanguageProvider } from "./layouts/context/LanguageContext";
 import { SelectionProvider } from "./layouts/context/SelectionContext";
 import "leaflet/dist/leaflet.css";
+import { warmUpApi } from "./hooks/useAxios";
+
+warmUpApi();
 
 
 createRoot(document.getElementById("root")).render(

@@ -1,0 +1,26 @@
+# Render Blueprint for the API. Secrets (sync: false) are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: field-shift
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      # Every browser origin that calls the API (no trailing slash). The Vercel rewrite forwards the
+      # browser's Origin header, so the Vercel site MUST be listed or POST/PATCH/DELETE get 403.
+      - key: CORS_ORIGIN
+        value: https://field-shift-agrinomy.vercel.app
+      - key: TRUST_PROXY
+        value: 1
+      - key: ANONYMOUS_SESSION_SECRET
+        sync: false
+      - key: DATABASE_URL_PRODUCTION
+        sync: false
+      - key: DIRECT_URL_PRODUCTION
+        sync: false
